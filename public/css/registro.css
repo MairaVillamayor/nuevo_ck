@@ -1,0 +1,453 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    background-color: #fff0f5;
+    color: #333;
+}
+
+.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 420px;
+    width: 340px;
+    flex-direction: column;
+    gap: 28px;
+    border-radius: 12px;
+    background: #fff0f5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    margin: 48px auto;
+    padding: 28px 18px 18px 18px;
+}
+
+.singup {
+    color: #ec407a;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.inputBox {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.inputBox input,
+.inputBox select {
+    width: 100%;
+    padding: 12px 12px 12px 38px;
+    outline: none;
+    border: none;
+    color: #333;
+    font-size: 1em;
+    background: transparent;
+    border-left: 2px solid #ec407a;
+    border-bottom: 2px solid #ec407a;
+    transition: 0.1s;
+    border-bottom-left-radius: 8px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(236,64,122,0.04);
+    pointer-events: auto;
+}
+
+.inputBox span {
+    margin-top: 5px;
+    position: absolute;
+    left: 0;
+    transform: translateY(-4px);
+    margin-left: 10px;
+    padding: 10px;
+    pointer-events: none;
+    font-size: 12px;
+    color: #ec407a;
+    text-transform: uppercase;
+    transition: 0.5s;
+    letter-spacing: 2px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.inputBox input:focus~span {
+    transform: translateX(110px) translateY(-15px);
+    font-size: 0.8em;
+    padding: 5px 10px;
+    background: #ec407a;
+    letter-spacing: 0.2em;
+    color: #fff;
+    border: 2px;
+}
+
+.inputBox .input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1em;
+    color: #ec407a;
+    pointer-events: none;
+}
+
+.enter {
+    height: 45px;
+    width: 100%;
+    border-radius: 8px;
+    border: 2px solid #ec407a;
+    cursor: pointer;
+    background-color: #ec407a;
+    color: #fff;
+    transition: 0.3s;
+    text-transform: uppercase;
+    font-size: 1em;
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 1.5em;
+    box-shadow: 0 2px 8px rgba(236,64,122,0.08);
+}
+
+.enter:hover {
+    background-color: #fff;
+    color: #ec407a;
+    border: 2px solid #ec407a;
+}
+
+.password-error {
+    color: #d32f2f;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+@media (max-width: 600px) {
+    .card {
+        width: 98vw;
+        padding: 10px 2px;
+    }
+    .inputBox input,
+    .inputBox select {
+        font-size: 15px;
+    }
+}
+
+.inputBox.filled span {
+    transform: translateX(110px) translateY(-15px);
+    font-size: 0.8em;
+    padding: 5px 10px;
+    background: #ec407a;
+    letter-spacing: 0.2em;
+    color: #fff;
+    border: 2px;
+}
+
+/* Animación universal de label solo con .filled y :focus */
+.inputBox input:focus~span {
+    transform: translateX(110px) translateY(-15px);
+    font-size: 0.8em;
+    padding: 5px 10px;
+    background: #ec407a;
+    letter-spacing: 0.2em;
+    color: #fff;
+    border: 2px;
+}
+/*
+.inputBox input:not(:placeholder-shown)~span,
+.inputBox input:valid~span,
+.inputBox input[type="date"]:focus ~ span,
+.inputBox input[type="date"]:valid ~ span {
+    // Eliminadas para evitar conflictos
+}
+*/
+
+/* REGLA ÚNICA Y ESPECÍFICA para el label del campo de fecha de nacimiento */
+#fecha-nacimiento-box span {
+    transform: translateX(110px) translateY(-15px) !important;
+    font-size: 0.8em !important;
+    padding: 5px 10px !important;
+    background: #ec407a !important;
+    letter-spacing: 0.2em !important;
+    color: #fff !important;
+    pointer-events: none !important;
+}
+
+/* Calendario personalizado para fecha de nacimiento */
+#custom-calendar-container {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 340px;
+    max-width: 98vw;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(236,64,122,0.18);
+    padding: 0;
+    margin-top: 8px;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+#custom-calendar-container .calendar {
+    width: 100%;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: none;
+    padding: 0 0 10px 0;
+}
+#custom-calendar-container .calendar__opts {
+    padding: 16px 18px 10px 18px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    background: #fff0f5;
+    border-bottom: 1px solid #f3c1d7;
+}
+#custom-calendar-container select {
+    font-size: 1em;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ec407a33;
+    background: #fff;
+    margin-right: 8px;
+}
+#custom-calendar-container .calendar__days {
+    background: #fff;
+    padding: 0 18px 6px 18px;
+    font-size: 0.98em;
+}
+#custom-calendar-container .calendar__dates {
+    padding: 6px 18px 0 18px;
+    min-height: 180px;
+}
+#custom-calendar-container .calendar__date {
+    border-radius: 8px;
+    margin: 2px 0;
+    transition: background 0.2s, color 0.2s;
+}
+#custom-calendar-container .calendar__date--selected {
+    background: #ec407a;
+    color: #fff;
+}
+#custom-calendar-container .calendar__date--grey {
+    color: #c5c8ca;
+    background: transparent;
+    cursor: not-allowed;
+}
+#custom-calendar-container .calendar__date:not(.calendar__date--grey):hover {
+    background: #ffe4ef;
+    color: #ec407a;
+}
+#custom-calendar-container .calendar__buttons {
+    padding: 10px 18px 14px 18px;
+    background: #fff0f5;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    display: flex;
+    gap: 10px;
+}
+#custom-calendar-container .calendar__button {
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+#custom-calendar-container .calendar__button--grey {
+    background: #f3f4f6;
+    color: #ec407a;
+}
+#custom-calendar-container .calendar__button--primary {
+    background: #ec407a;
+    color: #fff;
+}
+#custom-calendar-container .calendar__button--primary:hover {
+    background: #d81b60;
+}
+@media (max-width: 600px) {
+    #custom-calendar-container {
+        width: 98vw;
+        min-width: 0;
+        left: 0 !important;
+        right: 0;
+        margin: 0 auto;
+    }
+    #custom-calendar-container .calendar {
+        width: 100%;
+    }
+}
+
+/* === Calendario visual personalizado === */
+.calendar-container {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 340px;
+    max-width: 98vw;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(236,64,122,0.18);
+    padding: 0;
+    margin-top: 8px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.calendar-container header {
+    border-radius: 18px 18px 0 0;
+    background: #e66b6b;
+    color: #fff;
+    padding: 2em 1.5em 1.5em 1.5em;
+    text-align: center;
+}
+.calendar-container .day {
+    font-size: 3.5em;
+    font-weight: 900;
+    line-height: 1em;
+}
+.calendar-container .month {
+    font-size: 2em;
+    line-height: 1em;
+    text-transform: capitalize;
+    margin-bottom: 0.5em;
+}
+.calendar-container table.calendar {
+    background: #fff;
+    border-radius: 0 0 18px 18px;
+    box-shadow: none;
+    color: #555;
+    display: inline-block;
+    padding: 1em;
+    width: 100%;
+    margin: 0;
+}
+.calendar-container .calendar thead {
+    color: #e66b6b;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.calendar-container .calendar td {
+    padding: .5em 0.7em;
+    text-align: center;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+.calendar-container .calendar td.selected {
+    background: #ec407a;
+    color: #fff;
+}
+.calendar-container .calendar td:hover:not(.prev-month):not(.next-month) {
+    background: #ffe4ef;
+    color: #ec407a;
+}
+.calendar-container .calendar td.prev-month,
+.calendar-container .calendar td.next-month {
+    color: #cacaca;
+    background: transparent;
+    cursor: not-allowed;
+}
+.calendar-container .calendar td.next-month {
+    color: #cacaca;
+}
+.calendar-container .calendar td.selected {
+    background: #ec407a;
+    color: #fff;
+}
+.calendar-container .calendar__button {
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.calendar-container .calendar__button--grey {
+    background: #f3f4f6;
+    color: #ec407a;
+}
+.calendar-container .calendar__button--primary {
+    background: #ec407a;
+    color: #fff;
+}
+.calendar-container .calendar__button--primary:hover {
+    background: #d81b60;
+}
+.calendar-container .ring-left,
+.calendar-container .ring-right {
+    position: absolute;
+    top: 230px;
+}
+.calendar-container .ring-left { left: 2em; }
+.calendar-container .ring-right { right: 2em; }
+.calendar-container .ring-left:before,
+.calendar-container .ring-left:after,
+.calendar-container .ring-right:before,
+.calendar-container .ring-right:after {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 3px 1px rgba(0, 0, 0, .3), 0 -1px 1px rgba(0, 0, 0, .2);
+    content: "";
+    display: inline-block;
+    margin: 8px;
+    height: 32px;
+    width: 8px;
+}
+@media (max-width: 600px) {
+    .calendar-container {
+        width: 98vw;
+        min-width: 0;
+        left: 0 !important;
+        right: 0;
+        margin: 0 auto;
+    }
+    .calendar-container table.calendar {
+        width: 100%;
+    }
+}
+
+/* Desactivar animación flotante para inputs de tipo date */
+.inputBox input[type="date"] ~ span {
+    transform: none !important;
+    font-size: 12px !important;
+    padding: 10px !important;
+    background: none !important;
+    color: #ec407a !important;
+    border: none !important;
+    top: 0;
+    left: 0;
+}
+
+/* Animación flotante para fecha de nacimiento igual que los demás */
+#fecha-nacimiento-box span {
+    pointer-events: none;
+    transition: 0.5s;
+    /* FORZAR que siempre esté flotando */
+    transform: translateX(110px) translateY(-15px) !important;
+    font-size: 0.8em !important;
+    padding: 5px 10px !important;
+    background: #ec407a !important;
+    letter-spacing: 0.2em !important;
+    color: #fff !important;
+}
+
+/* Alternativa más elegante - usar siempre la clase filled */
+/*
+#fecha-nacimiento-box.filled span,
+#fecha-nacimiento-box input:focus ~ span {
+    transform: translateX(110px) translateY(-15px);
+    font-size: 0.8em;
+    padding: 5px 10px;
+    background: #ec407a;
+    letter-spacing: 0.2em;
+    color: #fff;
+}
+*/ 
