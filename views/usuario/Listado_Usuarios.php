@@ -39,7 +39,7 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
 
 $pdo = getConexion();
 
