@@ -5,17 +5,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (
         !isset($_POST["ID_tamaño"]) ||
         !isset($_POST["tamaño_nombre"]) ||
-        !isset($_POST["tamaño_medidas"]) 
+        !isset($_POST["tamaño_medidas"]) ||
+        !isset($_POST["id_tamaño"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario&redirect_to=../views/pastel/listado_tamaño.php&delay=3");
         exit();
     }
 
-    $ID_tamaño = intval($_POST["ID_tamaño"]);
+    $id_tamaño = intval($_POST["id_tamaño"]);
     $tamaño_nombre = trim($_POST["tamaño_nombre"]);
     $tamaño_medidas = trim($_POST["tamaño_medidas"]);
+    $tamaño_precio = floatval($_POST["tamaño_precio"]);
 
-    if ($tamaño_nombre === "") {
+    if ($tamaño_nombre === "" ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=El%20nombre%20del%20tamaño%20no%20puede%20estar%20vacío&redirect_to=../views/pastel/listado_tamaño.php&delay=3");
         exit();
     }
@@ -25,12 +27,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $sql = "UPDATE `tamaño`
                 SET `tamaño_nombre` = :tamaño_nombre, 
                     `tamaño_medidas` = :tamaño_medidas
-                WHERE `ID_tamaño` = :ID_tamaño";
+                    `tamaño_precio` = :tamaño_precio
+                WHERE `id_tamaño` = :id_tamaño";
         $stmt = $conexion->prepare($sql);
         $result = $stmt->execute([
             ':tamaño_nombre' => $tamaño_nombre,
             ':tamaño_medidas' => $tamaño_medidas,
-            ':ID_tamaño' => $ID_tamaño
+            ':tamaño_precio' => $tamaño_precio,
+            ':id_tamaño' => $id_tamaño
         ]);
 
         if ($result) {
@@ -48,4 +52,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Acceso%20no%20permitido&redirect_to=../views/pastel/listado_tamaño.php&delay=3");
     exit();
 }
+
 ?>

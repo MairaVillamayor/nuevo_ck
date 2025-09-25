@@ -1,15 +1,18 @@
 <?php
 require_once __DIR__ . '/../../config/conexion.php';
 
-if (isset($_POST["sabor_nombre"]) && isset($_POST["sabor_descripcion"])) {
+if (isset($_POST["sabor_nombre"]) && isset($_POST["sabor_descripcion"]) && isset($_POST["sabor_precio"])) {
 	$sabor_nombre = trim($_POST["sabor_nombre"]);
 	$sabor_descripcion = trim($_POST["sabor_descripcion"]);
+	$sabor_precio = floatval($_POST["sabor_precio"]);
 
-	if ($sabor_nombre != "" && $sabor_descripcion != "") {
+	if ($sabor_nombre != "" && $sabor_descripcion != "" && $sabor_precio > 0) {
 		try {
 			$pdo = getConexion();
-			$stmt = $pdo->prepare("INSERT INTO sabor (sabor_nombre, sabor_descripcion, RELA_estado_decoraciones) VALUES (?, ?, 1)");
-			$stmt->execute([$sabor_nombre, $sabor_descripcion]);
+			$stmt = $pdo->prepare("INSERT INTO sabor 
+			                        (sabor_nombre, sabor_descripcion, sabor_precio, RELA_estado_decoraciones) 
+									VALUES (?, ?, ?, 1)");
+			$stmt->execute([$sabor_nombre, $sabor_descripcion, $sabor_precio]);
 			header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Sabor%20creado&mensaje=El%20nuevo%20sabor%20se%20dio%20de%20alta%20correctamente&redirect_to=../views/pastel/listado_sabor.php&delay=2");
 			exit();
 		} catch (PDOException $e) {

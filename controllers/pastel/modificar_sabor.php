@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         !isset($_POST["id_sabor"]) ||
         !isset($_POST["sabor_nombre"]) ||
         !isset($_POST["sabor_descripcion"]) ||
+        !isset($_POST["sabor_precio"]) ||
         !isset($_POST["rela_estado"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario.");
@@ -15,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_sabor = intval($_POST["id_sabor"]);
     $sabor_nombre = trim($_POST["sabor_nombre"]);
     $sabor_descripcion = trim($_POST["sabor_descripcion"]);
+    $sabor_precio = floatval($_POST["sabor_precio"]);
     $rela_estado = intval($_POST["rela_estado"]);
 
     if ($sabor_nombre === "") {
@@ -27,12 +29,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $sql = "UPDATE sabor 
                 SET sabor_nombre = :sabor_nombre, 
                     sabor_descripcion = :sabor_descripcion, 
+                    sabor_precio = :sabor_precio,
                     RELA_estado_decoraciones = :rela_estado 
                 WHERE id_sabor = :id_sabor";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'sabor_nombre' => $sabor_nombre,
             'sabor_descripcion' => $sabor_descripcion,
+            'sabor_precio' => $sabor_precio,
             'rela_estado' => $rela_estado,
             'id_sabor' => $id_sabor
         ]);

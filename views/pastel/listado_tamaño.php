@@ -7,7 +7,7 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();
 $query = "SELECT * FROM tamaño";
@@ -28,6 +28,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Medidas</th>
+                <th>Precio</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -37,6 +38,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row["ID_tamaño"]; ?></td>
                     <td><?php echo htmlspecialchars($row["tamaño_nombre"]); ?></td>
                     <td><?php echo htmlspecialchars($row["tamaño_medidas"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["tamaño_precio"])?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificar_tamaño.php?ID_tamaño=<?= $row['ID_tamaño']; ?>">✏️ Editar</a>
 

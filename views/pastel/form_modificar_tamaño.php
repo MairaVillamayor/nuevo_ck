@@ -39,9 +39,11 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 
         $tamaño_nombre = $tamaño["tamaño_nombre"];
         $tamaño_medidas = $tamaño["tamaño_medidas"];
+        $tamaño_precio = $tamaño["tamaño_precio"];
         ?>
 
         <form action="../../controllers/pastel/modificar_tamaño.php" method="post">
+
             <label for="tamaño_nombre">Nombre: </label>
             <input type="text" name="tamaño_nombre" id="tamaño_nombre"
                 value="<?php echo htmlspecialchars($tamaño_nombre); ?>" required>
@@ -52,6 +54,12 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
                 value="<?php echo htmlspecialchars($tamaño_medidas); ?>" required>
             <br><br>
 
+
+            <label for="tamaño_precio">Precio: </label>
+            <input type="text" name="tamaño_precio" id="tamaño_precio"
+                value="<?php echo htmlspecialchars($tamaño_precio); ?>" required>
+            <br><br>    
+            
             <input type="hidden" name="id_tamaño" value="<?php echo $id_tamaño; ?>">
             <br><br>
 
