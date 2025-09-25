@@ -10,7 +10,7 @@
 
 <body>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 
 <div class="admin-form">
@@ -34,6 +34,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
         }
         $decoracion_nombre = $decoracion["decoracion_nombre"];
         $decoracion_descripcion = $decoracion["decoracion_descripcion"];
+        $decoracion_precio = $decoracion["decoracion_precio"];
         $estado_actual = $decoracion["RELA_estado_decoraciones"];
         $estados = $pdo->query("SELECT * FROM estado_decoraciones")->fetchAll(PDO::FETCH_ASSOC);
         ?>
@@ -48,6 +49,13 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
             <input type="text" name="decoracion_descripcion" id="decoracion_descripcion"
                 value="<?php echo htmlspecialchars($decoracion_descripcion); ?>" required>
             <br><br>
+
+
+            <label for="decoracion_precio">Precio:</label>
+            <input type="text" name="decoracion_precio" id="decoracion_precio"
+                value="<?php echo htmlspecialchars($decoracion_precio); ?>" required>
+                <br><br>
+
 
             <label for="RELA_estado_decoraciones">Estado:</label>
             <select name="RELA_estado_decoraciones" id="RELA_estado_decoraciones" required>

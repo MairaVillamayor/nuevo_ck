@@ -10,9 +10,15 @@ include("../../includes/header.php");
 require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 
 $pdo = getConexion();
-$query = "SELECT bp.id_base_pastel, bp.base_pastel_nombre, bp.base_pastel_descripcion, e.estado_decoraciones_descri 
-        FROM base_pastel bp 
-        JOIN estado_decoraciones e ON bp.RELA_estado_decoraciones = e.ID_estado_decoraciones";
+$query = "SELECT    bp.id_base_pastel, 
+                    bp.base_pastel_nombre, 
+                    bp.base_pastel_descripcion, 
+                    bp.base_pastel_precio, 
+                    e.estado_decoraciones_descri 
+            FROM base_pastel AS bp 
+            LEFT JOIN estado_decoraciones AS e 
+            ON bp.RELA_estado_decoraciones = e.ID_estado_decoraciones
+            ORDER BY bp.id_base_pastel ASC";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -31,6 +37,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Estado</th>
+                <th>Precio</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -40,6 +47,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row["id_base_pastel"]; ?></td>
                     <td><?php echo htmlspecialchars($row["base_pastel_nombre"]); ?></td>
                     <td><?php echo htmlspecialchars($row["base_pastel_descripcion"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["base_pastel_precio"]); ?></td>
                     <td><?php echo $row["estado_decoraciones_descri"]; ?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificar_basePastel.php?id_base_pastel=<?php echo $row['id_base_pastel']; ?>">✏️ Editar</a>

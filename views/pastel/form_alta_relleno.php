@@ -16,6 +16,8 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
     <input type="text" name="relleno_nombre" id="relleno_nombre" required>
     <label for="relleno_descripcion">Descripción del Relleno:</label>
     <input type="text" name="relleno_descripcion" id="relleno_descripcion" required>
+    <label for="relleno_precio">Precio del Relleno:</label>
+    <input type="text" name="relleno_precio" id="relleno_precio" required>
     <button type="submit">Guardar relleno</button>
   </form>
 </div>

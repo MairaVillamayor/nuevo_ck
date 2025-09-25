@@ -8,7 +8,7 @@
 </head>
 <body>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 
 <div class="admin-form">
@@ -31,6 +31,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
         }
         $base_pastel_nombre = $base_pastel["base_pastel_nombre"];
         $base_pastel_decoracion = $base_pastel["base_pastel_descripcion"];
+        $base_pastel_precio = $base_pastel["base_pastel_precio"];
         $estado_actual = $base_pastel["RELA_estado_decoraciones"];
         $estados = $pdo->query("SELECT * FROM estado_decoraciones")->fetchAll(PDO::FETCH_ASSOC);
         ?>
@@ -41,6 +42,10 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
             <br><br>
             <label for="base_pastel_decoracion">Descripción: </label>
             <textarea name="base_pastel_decoracion" id="base_pastel_decoracion" rows="4" cols="50" required><?php echo htmlspecialchars($base_pastel_decoracion); ?></textarea>
+            <br><br>
+            <label for="base_pastel_precio">Precio: </label>
+            <input type="text" name="base_pastel_precio" id="base_pastel_precio"
+                value="<?php echo htmlspecialchars($base_pastel_precio); ?>" required>
             <br><br>
             <label for="rela_estado">Estado:</label>
             <select name="rela_estado" id="rela_estado" required>

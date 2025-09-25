@@ -19,7 +19,7 @@
       <div class="card">👥<br><a href="listado_perfiles.php">Perfiles</a><br></div>
       <div class="card">👥<br><a href="#">Clientes</a><br></div>
       <div class="card">🍰<br><a href="admin_items.php">Items</a><br></div>
-      <div class="card">📅<br><a href="#">Pedidos</a><br></div>
+      <div class="card">📅<br><a href="listado_pedidos.php">Pedidos</a><br></div>
       <div class="card">🕵️<br><a href="../usuario/Listado_Usuarios.php">Usuarios</a><br></div>
     </div>
   </main>

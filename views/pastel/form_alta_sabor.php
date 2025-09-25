@@ -16,6 +16,8 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
     <input type="text" name="sabor_nombre" id="sabor_nombre" required>
     <label for="sabor_descripcion">Descripción del Sabor:</label>
     <input type="text" name="sabor_descripcion" id="sabor_descripcion" required>
+    <label for="sabor_precio">Precio del Sabor: </label>
+    <input type="text" name="sabor_precio" id="sabor_precio" required> 
     <button type="submit">Guardar sabor</button>
   </form>
 </div>

@@ -16,6 +16,8 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
     <input type="text" name="decoracion_nombre" id="decoracion_nombre" required>
     <label for="decoracion_descripcion">Descripción:</label>
     <input type="text" name="decoracion_descripcion" id="decoracion_descripcion" required>
+    <label for="decoracion_precio">Precio:</label>
+    <input type="text" name="decoracion_precio" id="decoracion_precio" required>
     <button type="submit">Guardar decoración</button>
   </form>
 </div>

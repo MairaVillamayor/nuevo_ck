@@ -51,6 +51,63 @@
       border: 2px solid #d32f2f !important;
       box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3) !important;
     }
+
+    /* Contenedor principal de la sección */
+    .hacer-pedido-container {
+        background-color: #f4f4f9; /* Fondo suave para la sección */
+        padding: 50px;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+    }
+
+    /* Estilo del título */
+    .hacer-pedido-titulo {
+        font-size: 32px;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+    }
+
+    /* Estilo del botón */
+    .boton-hacer-pedido {
+        display: inline-block;
+        padding: 20px 40px;
+        background-color: #ff00b3ff;
+        color: white;
+        font-size: 18px;
+        text-decoration: none;
+        border-radius: 50px;  /* Botón redondeado */
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Efecto hover del botón */
+    .boton-hacer-pedido:hover {
+        background-color: #f7359fdc;  /* Cambia de color cuando pasa el mouse */
+        transform: translateY(-5px); /* Sube un poco el botón */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Sombra más grande */
+    }
+
+    /* Responsive para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .hacer-pedido-container {
+            padding: 30px;
+        }
+
+        .hacer-pedido-titulo {
+            font-size: 26px;
+        }
+
+        .boton-hacer-pedido {
+            padding: 15px 30px;
+            font-size: 16px;
+        }
+    }
   </style>
 <?php include("../../includes/header.php"); 
 require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
@@ -86,7 +143,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
   <nav class="main-menu">
     <a href="#">CAJITAS DULCES &gt;</a>
     <a href="#">DESAYUNOS &gt;</a>
-    <a href="crear_pastel.html">¡CREA TU PASTEL!</a>
+    <a href="#hacerPedido">¡CREA TU PASTEL!</a>
     <a href="#">COMBOS</a>
     <a href="#">¡PROMOS!</a>
     <a href="#">PRODUCTOS</a>
@@ -104,6 +161,11 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
       <p class="resaltado">EN TODOS <br> LOS <br> PRODUCTOS</p>
     </div>
   </section>
+
+  <div id="hacerPedido" class="hacer-pedido-container">
+    <h2 class="hacer-pedido-titulo">¡Haz tu pedido aquí!</h2>
+    <a href="../cliente/crear_pedido.php" class="boton-hacer-pedido">¡Hacer pedido!</a>
+</div>
 
   <!-- Pie de página -->
   <footer>

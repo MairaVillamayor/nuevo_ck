@@ -1,0 +1,80 @@
+/* Estilo general del body */
+body {
+    font-family: 'Arial', sans-serif;
+    background: #fff0f5; /* un suave rosa pastel */
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Títulos */
+h2, h3, h4 {
+    color: #e91e63;
+    margin-bottom: 10px;
+}
+
+/* Formulario */
+form.pastel-form {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 700px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Labels y selects */
+label {
+    display: block;
+    margin: 8px 0 4px;
+    font-weight: bold;
+}
+
+select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* Checkboxes y radios */
+input[type="checkbox"], input[type="radio"] {
+    margin-right: 8px;
+}
+
+/* Pisos */
+.piso {
+    background: #ffeef2;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ffb6c1;
+}
+
+/* Botones */
+button {
+    background: linear-gradient(135deg, #ffb6c1 0%, #ff9aaf 100%);
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #ff9aaf 0%, #ff7a8c 100%);
+    transform: scale(1.03);
+}
+
+/* Separadores */
+hr {
+    border: none;
+    border-top: 1px solid #ffb6c1;
+    margin: 10px 0;
+}

@@ -32,9 +32,9 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
             exit();
         }
         $material_extra_nombre = $material_extra["material_extra_nombre"];
-        $material_extra_descripcion = $material_extra["material_extra_descripcion"];
-        $estado_actual = $material_extra["RELA_estado"];
-        $estados = $pdo->query("SELECT * FROM estado")->fetchAll(PDO::FETCH_ASSOC);
+        $material_extra_descripcion = $material_extra["material_extra_descri"];
+        $estado_actual = $material_extra["RELA_estado_insumos"];
+        $estados = $pdo->query("SELECT * FROM estado_insumos")->fetchAll(PDO::FETCH_ASSOC);
         ?>
 
         <form action="../../controllers/insumos/modificar_materialExtra.php" method="post">
@@ -43,16 +43,16 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
                 value="<?php echo htmlspecialchars($material_extra_nombre); ?>" required>
             <br><br>
 
-            <label for="material_extra_descripcion">Descripción: </label>
-            <input type="text" name="material_extra_descripcion" id="material_extra_descripcion"
+            <label for="material_extra_descri">Descripción: </label>
+            <input type="text" name="material_extra_descri" id="material_extra_descri"
                 value="<?php echo htmlspecialchars($material_extra_descripcion); ?>" required>
             <br><br>
 
-            <label for="rela_estado">Estado:</label>
-            <select name="rela_estado" id="rela_estado" required>
+            <label for="rela_estado_insumos">Estado:</label>
+            <select name="rela_estado_insumos" id="rela_estado_insumos" required>
                 <?php foreach ($estados as $estado) {
-                    $id_estado = isset($estado['id_estado']) ? $estado['id_estado'] : (isset($estado['ID_estado']) ? $estado['ID_estado'] : '');
-                    $nombre_estado = isset($estado['estado_descripcion']) ? $estado['estado_descripcion'] : 'Sin descripción';
+                    $id_estado = isset($estado['id_estado_insumo']) ? $estado['id_estado_insumo'] : (isset($estado['ID_estado_insumo']) ? $estado['ID_estado_insumo'] : '');
+                    $nombre_estado = isset($estado['estado_insumo_descripcion']) ? $estado['estado_insumo_descripcion'] : 'Sin descripción';
                 ?>
                     <option value="<?php echo htmlspecialchars($id_estado); ?>"
                         <?php if ($id_estado == $estado_actual) echo "selected"; ?>>

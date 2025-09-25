@@ -1,14 +1,19 @@
 <?php
 require_once __DIR__ . '/../../config/conexion.php';
 
-if (isset($_POST["relleno_nombre"]) && isset($_POST["relleno_descripcion"])) {
+if (isset($_POST["relleno_nombre"]) 
+	&& isset($_POST["relleno_descripcion"])
+    && isset($_POST["relleno_precio"])) {
 	$relleno_nombre = trim($_POST["relleno_nombre"]);
 	$relleno_descripcion = trim($_POST["relleno_descripcion"]);
+	$relleno_precio = floatval($_POST["relleno_precio"]);
 
-	if ($relleno_nombre != "" && $relleno_descripcion != "") {
+	if ($relleno_nombre != "" && $relleno_descripcion != "" && $relleno_precio > 0) {
 		$pdo = getConexion();
-		$stmt = $pdo->prepare("INSERT INTO relleno (relleno_nombre, relleno_descripcion, RELA_estado_decoraciones) VALUES (?, ?, 1)");
-		if ($stmt->execute([$relleno_nombre, $relleno_descripcion])) {
+		$stmt = $pdo->prepare("INSERT INTO relleno 
+		                        (relleno_nombre, relleno_descripcion, relleno_precio, RELA_estado_decoraciones) 
+								VALUES (?, ?, ?, 1)");
+		if ($stmt->execute([$relleno_nombre, $relleno_descripcion, $relleno_precio])) {
 			header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Relleno%20creado&mensaje=El%20nuevo%20relleno%20se%20dio%20de%20alta%20correctamente&redirect_to=../views/pastel/listado_relleno.php&delay=2");
 			exit();
 		} else {

@@ -66,6 +66,11 @@
           <a href="../pastel/listado_basePastel.php" class="btn-add">Ingresar</a>
         </span>
       </div>
+      <div class="card">
+        Material Extra<br>
+        <span>
+          <a href="../insumos/listado_materialExtra.php" class="btn-add">Ingresar</a>
+        </span>
     </div>
   </main>
 </body>

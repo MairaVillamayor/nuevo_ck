@@ -8,7 +8,7 @@
 </head>
 <body>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 
 <div class="admin-form">
@@ -31,17 +31,26 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
         }
         $relleno_nombre = $relleno["relleno_nombre"];
         $relleno_descripcion = $relleno["relleno_descripcion"];
+        $relleno_precio = $relleno["relleno_precio"];
         $estado_actual = $relleno["RELA_estado_decoraciones"];
         $estados = $pdo->query("SELECT * FROM estado_decoraciones")->fetchAll(PDO::FETCH_ASSOC);
         ?>
         <form action="../../controllers/pastel/modificar_relleno.php" method="post">
+            
             <label for="relleno_nombre">Nombre: </label>
             <input type="text" name="relleno_nombre" id="relleno_nombre"
                 value="<?php echo htmlspecialchars($relleno_nombre); ?>" required>
             <br><br>
+
             <label for="relleno_descripcion">Descripción: </label>
             <textarea name="relleno_descripcion" id="relleno_descripcion" rows="4" cols="50" required><?php echo htmlspecialchars($relleno_descripcion); ?></textarea>
             <br><br>
+
+            <label for="relleno_precio">Precio: </label>
+            <input type="text" name="relleno_precio" id="relleno_precio"
+                value="<?php echo htmlspecialchars($relleno_precio); ?>" required>
+            <br><br>
+
             <label for="RELA_estado_decoraciones">Estado:</label>
             <select name="RELA_estado_decoraciones" id="RELA_estado_decoraciones" required>
                 <?php foreach ($estados as $estado) {

@@ -10,7 +10,7 @@
 
 <body>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 
     <div class="admin-form">
@@ -34,6 +34,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
         }
         $sabor_nombre = $sabor["sabor_nombre"];
         $sabor_descripcion = $sabor["sabor_descripcion"];
+        $sabor_precio = $sabor["sabor_precio"];
         $estado_actual = $sabor["RELA_estado_decoraciones"];
         $estados = $pdo->query("SELECT * FROM estado_decoraciones")->fetchAll(PDO::FETCH_ASSOC);
         ?>
@@ -48,6 +49,11 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
             <textarea name="sabor_descripcion" id="sabor_descripcion" rows="4" cols="50" required><?php echo htmlspecialchars($sabor_descripcion); ?></textarea>
             <br><br>
 
+            <label for="sabor_precio">Precio: </label>
+            <input type="text" name="sabor_precio" id="sabor_precio"
+                value="<?php echo htmlspecialchars($sabor_precio); ?>" required>
+            <br><br>
+            
             <label for="rela_estado">Estado:</label>
             <select name="rela_estado" id="rela_estado" required>
                 <?php foreach ($estados as $estado) {

@@ -5,8 +5,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (
         !isset($_POST["id_material_extra"]) ||
         !isset($_POST["material_extra_nombre"]) ||
-        !isset($_POST["material_extra_descripcion"]) ||
-        !isset($_POST["rela_estado"])
+        !isset($_POST["material_extra_descri"]) ||
+        !isset($_POST["rela_estado_insumos"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario");
         exit();
@@ -14,8 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $id_material_extra = intval($_POST["id_material_extra"]);
     $material_extra_nombre = trim($_POST["material_extra_nombre"]);
-    $material_extra_descripcion = trim($_POST["material_extra_descripcion"]);
-    $rela_estado = intval($_POST["rela_estado"]);
+    $material_extra_descri = trim($_POST["material_extra_descri"]);
+    $rela_estado_insumos = intval($_POST["rela_estado_insumos"]);
 
     if ($material_extra_nombre === "") {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=El%20nombre%20del%20material%20extra%20no%20puede%20estar%20vac%C3%ADo");
@@ -25,14 +25,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $conexion = Conexion::getInstance()->getConnection();
     $sql = "UPDATE material_extra 
             SET material_extra_nombre = :material_extra_nombre, 
-                material_extra_descripcion = :material_extra_descripcion, 
-                rela_estado = :rela_estado 
+                material_extra_descri = :material_extra_descri, 
+                rela_estado_insumos = :rela_estado_insumos 
             WHERE id_material_extra = :id_material_extra";
     $stmt = $conexion->prepare($sql);
     $result = $stmt->execute([
         'material_extra_nombre' => $material_extra_nombre,
-        'material_extra_descripcion' => $material_extra_descripcion,
-        'rela_estado' => $rela_estado,
+        'material_extra_descri' => $material_extra_descri,
+        'rela_estado_insumos' => $rela_estado_insumos,
         'id_material_extra' => $id_material_extra
     ]);
     if ($result) {

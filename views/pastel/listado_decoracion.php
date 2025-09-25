@@ -7,12 +7,16 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();
-$query = "SELECT d.id_decoracion, d.decoracion_nombre, d.decoracion_descripcion, e.estado_decoraciones_descri 
-        FROM decoracion d 
-        JOIN estado_decoraciones e ON d.RELA_estado_decoraciones = e.ID_estado_decoraciones";
+$query = "SELECT d.id_decoracion, 
+                d.decoracion_nombre, 
+                d.decoracion_descripcion, 
+                e.estado_decoraciones_descri 
+            FROM decoracion d 
+            LEFT JOIN estado_decoraciones e 
+            ON d.RELA_estado_decoraciones = e.ID_estado_decoraciones";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -30,6 +34,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
+                <th>Precio</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
@@ -40,11 +45,15 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row["id_decoracion"]; ?></td>
                     <td><?php echo htmlspecialchars($row["decoracion_nombre"]); ?></td>
                     <td><?php echo htmlspecialchars($row["decoracion_descripcion"]); ?></td>
+                    <td><?PHP htmlspecialchars(isset($ROW["decoracion_precio"])); ?>
+                    </td>
+
+
                     <td><?php echo $row["estado_decoraciones_descri"]; ?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificar_decoracion.php?id=<?php echo $row['id_decoracion']; ?>">✏️ Editar</a>
-                        
-                        
+
+
                         <!-- Formulario para baja lógica -->
                         <form id="form-baja-<?= $row['id_decoracion']; ?>" method="post" action="../../controllers/pastel/baja_logica_decoracion.php" style="display:inline;">
                             <input type="hidden" name="id_decoracion" value="<?= $row['id_decoracion']; ?>">

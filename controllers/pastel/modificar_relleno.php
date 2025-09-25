@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         !isset($_POST["id_relleno"]) ||
         !isset($_POST["relleno_nombre"]) ||
         !isset($_POST["relleno_descripcion"]) ||
+        !isset($_POST["relleno_precio"]) ||
         !isset($_POST["RELA_estado_decoraciones"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario.");
@@ -15,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_relleno = intval($_POST["id_relleno"]);
     $relleno_nombre = trim($_POST["relleno_nombre"]);
     $relleno_descripcion = trim($_POST["relleno_descripcion"]);
+    $relleno_precio = floatval($_POST["relleno_precio"]);
     $RELA_estado_decoraciones = intval($_POST["RELA_estado_decoraciones"]);
 
     if ($relleno_nombre === "") {
@@ -27,12 +29,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $sql = "UPDATE relleno 
                 SET relleno_nombre = :relleno_nombre, 
                     relleno_descripcion = :relleno_descripcion, 
+                    relleno_precio = :relleno_precio,
                     RELA_estado_decoraciones = :RELA_estado_decoraciones 
                 WHERE id_relleno = :id_relleno";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'relleno_nombre' => $relleno_nombre,
             'relleno_descripcion' => $relleno_descripcion,
+            'relleno_precio' => $relleno_precio,
             'RELA_estado_decoraciones' => $RELA_estado_decoraciones,
             'id_relleno' => $id_relleno
         ]);

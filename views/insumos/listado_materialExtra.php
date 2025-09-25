@@ -5,9 +5,9 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 
 
 $pdo = getConexion();
-$query = "SELECT me.id_material_extra, me.material_extra_nombre, me.material_extra_descripcion, e.estado_descripcion 
+$query = "SELECT me.id_material_extra, me.material_extra_nombre, me.material_extra_descri, e.estado_insumo_descripcion 
           FROM material_extra me 
-          JOIN estado e ON me.rela_estado = e.id_estado";
+          JOIN estado_insumos e ON me.rela_estado_insumos = e.id_estado_insumo";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -34,8 +34,8 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <tr>
                     <td><?php echo $row["id_material_extra"]; ?></td>
                     <td><?php echo htmlspecialchars($row["material_extra_nombre"]); ?></td>
-                    <td><?php echo htmlspecialchars($row["material_extra_descripcion"]); ?></td>
-                    <td><?php echo $row["estado_descripcion"]; ?></td>
+                    <td><?php echo htmlspecialchars($row["material_extra_descri"]); ?></td>
+                    <td><?php echo $row["estado_insumo_descripcion"]; ?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificar_materialExtra.php?id_material_extra=<?php echo $row['id_material_extra']; ?>"> ✏️ Editar </a> 
 

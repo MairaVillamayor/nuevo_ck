@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         !isset($_POST["id_decoracion"]) ||
         !isset($_POST["decoracion_nombre"]) ||
         !isset($_POST["decoracion_descripcion"]) ||
+        !isset($_POST["decoracion_precio"]) ||
         !isset($_POST["RELA_estado_decoraciones"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario.");
@@ -15,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_decoracion = intval($_POST["id_decoracion"]);
     $decoracion_nombre = trim($_POST["decoracion_nombre"]);
     $decoracion_descripcion = trim($_POST["decoracion_descripcion"]);
+    $decoracion_precio = floatval($_POST["decoracion_precio"]);
     $rela_estado_decoraciones = intval($_POST["RELA_estado_decoraciones"]);
 
     if ($decoracion_nombre === "") {
@@ -27,12 +29,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $sql = "UPDATE decoracion 
                 SET decoracion_nombre = :decoracion_nombre, 
                     decoracion_descripcion = :decoracion_descripcion, 
+                    decoracion_precio = :decoracion_precio,
                     RELA_estado_decoraciones = :rela_estado_decoraciones 
                 WHERE id_decoracion = :id_decoracion";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'decoracion_nombre' => $decoracion_nombre,
             'decoracion_descripcion' => $decoracion_descripcion,
+            'decoracion_precio' => $decoracion_precio,
             'rela_estado_decoraciones' => $rela_estado_decoraciones,
             'id_decoracion' => $id_decoracion
         ]);

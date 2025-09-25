@@ -1,14 +1,21 @@
 <?php
 require_once __DIR__ . '/../../config/conexion.php';
 
-if (isset($_POST["decoracion_nombre"]) && isset($_POST["decoracion_descripcion"])) {
+if (isset($_POST["decoracion_nombre"]) 
+	&& isset($_POST["decoracion_descripcion"])
+    && isset($_POST["decoracion_precio"])) {
 	$decoracion_nombre = trim($_POST["decoracion_nombre"]);
 	$decoracion_descripcion = trim($_POST["decoracion_descripcion"]);
+	$decoracion_precio = floatval($_POST["decoracion_precio"]);
 
-	if ($decoracion_nombre != "" && $decoracion_descripcion != "") {
+	if ($decoracion_nombre != "" 
+	        && $decoracion_descripcion != ""
+			&& $decoracion_precio != "") {
 		$pdo = getConexion();
-		$stmt = $pdo->prepare("INSERT INTO decoracion (decoracion_nombre, decoracion_descripcion, RELA_estado_decoraciones) VALUES (?, ?, 1)");
-		if ($stmt->execute([$decoracion_nombre, $decoracion_descripcion])) {
+		$stmt = $pdo->prepare("INSERT INTO decoracion 
+		                      (decoracion_nombre, decoracion_descripcion, decoracion_precio, RELA_estado_decoraciones) 
+							  VALUES (?, ?, ?, 1)");
+		if ($stmt->execute([$decoracion_nombre, $decoracion_descripcion, $decoracion_precio])) {
 			header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Decoraci%C3%B3n%20creada&mensaje=La%20nueva%20decoraci%C3%B3n%20se%20dio%20de%20alta%20correctamente&redirect_to=../views/pastel/listado_decoracion.php&delay=2");
 			exit();
 		} else {

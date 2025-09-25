@@ -7,12 +7,16 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();
-$query = "SELECT r.id_relleno, r.relleno_nombre, r.relleno_descripcion, e.estado_decoraciones_descri
-        FROM relleno r 
-        JOIN estado_decoraciones e ON r.RELA_estado_decoraciones = e.ID_estado_decoraciones";
+$query = "SELECT r.id_relleno, r.relleno_nombre, 
+                r.relleno_descripcion, r.relleno_precio, 
+                e.estado_decoraciones_descri
+            FROM relleno r 
+            JOIN estado_decoraciones e 
+            ON r.RELA_estado_decoraciones = e.ID_estado_decoraciones
+            ORDER BY r.id_relleno ASC";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -30,6 +34,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
+                <th>Precio</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
@@ -40,6 +45,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row["id_relleno"]; ?></td>
                     <td><?php echo htmlspecialchars($row["relleno_nombre"]); ?></td>
                     <td><?php echo htmlspecialchars($row["relleno_descripcion"]); ?></td>
+                    <td><?php echo htmlspecialchars($row["relleno_precio"]); ?></td>
                     <td><?php echo $row["estado_decoraciones_descri"]; ?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificar_relleno.php?id_relleno=<?php echo $row['id_relleno']; ?>"> ✏️ Editar </a> 

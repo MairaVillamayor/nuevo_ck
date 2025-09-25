@@ -15,6 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	$id_base_pastel = intval($_POST["id_base_pastel"]);
 	$base_pastel_nombre = trim($_POST["base_pastel_nombre"]);
 	$base_pastel_decoracion = trim($_POST["base_pastel_decoracion"]);
+	$base_pastel_precio = floatval($_POST["base_pastel_precio"]);
 	$rela_estado = intval($_POST["rela_estado"]);
 
 	if ($base_pastel_nombre === "") {
@@ -27,12 +28,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 		$sql = "UPDATE base_pastel 
 				SET base_pastel_nombre = :base_pastel_nombre, 
 					base_pastel_descripcion = :base_pastel_descripcion, 
+					base_pastel_precio = :base_pastel_precio,
 					RELA_estado_decoraciones = :rela_estado 
 				WHERE id_base_pastel = :id_base_pastel";
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute([
 			'base_pastel_nombre' => $base_pastel_nombre,
 			'base_pastel_descripcion' => $base_pastel_decoracion,
+			'base_pastel_precio' => $base_pastel_precio,
 			'rela_estado' => $rela_estado,
 			'id_base_pastel' => $id_base_pastel
 		]);
