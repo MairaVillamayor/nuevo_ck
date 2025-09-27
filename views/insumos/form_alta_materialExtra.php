@@ -6,7 +6,7 @@
 </head>
 <body>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 <div class="admin-form">
   <h2>Agregar Nuevo Material</h2>
@@ -18,7 +18,9 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
     <label for="material_extra_descri">Descripción:</label>
     <input type="text" name="material_extra_descri" id="material_extra_descri" required>
 
-    <input type="hidden" name="RELA_estado_insumos" value="1">
+    <label for="material_extra_precio">Precio: </label>
+    <input type="text" name="material_extra_precio" id="material_extra_precio" required>
+
 
     <button type="submit">Guardar material</button>
   </form>

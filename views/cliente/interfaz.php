@@ -110,7 +110,7 @@
     }
   </style>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 
 <!-- Barra superior -->
@@ -132,7 +132,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
     <?php else: ?>
       <div class="user-menu">
         <span class="welcome">¡Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>!</span>
-        <a href="../usuario/mi_cuenta.php" class="btn-mi-cuenta">Mi Cuenta</a>
+        <a href="../cliente/mis_pedidos.php" class="btn-mi-cuenta">Mi Cuenta</a>
         <a href="../../controllers/usuario/logout.php" class="btn-cerrar-sesion">Cerrar Sesión</a>
       </div>
     <?php endif; ?>

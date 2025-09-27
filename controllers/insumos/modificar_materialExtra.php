@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         !isset($_POST["id_material_extra"]) ||
         !isset($_POST["material_extra_nombre"]) ||
         !isset($_POST["material_extra_descri"]) ||
+        !isset($_POST["material_extra_precio"]) ||
         !isset($_POST["rela_estado_insumos"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario");
@@ -15,6 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_material_extra = intval($_POST["id_material_extra"]);
     $material_extra_nombre = trim($_POST["material_extra_nombre"]);
     $material_extra_descri = trim($_POST["material_extra_descri"]);
+    $material_extra_precio = floatval($_POST["material_extra_precio"]);
     $rela_estado_insumos = intval($_POST["rela_estado_insumos"]);
 
     if ($material_extra_nombre === "") {
@@ -26,12 +28,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $sql = "UPDATE material_extra 
             SET material_extra_nombre = :material_extra_nombre, 
                 material_extra_descri = :material_extra_descri, 
+                material_extra_precio = :material_extra_precio,
                 rela_estado_insumos = :rela_estado_insumos 
             WHERE id_material_extra = :id_material_extra";
     $stmt = $conexion->prepare($sql);
     $result = $stmt->execute([
         'material_extra_nombre' => $material_extra_nombre,
         'material_extra_descri' => $material_extra_descri,
+        'material_extra_precio' => $material_extra_precio,
         'rela_estado_insumos' => $rela_estado_insumos,
         'id_material_extra' => $id_material_extra
     ]);

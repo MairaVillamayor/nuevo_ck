@@ -1,5 +1,7 @@
 <?php
 require_once("../../config/conexion.php");
+include ("../../includes/navegacion.php");
+
 session_start();
 
 if (!isset($_SESSION['ID_usuario'])) {

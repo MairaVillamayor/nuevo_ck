@@ -4,15 +4,17 @@ require_once __DIR__ . '/../../config/conexion.php';
 if (isset($_POST["material_extra_nombre"]) && isset($_POST["material_extra_descri"])) {
     $material_extra_nombre = trim($_POST["material_extra_nombre"]);
     $material_extra_descri = trim($_POST["material_extra_descri"]);
-    $estado = 1; // Activo por defecto
+    $material_extra_precio = floatval($_post["material_extra_precio"]);
+    $conexion = getConexion();
 
-    if ($material_extra_nombre !== "" && $material_extra_descri !== "") {
+    if ($material_extra_nombre !== "" && $material_extra_descri !== "" && $material_extra_precio > 0) {
         try {
             $stmt = $conexion->prepare("
-                INSERT INTO material_extra (material_extra_nombre, material_extra_descri, RELA_estado_insumos)
-                VALUES (?, ?, ?)
+                INSERT INTO material_extra 
+                (material_extra_nombre, material_extra_descri, material_extra_precio, RELA_estado_insumos)
+                VALUES (?, ?, ?, 1)
             ");
-            $success = $stmt->execute([$material_extra_nombre, $material_extra_descri, $estado]);
+            $success = $stmt->execute([$material_extra_nombre, $material_extra_descri, $material_extra_precio]);
 
             if ($success) {
                 header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Material%20extra%20creado&mensaje=El%20nuevo%20material%20extra%20se%20dio%20de%20alta%20correctamente&redirect_to=../views/insumos/listado_materialExtra.php&delay=2");

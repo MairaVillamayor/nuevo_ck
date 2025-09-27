@@ -8,12 +8,12 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();
 $query = "SELECT i.ID_insumo, i.insumo_nombre, i.insumo_unidad_medida, e.estado_insumo_descripcion 
         FROM insumos i 
-        JOIN estado_insumos e ON i.RELA_estado_insumo = e.ID_estado_insumo";
+        LEFT JOIN estado_insumos e ON i.RELA_estado_insumo = e.ID_estado_insumo";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

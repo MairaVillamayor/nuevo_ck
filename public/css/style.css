@@ -503,3 +503,14 @@ footer {
 .text-center {
   text-align: center;
 }
+
+
+.cp-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.cp-actions .cp-btn,
+.cp-actions .cp-btn-cancel {
+  margin: 8px;
+}

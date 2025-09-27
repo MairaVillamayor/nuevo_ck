@@ -10,7 +10,7 @@
 
 <body>
 <?php include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
     <div class="admin-form">
         <h1>Editar Materiales</h1>
@@ -33,6 +33,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
         }
         $material_extra_nombre = $material_extra["material_extra_nombre"];
         $material_extra_descripcion = $material_extra["material_extra_descri"];
+        $material_extra_precio = $material_extra["material_extra_precio"];
         $estado_actual = $material_extra["RELA_estado_insumos"];
         $estados = $pdo->query("SELECT * FROM estado_insumos")->fetchAll(PDO::FETCH_ASSOC);
         ?>
@@ -48,6 +49,11 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
                 value="<?php echo htmlspecialchars($material_extra_descripcion); ?>" required>
             <br><br>
 
+            <label for="material_extra_precio">Precio: </label>
+            <input type="text" name="material_extra_precio" id="material_extra_precio"
+                value="<?php echo htmlspecialchars($material_extra_precio); ?>" required>
+            <br><br>
+            
             <label for="rela_estado_insumos">Estado:</label>
             <select name="rela_estado_insumos" id="rela_estado_insumos" required>
                 <?php foreach ($estados as $estado) {

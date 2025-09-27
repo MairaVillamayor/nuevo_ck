@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/conexion.php';
+include ("../../includes/navegacion.php");
 session_start();
 
 // ✅ Solo administradores
@@ -65,7 +66,7 @@ if (isset($pedidos_por_estado['Sin Estado'])) {
 <meta charset="UTF-8">
 <title>Listado de Pedidos - Admin</title>
 <style>
-body { font-family: Arial, sans-serif; background: #f4f6f8; padding: 20px; }
+body { font-family: Arial, sans-serif; background: #fff5f8; padding: 20px; }
 h2 { text-align: center; color: #333; }
 h3 { margin-top: 40px; color: #555; }
 .container { display: flex; flex-wrap: wrap; gap: 20px; }
@@ -103,7 +104,13 @@ function cambiarEstado(pedidoId, select) {
 </head>
 <body>
 <h2>📋 Listado de Pedidos por Estado</h2>
-
+<!-- ✅ Botón de exportar a Excel -->
+                    <p style="margin-top:10px; text-align:center;">
+                        <a href="../../excel/excel_pedidos.php?id_usuario=<?= urlencode($p['ID_pedido']) ?>" 
+                        class="btn-add" style="display:inline-block; padding:8px 12px; background:#4caf50; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">
+                        ☷ Exportar a Excel
+                        </a>
+                    </p>
 <?php foreach($estados as $estado): ?>
     <h3><?= htmlspecialchars($estado['estado_descri']) ?></h3>
     <div class="container">
@@ -116,6 +123,7 @@ function cambiarEstado(pedidoId, select) {
                 $estado_descri = $p['estado_descri'] ?? 'Sin Estado';
                 $clase_estado = strtolower(str_replace(' ', '-', $estado_descri)); 
                 ?>
+                 
                 <div class="card">
                     <h4>Pedido #<?= htmlspecialchars($p['ID_pedido']) ?></h4>
                     <p><strong>Usuario:</strong> <?= htmlspecialchars($p['usuario_nombre']) ?></p>
@@ -131,6 +139,7 @@ function cambiarEstado(pedidoId, select) {
                             </option>
                         <?php endforeach; ?>
                     </select>
+
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
