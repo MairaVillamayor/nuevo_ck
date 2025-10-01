@@ -83,7 +83,7 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
                 <div id="password-error" class="password-error" style="display: none;"></div>
                 <button type="submit" class="enter" name="registro" onclick="return validarFormulario()">Registrar</button>
                 <p style="font-size: 14px; margin-top: 10px; text-align:center;">¿Ya tenés cuenta?
-                    <a href="login.php">Iniciá sesión</a>
+                    <a href="../../index.php">Iniciá sesión</a>
                 </p>
             </form>
         </div>

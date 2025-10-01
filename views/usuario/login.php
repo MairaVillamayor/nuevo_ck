@@ -7,7 +7,7 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Cake Party</title>
-    <link rel="stylesheet" href="../../public/css/login.css"> 
+    <link rel="stylesheet" href="public/css/login.css"> 
 </head>
 <body>
     <div class="top-bar">
@@ -17,13 +17,13 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
     <nav class="main-nav">
         <div class="logo">Cake Party</div>
         <ul>
-            <li><a href="../cliente/interfaz.php">Inicio</a></li>
+            <li><a href="views/cliente/interfaz.php">Inicio</a></li>
             <li><a href="#">Pasteles</a></li>
             <?php if (!isset($_SESSION['usuario_id'])): ?>
                 <li><a href="login.php" class="active">Login</a></li>
             <?php else: ?>
-                <li><a href="../cliente/interfaz.php">Mi Cuenta</a></li>
-                <li><a href="../../controllers/usuario/logout.php">Cerrar Sesión</a></li>
+                <li><a href="cliente/interfaz.php">Mi Cuenta</a></li>
+                <li><a href="../controllers/usuario/logout.php">Cerrar Sesión</a></li>
             <?php endif; ?>
         </ul>
         <div class="icons">🍰</div>
@@ -36,7 +36,8 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
                     ❌ Usuario o contraseña incorrectos
                 </div>
             <?php endif; ?>
-            <form action="../../controllers/usuario/validarUsuario.php" method="post" class="login-form" autocomplete="off">
+
+            <form action="controllers/usuario/validarUsuario.php" method="post" class="login-form" autocomplete="off">
                 <div class="inputBox">
                     <input type="text" id="usuario_nombre" name="usuario_nombre" placeholder=" " required>
                     <span>Usuario</span>
@@ -47,7 +48,7 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
                 </div>
                 <button type="submit" class="enter">Ingresar</button>
                 <p style="font-size: 14px; margin-top: 10px; text-align:center;">¿No tienes cuenta? 
-                <a href="registro.php">Regístrate aquí</a></p>
+                <a href="views/usuario/registro.php">Regístrate aquí</a></p>
             </form>
         </div>
     </div>
