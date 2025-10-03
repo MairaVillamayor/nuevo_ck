@@ -1,3 +1,4 @@
+<?php include('../includes/navegacion.php')?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -100,30 +101,49 @@
           <th>ID Pedido</th>
           <th>Fecha</th>
           <th>Usuario</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
           <th>Descripción Pastel</th>
+          <th>Fecha y Hora de Entrega</th>
           <th>Dirección de Envío</th>
-          <th>Método de Pago</th>
+          <th>Localidad</th>
+          <th>Barrio</th>
           <th>Estado</th>
         </tr>
       </thead>
       <tbody>
         <?php
         $conn = mysqli_connect("localhost", "root", "Maira_2023", "cake_party") or die("Error de conexión");
-        $sql = " SELECT 
-                    pe.ID_pedido,
-                    pe.pedido_fecha,
-                    u.usuario_nombre,
-                    pp.pastel_personalizado_descripcion,
-                    pe.pedido_direccion_envio,
-                    mp.metodo_pago_descri,
-                    e.estado_descri
-                FROM pedido pe
-                LEFT JOIN usuarios u ON pe.RELA_usuario = u.ID_usuario
-                LEFT JOIN pedido_detalle pd ON pd.RELA_pedido = pe.ID_pedido
-                LEFT JOIN pastel_personalizado pp ON pp.ID_pastel_personalizado = pd.RELA_pastel_personalizado
-                LEFT JOIN metodo_pago mp ON pe.RELA_metodo_pago = mp.ID_metodo_pago
-                LEFT JOIN estado e ON pe.RELA_estado = e.ID_estado
-                ORDER BY pe.ID_pedido DESC";
+        $sql = "SELECT 
+    pe.ID_pedido,
+    pe.pedido_fecha,
+    p_envio.envio_fecha_hora_entrega,
+    p_envio.envio_calle_numero,
+    p_envio.envio_barrio,
+    p_envio.envio_localidad,
+    u.usuario_nombre,
+    per.persona_nombre,
+    per.persona_apellido,
+    pp.pastel_personalizado_descripcion,
+    mp.metodo_pago_descri AS metodo_pago,
+    e.ID_estado,
+    e.estado_descri AS estado_descri
+FROM pedido pe
+LEFT JOIN usuarios u 
+    ON pe.RELA_usuario = u.ID_usuario
+LEFT JOIN persona per
+    ON per.ID_persona = u.RELA_persona
+LEFT JOIN pedido_detalle pd 
+    ON pd.RELA_pedido = pe.ID_pedido
+LEFT JOIN pastel_personalizado pp 
+    ON pp.ID_pastel_personalizado = pd.RELA_pastel_personalizado
+LEFT JOIN metodo_pago mp 
+    ON pe.RELA_metodo_pago = mp.ID_metodo_pago
+LEFT JOIN estado e 
+    ON pe.RELA_estado = e.ID_estado
+LEFT JOIN pedido_envio p_envio
+    ON pe.RELA_pedido_envio = p_envio.ID_pedido_envio
+ORDER BY pe.ID_pedido ASC;";
 
         $resultset = mysqli_query($conn, $sql);
         if (mysqli_num_rows($resultset) > 0) {
@@ -133,9 +153,14 @@
               <td><?php echo $row['ID_pedido']; ?></td>
               <td><?php echo $row['pedido_fecha']; ?></td>
               <td><?php echo $row['usuario_nombre']; ?></td>
+              <td><?php echo $row['persona_nombre']; ?></td>
+              <td><?php echo $row['persona_apellido']; ?></td>
               <td><?php echo $row['pastel_personalizado_descripcion']; ?></td>
-              <td><?php echo $row['pedido_direccion_envio']; ?></td>
-              <td><?php echo $row['metodo_pago_descri']; ?></td>
+              <td><?php echo $row['envio_fecha_hora_entrega']; ?></td>
+              <td><?php echo $row['envio_calle_numero']; ?></td>
+              <td><?php echo $row['envio_localidad']; ?></td>
+              <td><?php echo $row['envio_barrio']; ?></td>
+
               <td><?php echo $row['estado_descri']; ?></td>
             </tr>
           <?php
@@ -154,4 +179,5 @@
   </div>
 
 </body>
+
 </html>

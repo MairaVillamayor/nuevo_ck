@@ -9,7 +9,8 @@ $query = "SELECT me.id_material_extra, me.material_extra_nombre,
                 me.material_extra_descri, me.material_extra_precio,
                 e.estado_insumo_descripcion 
           FROM material_extra me 
-          LEFT JOIN estado_insumos e ON me.rela_estado_insumos = e.id_estado_insumo";
+          LEFT JOIN estado_insumos e ON me.rela_estado_insumos = e.id_estado_insumo
+          ORDER BY me.id_material_extra ASC";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

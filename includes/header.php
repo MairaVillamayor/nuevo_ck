@@ -43,7 +43,7 @@ $esCliente = $usuarioLogueado && $perfilId == 3;
         <li><a href="../admin/listado_perfiles.php">Perfiles</a></li>
         <li><a href="#">Clientes</a></li>
         <li><a href="../admin/admin_items.php">Items</a></li>
-        <li><a href="#">Pedidos</a></li>
+        <li><a href="listado_pedidos.php">Pedidos</a></li>
         <li><a href="../../views/usuario/Listado_Usuarios.php">Usuarios</a></li>
         <li><a href="../../controllers/usuario/logout.php">Cerrar Sesión</a></li>
       </ul>

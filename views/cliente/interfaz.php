@@ -76,7 +76,7 @@
     .boton-hacer-pedido {
         display: inline-block;
         padding: 20px 40px;
-        background-color: #ff00b3ff;
+        background-color: #ffb6c1;
         color: white;
         font-size: 18px;
         text-decoration: none;
@@ -88,7 +88,7 @@
 
     /* Efecto hover del botón */
     .boton-hacer-pedido:hover {
-        background-color: #f7359fdc;  /* Cambia de color cuando pasa el mouse */
+        background-color: #ff9aaf;  /* Cambia de color cuando pasa el mouse */
         transform: translateY(-5px); /* Sube un poco el botón */
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Sombra más grande */
     }
@@ -128,7 +128,7 @@ require_once "../../includes/navegacion.php";
     <h1>CAKE PARTY</h1>
     <input type="text" placeholder="¿Qué buscas?" class="search-bar">
     <?php if (!isset($_SESSION['usuario_id'])): ?>
-      <a href="../usuario/login.php" class="btn-ingresar">Ingresar</a>
+      <a href="../../index.php" class="btn-ingresar">Ingresar</a>
     <?php else: ?>
       <div class="user-menu">
         <span class="welcome">¡Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>!</span>

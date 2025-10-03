@@ -15,11 +15,21 @@ $conexion = getConexion();
 $colores = $conexion->query("SELECT id_color_pastel, color_pastel_nombre FROM color_pastel")->fetchAll(PDO::FETCH_ASSOC);
 $decoraciones = $conexion->query("SELECT id_decoracion, decoracion_nombre FROM decoracion")->fetchAll(PDO::FETCH_ASSOC);
 $bases = $conexion->query("SELECT id_base_pastel, base_pastel_nombre FROM base_pastel")->fetchAll(PDO::FETCH_ASSOC);
-$tamanos = $conexion->query("SELECT id_tamaño, tamaño_nombre FROM tamaño")->fetchAll(PDO::FETCH_ASSOC);
+$tamanos = $conexion->query("SELECT id_tamaño, tamaño_nombre, tamaño_medidas FROM tamaño")->fetchAll(PDO::FETCH_ASSOC);
 $sabores = $conexion->query("SELECT id_sabor, sabor_nombre FROM sabor")->fetchAll(PDO::FETCH_ASSOC);
 $rellenos = $conexion->query("SELECT id_relleno, relleno_nombre FROM relleno")->fetchAll(PDO::FETCH_ASSOC);
 $materiales = $conexion->query("SELECT ID_material_extra, material_extra_nombre, material_extra_descri 
                                 FROM material_extra WHERE RELA_estado_insumos = 1")->fetchAll(PDO::FETCH_ASSOC);
+
+$materiales_agrupados = [];
+foreach ($materiales as $m) {
+  $nombre = $m['material_extra_nombre'];
+  if (!isset($materiales_agrupados[$nombre])) {
+    $materiales_agrupados[$nombre] = [];
+  }
+  $materiales_agrupados[$nombre][] = $m;
+}
+
 $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri 
                                   FROM metodo_pago")->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -37,8 +47,20 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
     let pisoCount = 0;
 
     function agregarPiso() {
-      pisoCount++;
       const container = document.getElementById("pisos-container");
+      const alerta = document.getElementById("alerta-limite-pisos");
+
+      const MAX_PISOS = 3;
+      const numPisosActual = container.getElementsByClassName("piso").length;
+
+      alerta.style.display = 'none';
+
+      if (numPisosActual >= MAX_PISOS) {
+        alerta.style.display = 'block';
+        return;
+      }
+
+      pisoCount++;
 
       const div = document.createElement("div");
       div.classList.add("piso");
@@ -48,7 +70,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
         <label>Tamaño:</label>
         <select name="pisos[${pisoCount}][RELA_tamaño]" required>
           <?php foreach ($tamanos as $t): ?>
-            <option value="<?= $t['id_tamaño'] ?>"><?= $t['tamaño_nombre'] ?></option>
+            <option value="<?= $t['id_tamaño'] ?>"> <?= $t['tamaño_nombre'] ?> (<?= $t['tamaño_medidas'] ?>) </option>
           <?php endforeach; ?>
         </select>
 
@@ -65,16 +87,26 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
             <option value="<?= $r['id_relleno'] ?>"><?= $r['relleno_nombre'] ?></option>
           <?php endforeach; ?>
         </select>
-
+        <button type="button" onclick="eliminarPiso(this)">❌ Eliminar Piso</button>
         <hr>
       `;
       container.appendChild(div);
+    }
+
+    function eliminarPiso(button) {
+      const pisoDiv = button.closest('.piso');
+      if (pisoDiv) {
+        pisoDiv.remove();
+
+        document.getElementById("alerta-limite-pisos").style.display = 'none';
+
+      }
     }
   </script>
 </head>
 
 <body>
-  <h2>🎂 Crear tu pastel personalizado</h2>
+  <h2>🎂 Crear pastel personalizado</h2>
 
   <form action="../../controllers/cliente/guardar_pedido.php" method="POST" class="pastel-form">
 
@@ -104,22 +136,153 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
 
     <!-- Material extra -->
     <h3>🎁 Materiales extra</h3>
-    <?php foreach ($materiales as $m): ?>
-      <label>
-        <input type="checkbox" name="material_extra[]" value="<?= $m['ID_material_extra'] ?>">
-        <?= $m['material_extra_nombre'] ?> (<?= $m['material_extra_descri'] ?>)
-      </label><br>
+
+    <?php foreach ($materiales_agrupados as $nombre_grupo => $opciones_grupo): ?>
+      <details class="material-extra-group">
+        <summary>
+          <strong><?= htmlspecialchars($nombre_grupo) ?></strong>
+        </summary>
+
+        <div class="opciones-container">
+          <?php foreach ($opciones_grupo as $opcion): ?>
+            <label class="opcion-item">
+              <input
+                type="checkbox"
+                name="material_extra[]"
+                value="<?= htmlspecialchars($opcion['ID_material_extra']) ?>">
+              <?= htmlspecialchars($opcion['material_extra_descri']) ?>
+
+            </label><br>
+          <?php endforeach; ?>
+        </div>
+      </details>
     <?php endforeach; ?>
 
     <!-- Pisos dinámicos -->
     <h3>⚡ Pisos</h3>
     <div id="pisos-container"></div>
+    <div id="alerta-limite-pisos" class="alerta-personalizada" style="display: none;">
+      ⚠️ ¡Atención! Solo puedes agregar un máximo de 3 pisos.
+    </div>
     <button type="button" onclick="agregarPiso()">➕ Agregar Piso</button>
 
     <!-- Dirección de envío -->
     <h3>🚚 Datos de envío</h3>
-    <label>Dirección de envío:</label><br>
-    <input type="text" name="pedido_direccion_envio" required style="width:100%">
+
+    <div style="
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    justify-content: space-between;
+    margin-bottom: 15px;">
+
+      <div style="flex: 1 1 100%;">
+        <label for="envio_fecha_hora_entrega">Fecha y Hora de Entrega:</label>
+        <input
+          type="datetime-local"
+          id="envio_fecha_hora_entrega"
+          name="envio_fecha_hora_entrega"
+          placeholder="Ej: 2024-12-31 15:30"
+          required
+          style="width: 100%;">
+      </div>
+
+      <div style="flex: 1 1 100%;">
+        <label for="envio_calle_numero">Calle y Número:</label>
+        <input
+          type="text"
+          id="envio_calle_numero"
+          name="envio_calle_numero"
+          placeholder="Ej: Av. 25 de Mayo 1234"
+          required
+          style="width: 100%;">
+      </div>
+
+      <div style="display: flex; gap: 10px; width: 100%;">
+        <div style="flex: 1;">
+          <label for="envio_piso">Piso (Opcional):</label>
+          <input
+            type="text"
+            id="envio_piso"
+            name="envio_piso"
+            placeholder="Ej: 5"
+            style="width: 100%;">
+        </div>
+
+        <div style="flex: 1;">
+          <label for="envio_dpto">Dpto (Opcional):</label>
+          <input
+            type="text"
+            id="envio_dpto"
+            name="envio_dpto"
+            placeholder="Ej: A"
+            style="width: 100%;">
+        </div>
+      </div>
+
+      <div style="flex: 1 1 30%;">
+        <label for="envio_localidad">Localidad:</label>
+        <input
+          type="text"
+          id="envio_localidad"
+          name="envio_localidad"
+          placeholder="Ej: Formosa"
+          required
+          style="width: 100%;">
+      </div>
+
+      <div style="flex: 1 1 30%;">
+        <label for="envio_barrio">Barrio:</label>
+        <input
+          type="text"
+          id="envio_barrio"
+          name="envio_barrio"
+          placeholder="Ej:  Centro"
+          required
+          style="width: 100%;">
+      </div>
+
+      <div style="flex: 1 1 30%;">
+        <label for="envio_cp">Código Postal (CP):</label>
+        <input
+          type="text"
+          id="envio_cp"
+          name="envio_cp"
+          placeholder="Ej: 3600"
+          required
+          style="width: 100%;">
+      </div>
+      <div style="flex: 1 1 30%;">
+        <label for="envio_provincia">Provincia:</label>
+        <input
+          type="text"
+          id="envio_provincia"
+          name="envio_provincia"
+          placeholder="Ej: Formosa"
+          required
+          style="width: 100%;">
+      </div>
+
+      <div style="flex: 1 1 100%;">
+        <label for="envio_telefono_contacto">Teléfono de Contacto (con código de área):</label>
+        <input
+          type="tel"
+          id="envio_telefono_contacto"
+          name="envio_telefono_contacto"
+          placeholder="Ej: 54 3704 1234"
+          required
+          style="width: 100%;">
+      </div>
+    </div>
+
+    <label for="envio_referencias">Referencias para el Repartidor (Máx. 250 caracteres):</label>
+    <textarea
+      id="envio_referencias"
+      name="envio_referencias"
+      rows="3"
+      maxlength="250"
+      placeholder="Ej: Portón verde, casa con rejas blancas, tocar timbre de la izquierda."
+      style="width: 100%;"></textarea>
 
     <label>Metodo de Pago:</label>
     <select name="RELA_metodo_pago" required>

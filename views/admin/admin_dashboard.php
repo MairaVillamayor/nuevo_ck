@@ -8,7 +8,7 @@
 </head>
 <body>
   <?php include("../../includes/header.php"); 
-  require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+  require_once "../../includes/navegacion.php";
   ?>
 
   <main class="main-content">

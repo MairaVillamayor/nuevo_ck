@@ -78,3 +78,14 @@ hr {
     border-top: 1px solid #ffb6c1;
     margin: 10px 0;
 }
+
+/* Estilos para la alerta personalizada */
+.alerta-personalizada {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ffcc00; /* Borde amarillo suave */
+    background-color: #fff9e6; /* Fondo amarillo muy claro */
+    color: #cc9900; /* Texto amarillo oscuro */
+    border-radius: 4px;
+    font-weight: bold;
+}

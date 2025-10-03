@@ -42,11 +42,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['usuario_nombre'], $_P
         }
         exit();
     } else {
-        header("location:../../views/usuario/login.php?error=invalid");
+        header("location:../../index.php?error=invalid");
         exit();
     }
 } else {
-    header("Location: ../../views/usuario/login.php");
+    header("Location: ../../index.php");
     exit();
 }
 

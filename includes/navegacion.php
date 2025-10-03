@@ -1,12 +1,3 @@
-<?php
-// includes/navegacion.php
-?>
-<?php
-// includes/navegacion.php
-?>
-<?php
-// includes/navegacion.php
-?>
 
 <div style="
     position: fixed;
