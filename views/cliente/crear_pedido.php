@@ -5,7 +5,7 @@ session_start();
 
 // ⚠️ Verificamos que el usuario haya iniciado sesión
 if (!isset($_SESSION['usuario_id'])) {
-  header("Location: ../usuario/login.php?error=login_required");
+  header("Location: ../../index.php?error=login_required");
   exit();
 }
 
@@ -186,6 +186,15 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
           required
           style="width: 100%;">
       </div>
+      <script>
+        const now = new Date();
+        const minDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        
+        minDate.setMinutes(minDate.getMinutes() - minDate.getTimezoneOffset());
+        const minDateTime = minDate.toISOString().slice(0,16);
+        
+        document.getElementById("envio_fecha_hora_entrega").min = minDateTime;
+      </script>
 
       <div style="flex: 1 1 100%;">
         <label for="envio_calle_numero">Calle y Número:</label>

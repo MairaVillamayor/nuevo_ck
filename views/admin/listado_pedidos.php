@@ -23,7 +23,6 @@ $estados = $estados_stmt->fetchAll(PDO::FETCH_ASSOC);
 $sql = " SELECT 
     pe.ID_pedido,
     pe.pedido_fecha,
-    -- DATOS DE ENVÍO DE LA TABLA pedido_envio
     p_envio.envio_fecha_hora_entrega,
     p_envio.envio_calle_numero,
     p_envio.envio_barrio,
@@ -44,7 +43,6 @@ LEFT JOIN metodo_pago mp
     ON pe.RELA_metodo_pago = mp.ID_metodo_pago
 LEFT JOIN estado e 
     ON pe.RELA_estado = e.ID_estado
--- UNIR CON LA TABLA DE ENVÍO USANDO SU RELACIÓN
 LEFT JOIN pedido_envio p_envio
     ON pe.RELA_pedido_envio = p_envio.ID_pedido_envio
 ORDER BY pe.ID_pedido DESC; ";
@@ -160,9 +158,13 @@ h2 {
 .estado-sin-estado { background: #9e9e9e; } 
 .estado-cancelado { background: #607d8b; }
 </style>
+<!-- Importa SweetAlert2 (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function cambiarEstado(pedidoId, select) {
+function cambiarEstado(pedidoId, select) {
     const nuevoEstado = select.value;
+
     fetch('../../controllers/admin/estado_pedido.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -171,15 +173,34 @@ h2 {
     .then(response => response.json())
     .then(data => {
         if(data.success){
-            alert('Estado actualizado a "' + data.estado + '" 🎉');
-            location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Estado actualizado 🎉',
+                text: 'El pedido ahora está en: ' + data.estado,
+                confirmButtonColor: '#e91e63'
+            }).then(() => {
+                location.reload();
+            });
         } else {
-            alert('⚠️ Error: ' + data.error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error ⚠️',
+                text: data.error,
+                confirmButtonColor: '#f44336'
+            });
         }
     })
-    .catch(err => alert('❌ Error de conexión'));
+    .catch(err => {
+        Swal.fire({
+            icon: 'warning',
+            title: '❌ Error de conexión',
+            text: 'No se pudo contactar con el servidor',
+            confirmButtonColor: '#ff9800'
+        });
+    });
 }
 </script>
+
 </head>
 <body>
 <h2>📋 Listado de Pedidos por Estado</h2>

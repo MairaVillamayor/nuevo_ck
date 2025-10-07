@@ -64,7 +64,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </form>
 
                 </tr>
-            <?php } ?>
+            <?php } ?> 
         </tbody>
     </table>
 </div>

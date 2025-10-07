@@ -46,12 +46,12 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <form action="../../controllers/insumos/baja_logica_materialExtra.php" method="post" style="display:inline;">
                             <input type="hidden" name="id_material_extra" value="<?php echo $row['id_material_extra']; ?>">
-                            <button class="btn-action btn-baja" type="submit" onclick="return confirm('¿Dar de baja este material extra?');">🚫 Dar de baja</button>
+                            <button class="btn-action btn-baja" type="submit" onclick="return confirmarBaja('¿Dar de baja este material extra?');">🚫 Dar de baja</button>
                         </form>
 
                         <form action="../../controllers/insumos/baja_fisica_materialExtra.php" method="post" style="display:inline;">
                             <input type="hidden" name="id_material_extra" value="<?php echo $row['id_material_extra']; ?>">
-                            <button class="btn-action btn-delete" type="submit" onclick="return confirm('¿Eliminar definitivamente este material extra?');">❌ Eliminar</button>
+                            <button class="btn-action btn-delete" type="submit" onclick="return confirmarEliminacion('¿Eliminar definitivamente este material extra?');">❌ Eliminar</button>
                         </form>
 
                     </td>
@@ -60,44 +60,3 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </tbody>
     </table>
 </div>
-
-
-<!-- Agregar SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Scripts para confirmaciones -->
-<script>
-function confirmarBaja(id) {
-    Swal.fire({
-        title: '¿Dar de baja el insumo?',
-        text: "El insumo quedará desactivado pero no se eliminará.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#ec407a',
-        cancelButtonColor: '#ffb6c1',
-        confirmButtonText: 'Sí, dar de baja',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('form-baja-' + id).submit();
-        }
-    });
-}
-
-function confirmarEliminacion(id) {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: "Esta acción eliminará el insumo permanentemente.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ec4040ff',
-        cancelButtonColor: '#ffb6c1',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('form-eliminar-' + id).submit();
-        }
-    });
-}
-</script>
