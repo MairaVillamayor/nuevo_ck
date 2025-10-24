@@ -13,7 +13,7 @@ $conexion = getConexion();
 
 // 🔹 Obtener datos desde la BD
 $colores = $conexion->query("SELECT id_color_pastel, color_pastel_nombre FROM color_pastel")->fetchAll(PDO::FETCH_ASSOC);
-$decoraciones = $conexion->query("SELECT id_decoracion, decoracion_nombre FROM decoracion")->fetchAll(PDO::FETCH_ASSOC);
+$decoraciones = $conexion->query("SELECT id_decoracion, decoracion_nombre, decoracion_descripcion FROM decoracion")->fetchAll(PDO::FETCH_ASSOC);
 $bases = $conexion->query("SELECT id_base_pastel, base_pastel_nombre FROM base_pastel")->fetchAll(PDO::FETCH_ASSOC);
 $tamanos = $conexion->query("SELECT id_tamaño, tamaño_nombre, tamaño_medidas FROM tamaño")->fetchAll(PDO::FETCH_ASSOC);
 $sabores = $conexion->query("SELECT id_sabor, sabor_nombre FROM sabor")->fetchAll(PDO::FETCH_ASSOC);
@@ -69,13 +69,15 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
 
         <label>Tamaño:</label>
         <select name="pisos[${pisoCount}][RELA_tamaño]" required>
+          <option value="" disabled selected>Seleccioná un tamaño</option>
           <?php foreach ($tamanos as $t): ?>
-            <option value="<?= $t['id_tamaño'] ?>"> <?= $t['tamaño_nombre'] ?> (<?= $t['tamaño_medidas'] ?>) </option>
+            <option value="<?= $t['id_tamaño'] ?>"> <?= $t['tamaño_nombre'] ?> (<?=$t['tamaño_medidas'] ?>) </option>
           <?php endforeach; ?>
         </select>
 
         <label>Sabor:</label>
         <select name="pisos[${pisoCount}][RELA_sabor]" required>
+          <option value="" disabled selected>Seleccioná un sabor</option>
           <?php foreach ($sabores as $s): ?>
             <option value="<?= $s['id_sabor'] ?>"><?= $s['sabor_nombre'] ?></option>
           <?php endforeach; ?>
@@ -83,6 +85,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
 
         <label>Relleno:</label>
         <select name="pisos[${pisoCount}][RELA_relleno]" required>
+          <option value="" disabled selected>Seleccioná un relleno</option>
           <?php foreach ($rellenos as $r): ?>
             <option value="<?= $r['id_relleno'] ?>"><?= $r['relleno_nombre'] ?></option>
           <?php endforeach; ?>
@@ -113,6 +116,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
     <!-- Color -->
     <label>Color del pastel:</label>
     <select name="RELA_color_pastel" required>
+      <option value=""disabled selected>Selecciná un color</option>
       <?php foreach ($colores as $c): ?>
         <option value="<?= $c['id_color_pastel'] ?>"><?= $c['color_pastel_nombre'] ?></option>
       <?php endforeach; ?>
@@ -121,14 +125,18 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
     <!-- Decoración -->
     <label>Decoración:</label>
     <select name="RELA_decoracion" required>
+      <option value="" disabled selected>Seleccioná una decoración</option>
       <?php foreach ($decoraciones as $d): ?>
-        <option value="<?= $d['id_decoracion'] ?>"><?= $d['decoracion_nombre'] ?></option>
+        <option value="<?= $d['id_decoracion'] ?>">
+          <?= htmlspecialchars($d['decoracion_nombre']) ?> — <?= htmlspecialchars($d['decoracion_descripcion']) ?>
+        </option>
       <?php endforeach; ?>
     </select>
 
     <!-- Base -->
     <label>Base:</label>
     <select name="RELA_base_pastel" required>
+      <option value="" disabled selected>Seleccioná una base</option>
       <?php foreach ($bases as $b): ?>
         <option value="<?= $b['id_base_pastel'] ?>"><?= $b['base_pastel_nombre'] ?></option>
       <?php endforeach; ?>
@@ -136,47 +144,61 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
 
     <!-- Material extra -->
     <h3>🎁 Materiales extra</h3>
+      <?php foreach ($materiales_agrupados as $nombre_grupo => $opciones_grupo): ?>
+        <details class="material-extra-group">
+          <summary>
+            <strong><?= htmlspecialchars($nombre_grupo) ?></strong>
+          </summary>
 
-    <?php foreach ($materiales_agrupados as $nombre_grupo => $opciones_grupo): ?>
-      <details class="material-extra-group">
-        <summary>
-          <strong><?= htmlspecialchars($nombre_grupo) ?></strong>
-        </summary>
+          <div class="opciones-container">
+            <?php foreach ($opciones_grupo as $opcion): ?>
+              <div class="opcion-item" style="margin-bottom: 10px;">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="material_extra[]"
+                    value="<?= htmlspecialchars($opcion['ID_material_extra']) ?>">
+                  <?= htmlspecialchars($opcion['material_extra_descri']) ?>
+                </label>
 
-        <div class="opciones-container">
-          <?php foreach ($opciones_grupo as $opcion): ?>
-            <label class="opcion-item">
-              <input
-                type="checkbox"
-                name="material_extra[]"
-                value="<?= htmlspecialchars($opcion['ID_material_extra']) ?>">
-              <?= htmlspecialchars($opcion['material_extra_descri']) ?>
+                <!-- Campo para ingresar el color -->
+                <input
+                  type="text"
+                  name="color_material_extra[<?= htmlspecialchars($opcion['ID_material_extra']) ?>]"
+                  placeholder="Color (opcional)"
+                  style="margin-left:10px; padding:4px; width:150px;">
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </details>
+      <?php endforeach; ?>
 
-            </label><br>
-          <?php endforeach; ?>
-        </div>
-      </details>
-    <?php endforeach; ?>
 
     <!-- Pisos dinámicos -->
     <h3>⚡ Pisos</h3>
-    <div id="pisos-container"></div>
-    <div id="alerta-limite-pisos" class="alerta-personalizada" style="display: none;">
-      ⚠️ ¡Atención! Solo puedes agregar un máximo de 3 pisos.
-    </div>
+      <div id="pisos-container"></div>
+      <div id="alerta-limite-pisos" class="alerta-personalizada" style="display: none;">
+        ⚠️ ¡Atención! Solo puedes agregar un máximo de 3 pisos.
+      </div>
     <button type="button" onclick="agregarPiso()">➕ Agregar Piso</button>
 
     <!-- Dirección de envío -->
     <h3>🚚 Datos de envío</h3>
 
-    <div style="
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 15px; 
-    justify-content: space-between;
-    margin-bottom: 15px;">
+      <div style="
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 15px; 
+      justify-content: space-between;
+      margin-bottom: 15px;">
 
       <div style="flex: 1 1 100%;">
+        <?php
+          // Usamos echo para generar el cartel de recordatorio
+          echo '<p style="color: #004d40; background-color: #e0f2f1; padding: 8px; border: 1px solid #4db6ac; border-radius: 5px; font-size: 0.9em; text-align: center; margin-bottom: 10px;">';
+          echo '🗓️ Recordatorio: Los pedidos personalizados requieren <strong>7 días / 1 semana</strong> de anticipación.';
+          echo '</p>';
+        ?>
         <label for="envio_fecha_hora_entrega">Fecha y Hora de Entrega:</label>
         <input
           type="datetime-local"
@@ -188,11 +210,11 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
       </div>
       <script>
         const now = new Date();
-        const minDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-        
+        const minDate = new Date(now.getTime() + 6 * 24 * 60 * 60 * 1000);
+
         minDate.setMinutes(minDate.getMinutes() - minDate.getTimezoneOffset());
-        const minDateTime = minDate.toISOString().slice(0,16);
-        
+        const minDateTime = minDate.toISOString().slice(0, 16);
+
         document.getElementById("envio_fecha_hora_entrega").min = minDateTime;
       </script>
 
@@ -293,13 +315,16 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
       placeholder="Ej: Portón verde, casa con rejas blancas, tocar timbre de la izquierda."
       style="width: 100%;"></textarea>
 
+      <form action="[RUTA_DEL_CONTROLADOR_PAGO]" method="POST" id="pagoForm">
+    <input type="hidden" name="id_pedido" value="[ID_PEDIDO]">
+
+    
     <label>Metodo de Pago:</label>
     <select name="RELA_metodo_pago" required>
       <?php foreach ($metodos_pago as $mp): ?>
         <option value="<?= $mp['ID_metodo_pago'] ?>"><?= $mp['metodo_pago_descri'] ?></option>
       <?php endforeach; ?>
     </select>
-
 
     <br><br>
     <button type="submit">✅ Finalizar Pedido</button>

@@ -5,6 +5,7 @@ include("../../includes/navegacion.php");
 session_start();
 $pdo = getConexion();
 
+
 // ------------------------------------
 // 1) VALIDACIONES Y OBTENCIÓN DE DATOS
 // ------------------------------------
@@ -14,12 +15,11 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 $id_usuario = $_SESSION['usuario_id']; 
 
-// --- OBTENER NOMBRE DEL CLIENTE DE LA BD ---
+
 $nombre_cliente = 'Cliente'; 
 $apellido_cliente = 'Invitado';
 
 try {
-    // Consulta: JOIN usuario con persona usando RELA_persona
     $stmt_cliente = $pdo->prepare(" SELECT 
             p.persona_nombre, 
             p.persona_apellido 
@@ -37,15 +37,18 @@ try {
 
 } catch (Exception $e) {
     error_log("Error al buscar nombre del cliente: " . $e->getMessage());
-    // Continúa con los nombres por defecto
+    die("Error al obtener datos del cliente.");
 }
 
 // ------------------------------------
 // 2) RECIBIR POST Y SANEAMIENTO
 // ------------------------------------
 
-// Datos del Pastel
-$color          = isset($_POST['RELA_color_pastel']) ? (int)$_POST['RELA_color_pastel'] : null;
+$color = isset($_POST['RELA_color_pastel']) ? 
+         (empty($_POST['RELA_color_pastel']) ? 0 : (int)$_POST['RELA_color_pastel']) : 
+         null;
+$color = isset($_POST['RELA_color_pastel']) && $_POST['RELA_color_pastel'] !== '' ? (int)$_POST['RELA_color_pastel'] : null;
+$color = isset($_POST['RELA_color_pastel']) && $_POST['RELA_color_pastel'] !== '' ? (int)$_POST['RELA_color_pastel'] : null; // ✅ CORRECCIÓN
 $decoracion     = isset($_POST['RELA_decoracion']) ? (int)$_POST['RELA_decoracion'] : null;
 $base           = isset($_POST['RELA_base_pastel']) ? (int)$_POST['RELA_base_pastel'] : null;
 $pisos          = $_POST['pisos'] ?? [];
@@ -80,11 +83,11 @@ $id_pastel_personalizado = null;
 $total = 0;
 $descripcion = "";
 
+
 try {
     $pdo->beginTransaction();
 
     // 3.1) Guardar la Dirección de Envío
-    // NOTA: Se asume que los nombres de las columnas son 'direccion_calle_numero', etc.
     $sql_envio = "INSERT INTO pedido_envio (
         envio_fecha_hora_entrega, envio_calle_numero, 
         envio_piso, envio_dpto, envio_barrio, 
@@ -101,7 +104,6 @@ try {
     if (!$id_envio) throw new Exception("No se pudo insertar la dirección de envío.");
 
     // 3.2) Calcular precio total y construir descripción
-    // (Este bloque de cálculo de precios se mantiene igual)
 
     // Base
     $stmt = $pdo->prepare("SELECT base_pastel_nombre, base_pastel_precio FROM base_pastel WHERE ID_base_pastel = ?");
@@ -120,40 +122,45 @@ try {
     $detalles = [];
     foreach ($pisos as $num => $datos) {
         // Lógica de cálculo de precios para tamaños, sabores y rellenos (reducida por espacio)
-        // ... (Tu código completo de cálculo va aquí) ...
         $tamaño_id  = (int)($datos['RELA_tamaño'] ?? 0);
         $sabor_id   = (int)($datos['RELA_sabor'] ?? 0);
-        $relleno_id = (int)($datos['RELA_relleno'] ?? 0);
-
-        // Ejemplo de consulta para Pisos/Sabores/Rellenos (asumiendo que $total se actualiza)
-        // $stmt_detalle = $pdo->prepare("SELECT tamaño_nombre, tamaño_precio FROM tamaño WHERE ID_tamaño = ?");
-        // ...
-        
+        $relleno_id = (int)($datos['RELA_relleno'] ?? 0);        
         $nombreTam = $nombreSab = $nombreRel = 'Detalle'; // Valores de ejemplo para la descripción
         $detalles[] = "Piso $num: $nombreTam de $nombreSab con relleno de $nombreRel";
     }
+// Materiales extra
+if (!empty($materiales)) {
+    $nombresExtra = [];
+    $coloresExtra = $_POST['color_material_extra'] ?? []; // array asociativo: [id_material => color]
+    
+    // Preparar la consulta
+    $stmt_mat = $pdo->prepare("SELECT material_extra_nombre, material_extra_precio FROM material_extra WHERE ID_material_extra = ?");
+    
+    foreach ($materiales as $mid) {
+        $mid_int = (int)$mid;
+        $stmt_mat->execute([$mid_int]);
+        $mat_data = $stmt_mat->fetch(PDO::FETCH_ASSOC);
 
-    // Materiales extra
-    if (!empty($materiales)) {
-        $nombresExtra = [];
-        
-        // Iterar sobre los IDs de materiales extra
-        $stmt_mat = $pdo->prepare("SELECT material_extra_nombre, material_extra_precio FROM material_extra WHERE ID_material_extra = ?");
-        
-        foreach ($materiales as $mid) {
-            $mid_int = (int)$mid;
-            $stmt_mat->execute([$mid_int]);
-            $mat_data = $stmt_mat->fetch(PDO::FETCH_ASSOC);
+        if ($mat_data) {
+            // Sumar precio
+            $total += $mat_data['material_extra_precio'];
 
-            if ($mat_data) {
-                // Sumar el precio del material extra al total
-                $total += $mat_data['material_extra_precio'];
+            // Obtener color si fue ingresado
+            $color = trim($coloresExtra[$mid_int] ?? '');
+
+            // Agregar nombre + color a la descripción
+            if ($color !== '') {
+                $nombresExtra[] = "{$mat_data['material_extra_nombre']} (Color: {$color})";
+            } else {
                 $nombresExtra[] = $mat_data['material_extra_nombre'];
             }
         }
-        
-        if ($nombresExtra) $descripcion .= ". Materiales extra: " . implode(", ", $nombresExtra);
     }
+
+    if ($nombresExtra) {
+        $descripcion .= ". Materiales extra: " . implode(", ", $nombresExtra);
+    }
+}
 
     // 3.3) Guardar pastel_personalizado
     $ins = $pdo->prepare("INSERT INTO pastel_personalizado 
@@ -215,6 +222,11 @@ try {
         
         $detalles[] = "Piso $num: $nombreTam de $nombreSab con relleno de $nombreRel";
     }
+
+    if (!empty($detalles)) {
+        $descripcion .= ". " . implode(". ", $detalles);
+    }
+
     // 3.6) Guardar pedido principal
     $sql_pedido = "INSERT INTO pedido 
         (pedido_fecha, RELA_pedido_envio, RELA_usuario, RELA_metodo_pago, RELA_estado) 
@@ -242,7 +254,7 @@ try {
         ':precio_total'             => $total
     ]);
 
-    // 3.8) CONFIRMAMOS LA TRANSACCIÓN
+
     $pdo->commit();
 
 } catch (Exception $e) {
@@ -386,6 +398,7 @@ try {
          /* Estilo simple para mensaje de éxito */
          .cp-alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center; }
          .cp-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    
     </style>
 </head>
 <body>
@@ -403,6 +416,7 @@ try {
 
     <div class="datos-seccion">
         <h3>🚚 Datos de Envío</h3>
+        <p><strong>Fecha/Hora:</strong> <?= htmlspecialchars($hora_fecha_entrega) ?></p>
         <p><strong>Dirección:</strong> <?= htmlspecialchars($calle_numero) ?> 
             <?= !empty($piso) ? 'Piso: ' . htmlspecialchars($piso) : '' ?> 
             <?= !empty($dpto) ? 'Dpto: ' . htmlspecialchars($dpto) : '' ?>
@@ -417,7 +431,8 @@ try {
         <table class="tabla-productos">
             <tr>
                 <td class="col-descripcion"><?= htmlspecialchars($descripcion) ?></td>
-                <td class="col-importe">$<?= number_format($total, 2) ?></td>
+                <td class="col-importe">$<?= number_format($total, 1) ?></td>
+                
             </tr>
         </table>
     </div>
@@ -432,8 +447,9 @@ try {
 
 <div class="botones-container">
     <a href="../../views/cliente/mis_pedidos.php" class="btn-cake btn-primary">Volver a Mis Pedidos</a>
-    <a href="pago.php?id_pedido=<?= htmlspecialchars($id_pedido) ?>" class="btn-cake btn-success">Pagar Ahora 💳</a>
+
     <a href="cancelar_pedido.php?id_pedido=<?= htmlspecialchars($id_pedido) ?>" class="btn-cake btn-danger">Cancelar Pedido ❌</a>
 </div>
+
 </body>
 </html>

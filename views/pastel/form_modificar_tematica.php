@@ -9,7 +9,7 @@
 <body>
 <?php 
 include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 ?>
 
 <div class="admin-form">
@@ -32,14 +32,14 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
     }
     $tematica_descripcion = $tematica["tematica_descripcion"];
     $estado_actual = isset($tematica["RELA_estado_decoraciones"]) ? $tematica["RELA_estado_decoraciones"] : null;
-    $estados = $pdo->query("SELECT * FROM estado_decoraciones")->fetchAll(PDO::FETCH_ASSOC);
+    $estados = $pdo->query("SELECT * FROM estado")->fetchAll(PDO::FETCH_ASSOC);
     ?>
     <form action="../../controllers/pastel/modificar_tematica.php" method="post">
         <label for="tematica_descripcion">Descripción: </label>
         <input type="text" name="tematica_descripcion" id="tematica_descripcion" value="<?php echo htmlspecialchars($tematica_descripcion); ?>" required>
         <br><br>
-        <label for="rela_estado">Estado:</label>
-        <select name="rela_estado" id="rela_estado" required>
+        <label for="rela_estado_decoraciones">Estado:</label>
+        <select name="rela_estado_decoraciones" id="rela_estado_decoraciones" required>
             <?php foreach ($estados as $estado) {
                 $id_estado = isset($estado['ID_estado_decoraciones']) ? $estado['ID_estado_decoraciones'] : '';
                 $nombre_estado = isset($estado['estado_decoraciones_descri']) ? $estado['estado_decoraciones_descri'] : 'Sin descripción';

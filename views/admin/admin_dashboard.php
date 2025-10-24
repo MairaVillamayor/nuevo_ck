@@ -16,11 +16,15 @@
     <p class="description">Desde aquí podés gestionar los recursos de Cake Party.</p>
 
     <div class="cards">
-      <div class="card">👥<br><a href="listado_perfiles.php">Perfiles</a><br></div>
+      <div class="card">​​🧑‍💻​<br><a href="listado_perfiles.php">Perfiles</a><br></div>
       <div class="card">👥<br><a href="#">Clientes</a><br></div>
       <div class="card">🍰<br><a href="admin_items.php">Items</a><br></div>
-      <div class="card">📅<br><a href="listado_pedidos.php">Pedidos</a><br></div>
+      <div class="card">🗂️​<br><a href="listado_pedidos.php">Pedidos</a><br></div>
       <div class="card">🕵️<br><a href="../usuario/Listado_Usuarios.php">Usuarios</a><br></div>
+      <div class="card">📦<br><a href="../stock/dashboard_stock.php">Stock</a><br></div>
+      <div class="card">​🎂​<br><a href="../admin/productos_finalizados.php">Productos Finalizados</a><br></div>
+      <div class="card">📅​<br><a href="registro_ventas.php">Registrar Ventas</a><br></div>
+
     </div>
   </main>
 </body>

@@ -7,12 +7,12 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();
 $query = "SELECT t.id_tematica, t.tematica_descripcion, e.estado_decoraciones_descri 
         FROM tematica t 
-        JOIN estado_decoraciones e ON t.RELA_estado_decoraciones = e.ID_estado_decoraciones";
+        JOIN estado_decoraciones e ON t.RELA_estado = e.ID_estado";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

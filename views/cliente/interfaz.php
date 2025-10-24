@@ -151,10 +151,9 @@ require_once "../../includes/navegacion.php";
 
   <!-- Carrusel estático -->
   <section class="carousel">
-    <img src="https://via.placeholder.com/200x250" alt="Tarta 1">
-    <img src="https://via.placeholder.com/200x250" alt="Postre 2">
-    <img src="https://via.placeholder.com/200x250" alt="Tarta 3">
-    <img src="https://via.placeholder.com/200x250" alt="Macarons">
+    <img src="../../public/images/crear_pastel.png" alt="Torta 1">
+    <img src="../../public/images/crear_pastel2.png" alt="Torta 2">
+    <img src="../../public/images/crear_pastel3.png" alt="Torta 3">
     <div class="promo">
       <h2>¡CAKE PARTY!</h2>
       <h1>20% <br><span>OFF</span></h1>

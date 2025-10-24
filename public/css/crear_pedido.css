@@ -89,3 +89,15 @@ hr {
     border-radius: 4px;
     font-weight: bold;
 }
+
+select option {
+  white-space: pre-wrap; /* Permite saltos de línea si el texto es largo */
+  padding: 4px;
+}
+
+/* Estilo Adicional Sugerido */
+.opcion-pago.seleccionado {
+    border-color: #e91e63; /* Borde fuerte cuando está seleccionado */
+    box-shadow: 0 0 10px rgba(233, 30, 99, 0.2);
+    background-color: #fff0f5; /* Fondo más claro para la selección */
+}

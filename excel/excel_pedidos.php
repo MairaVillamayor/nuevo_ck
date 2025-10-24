@@ -3,118 +3,139 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Reporte de Pedidos en Excel</title>
-  <script src="tableToExcel.js"></script>
-  <style>
-    .tabla-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      width: 90%;
-      margin: 0 auto;
-      padding-bottom: 15px;
-    }
+    <meta charset="UTF-8">
+    <title>Reporte de Pedidos en Excel</title>
+    <script src="tableToExcel.js"></script>
+    <style>
+        /* Estilos existentes */
+        .tabla-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 90%;
+            margin: 0 auto;
+            padding-bottom: 15px;
+        }
 
-    .tablalistado {
-      border-collapse: separate;
-      border-spacing: 0;
-      min-width: 1100px;
-      background: #ffffff;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(247, 145, 225, 0.05);
-      font-family: 'Poppins', sans-serif;
-    }
+        .tablalistado {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1100px;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(247, 145, 225, 0.05);
+            font-family: 'Poppins', sans-serif;
+        }
 
-    .tablalistado th {
-      background-color: #333;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 15px;
-      padding: 12px;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
+        .tablalistado th {
+            background-color: #333;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 12px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
 
-    .tablalistado td {
-      padding: 10px 12px;
-      font-size: 14px;
-      color: #222222;
-      text-align: center;
-      border-bottom: 1px solid #dddddd;
-      transition: background 0.3s ease;
-    }
+        .tablalistado td {
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #222222;
+            text-align: center;
+            border-bottom: 1px solid #dddddd;
+            transition: background 0.3s ease;
+        }
 
-    .tablalistado tr:nth-child(even) td {
-      background-color: #f9f9f9;
-    }
+        .tablalistado tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
 
-    .tablalistado tr:hover td {
-      background-color: #eaeaea;
-    }
+        .tablalistado tr:hover td {
+            background-color: #eaeaea;
+        }
 
-    .tablalistado tr:last-child td {
-      border-bottom: none;
-    }
+        .tablalistado tr:last-child td {
+            border-bottom: none;
+        }
 
-    .titulo-reporte {
-      text-align: center;
-      font-family: 'Poppins', sans-serif;
-      color: #333;
-    }
+        .titulo-reporte {
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
 
-    body {
-      background-color: #f3c1d7;
-      margin: 0;
-      padding: 20px 0;
-    }
+        body {
+            background-color: #f3c1d7;
+            margin: 0;
+            padding: 20px 0;
+        }
 
-    input[type="button"] {
-      padding: 10px 20px;
-      margin: 20px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      background-color: #333;
-      color: #ffffff;
-      cursor: pointer;
-    }
+        input[type="button"] {
+            padding: 10px 20px;
+            margin: 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: #ffffff;
+            cursor: pointer;
+        }
 
-    input[type="button"]:hover {
-      background-color: #555555;
-    }
-  </style>
+        input[type="button"]:hover {
+            background-color: #555555;
+        }
+
+        /* Estilos para el buscador */
+        .buscador-container {
+            width: 90%;
+            margin: 0 auto 20px auto;
+            text-align: center;
+        }
+
+        #buscadorDescripcion {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="titulo-reporte">
-    <h1>📦 Reporte Excel de Pedidos</h1>
-    <p>Exportando pedidos registrados</p>
-    <input type="button" onclick="tableToExcel('pedidosTable', 'Reporte de Pedidos')" value="Exportar a Excel">
-  </div>
+    <div class="titulo-reporte">
+        <h1>📦 Reporte Excel de Pedidos</h1>
+        <p>Exportando pedidos registrados</p>
+        <input type="button" onclick="tableToExcel('pedidosTable', 'Reporte de Pedidos')" value="Exportar a Excel">
+    </div>
 
-  <div class="tabla-scroll">
-    <table class="tablalistado" id="pedidosTable" border="2">
-      <thead>
-        <tr>
-          <th>ID Pedido</th>
-          <th>Fecha</th>
-          <th>Usuario</th>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>Descripción Pastel</th>
-          <th>Fecha y Hora de Entrega</th>
-          <th>Dirección de Envío</th>
-          <th>Localidad</th>
-          <th>Barrio</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        $conn = mysqli_connect("localhost", "root", "Maira_2023", "cake_party") or die("Error de conexión");
-        $sql = "SELECT 
+    <div class="buscador-container">
+        <input type="text" id="buscadorDescripcion" onkeyup="filtrarTabla()" placeholder="Buscar según fecha, usuario, persona, descripción..." title="Escribe cualquier dato para buscar">
+    </div>
+    <div class="tabla-scroll">
+        <table class="tablalistado" id="pedidosTable" border="2">
+            <thead>
+                <tr>
+                    <th>ID Pedido</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Descripción Pastel</th>
+                    <th>Fecha y Hora de Entrega</th>
+                    <th>Dirección de Envío</th>
+                    <th>Localidad</th>
+                    <th>Barrio</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $conn = mysqli_connect("localhost", "root", "Maira_2023", "cake_party") or die("Error de conexión");
+                $sql = "SELECT 
     pe.ID_pedido,
     pe.pedido_fecha,
     p_envio.envio_fecha_hora_entrega,
@@ -145,38 +166,80 @@ LEFT JOIN pedido_envio p_envio
     ON pe.RELA_pedido_envio = p_envio.ID_pedido_envio
 ORDER BY pe.ID_pedido ASC;";
 
-        $resultset = mysqli_query($conn, $sql);
-        if (mysqli_num_rows($resultset) > 0) {
-          while ($row = mysqli_fetch_assoc($resultset)) {
-        ?>
-            <tr>
-              <td><?php echo $row['ID_pedido']; ?></td>
-              <td><?php echo $row['pedido_fecha']; ?></td>
-              <td><?php echo $row['usuario_nombre']; ?></td>
-              <td><?php echo $row['persona_nombre']; ?></td>
-              <td><?php echo $row['persona_apellido']; ?></td>
-              <td><?php echo $row['pastel_personalizado_descripcion']; ?></td>
-              <td><?php echo $row['envio_fecha_hora_entrega']; ?></td>
-              <td><?php echo $row['envio_calle_numero']; ?></td>
-              <td><?php echo $row['envio_localidad']; ?></td>
-              <td><?php echo $row['envio_barrio']; ?></td>
+                $resultset = mysqli_query($conn, $sql);
+                if (mysqli_num_rows($resultset) > 0) {
+                    while ($row = mysqli_fetch_assoc($resultset)) {
+                ?>
+                        <tr>
+                            <td><?php echo $row['ID_pedido']; ?></td>
+                            <td><?php echo $row['pedido_fecha']; ?></td>
+                            <td><?php echo $row['usuario_nombre']; ?></td>
+                            <td><?php echo $row['persona_nombre']; ?></td>
+                            <td><?php echo $row['persona_apellido']; ?></td>
+                            <td><?php echo $row['pastel_personalizado_descripcion']; ?></td>
+                            <td><?php echo $row['envio_fecha_hora_entrega']; ?></td>
+                            <td><?php echo $row['envio_calle_numero']; ?></td>
+                            <td><?php echo $row['envio_localidad']; ?></td>
+                            <td><?php echo $row['envio_barrio']; ?></td>
+                            <td><?php echo $row['estado_descri']; ?></td>
+                        </tr>
+                    <?php
+                    }
+                } else {
+                    ?>
+                    <tr>
+                        <td colspan="11">No hay pedidos registrados.</td>
+                    </tr>
+                <?php
+                }
+                mysqli_close($conn);
+                ?>
+            </tbody>
+        </table>
+    </div>
 
-              <td><?php echo $row['estado_descri']; ?></td>
-            </tr>
-          <?php
-          }
-        } else {
-          ?>
-          <tr>
-            <td colspan="7">No hay pedidos registrados.</td>
-          </tr>
-        <?php
+    <script>
+        /**
+         * Función para filtrar la tabla de pedidos buscando en el contenido de CUALQUIER columna (celda).
+         */
+        function filtrarTabla() {
+            let input, filter, table, tr, i, j, td, txtValue;
+            input = document.getElementById("buscadorDescripcion");
+            filter = input.value.toUpperCase(); // El texto de búsqueda en mayúsculas
+            table = document.getElementById("pedidosTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Recorrer todas las filas de la tabla (empezando por 1 para saltar la cabecera <thead>)
+            for (i = 1; i < tr.length; i++) {
+                let encontrado = false; 
+                
+                // Obtener todas las celdas (<td>) de la fila actual
+                let celdas = tr[i].getElementsByTagName("td");
+
+                // Recorrer todas las celdas de la fila
+                for (j = 0; j < celdas.length; j++) {
+                    td = celdas[j];
+                    
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        
+                        // Comprobar si el texto de la celda incluye el filtro
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            encontrado = true;
+                            break; // Deja de buscar en esta fila si ya encontró una coincidencia
+                        }
+                    }
+                }
+
+                // Mostrar u ocultar la fila
+                if (encontrado) {
+                    tr[i].style.display = ""; // Mostrar
+                } else {
+                    tr[i].style.display = "none"; // Ocultar
+                }
+            }
         }
-        mysqli_close($conn);
-        ?>
-      </tbody>
-    </table>
-  </div>
+    </script>
 
 </body>
 
