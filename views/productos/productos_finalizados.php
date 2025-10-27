@@ -143,7 +143,7 @@ if ($pdo_conn) {
         <?php echo $mensaje; ?>
 
         <h2 class="mt-4">Ingresar Nuevo Producto</h2>
-        <form method="POST" action="../../controllers/admin/" class="mb-5">
+        <form method="POST" action="../../controllers/productos/alta_producto.php" class="mb-5">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="nombre" class="form-label">Nombre del Producto</label>

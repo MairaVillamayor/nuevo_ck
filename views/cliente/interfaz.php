@@ -136,7 +136,10 @@ require_once "../../includes/navegacion.php";
         <a href="../../controllers/usuario/logout.php" class="btn-cerrar-sesion">Cerrar Sesión</a>
       </div>
     <?php endif; ?>
-    <span class="cart">🛒</span>
+    <span class="cart">
+  <a href="../productos/carrito.php" class="cart-link">🛒</a>
+</span>
+
   </header>
 
   <!-- Menú negro -->
@@ -146,7 +149,7 @@ require_once "../../includes/navegacion.php";
     <a href="#hacerPedido">¡CREA TU PASTEL!</a>
     <a href="#">COMBOS</a>
     <a href="#">¡PROMOS!</a>
-    <a href="#">PRODUCTOS</a>
+    <a href="../../views/productos/catalogo_web.php">PRODUCTOS</a>
   </nav>
 
   <!-- Carrusel estático -->

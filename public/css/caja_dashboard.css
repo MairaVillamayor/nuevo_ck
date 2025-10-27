@@ -1,0 +1,695 @@
+/**
+ * Estilos específicos para el módulo de Caja
+ * Sistema de gestión de caja para Cake Party
+ */
+
+/* Variables CSS para el módulo de caja */
+:root {
+    --caja-primary: #e91e63;
+    --caja-primary-hover: #d81b60;
+    --caja-secondary: #f06292;
+    --caja-success: #4caf50;
+    --caja-warning: #ff9800;
+    --caja-danger: #f44336;
+    --caja-info: #2196f3;
+    --caja-background: #ffe6ef;
+    --caja-card-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    --caja-border-radius: 15px;
+    --caja-transition: all 0.3s ease;
+}
+
+/* Layout principal del módulo de caja */
+.caja-dashboard {
+    background: var(--caja-background);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.caja-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: var(--caja-border-radius);
+    box-shadow: var(--caja-card-shadow);
+    overflow: hidden;
+}
+
+/* Header del módulo de caja */
+.caja-header {
+    background: linear-gradient(135deg, var(--caja-primary), var(--caja-secondary));
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.caja-header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.caja-header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+/* Sidebar del módulo de caja */
+.caja-sidebar {
+    width: 280px;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.caja-sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+.caja-sidebar-header {
+    padding: 30px 20px;
+    background: linear-gradient(135deg, var(--caja-primary), var(--caja-secondary));
+    color: white;
+    text-align: center;
+}
+
+.caja-sidebar-header h2 {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.caja-sidebar-header p {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.caja-nav {
+    padding: 20px 0;
+}
+
+.caja-nav-item {
+    display: block;
+    padding: 15px 25px;
+    color: #333;
+    text-decoration: none;
+    transition: var(--caja-transition);
+    border-left: 4px solid transparent;
+    font-weight: 500;
+}
+
+.caja-nav-item:hover {
+    background: #fff0f5;
+    border-left-color: var(--caja-primary);
+    transform: translateX(5px);
+}
+
+.caja-nav-item.active {
+    background: #fff0f5;
+    border-left-color: var(--caja-primary);
+    color: var(--caja-primary);
+}
+
+.caja-nav-item i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Contenido principal */
+.caja-main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 30px;
+    transition: margin-left 0.3s ease;
+}
+
+.caja-main-content.expanded {
+    margin-left: 0;
+}
+
+/* Tarjetas de estadísticas */
+.caja-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.caja-stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: var(--caja-border-radius);
+    box-shadow: var(--caja-card-shadow);
+    text-align: center;
+    border-left: 5px solid;
+    transition: var(--caja-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.caja-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.caja-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.caja-stat-card.abierta {
+    border-left-color: var(--caja-success);
+}
+
+.caja-stat-card.cerrada {
+    border-left-color: var(--caja-danger);
+}
+
+.caja-stat-card.ingresos {
+    border-left-color: var(--caja-info);
+}
+
+.caja-stat-card.egresos {
+    border-left-color: var(--caja-warning);
+}
+
+.caja-stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--caja-primary), var(--caja-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.caja-stat-label {
+    font-size: 1.1em;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Tarjetas de acciones */
+.caja-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.caja-action-card {
+    background: white;
+    padding: 30px;
+    border-radius: var(--caja-border-radius);
+    box-shadow: var(--caja-card-shadow);
+    text-align: center;
+    transition: var(--caja-transition);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    border-top: 5px solid;
+}
+
+.caja-action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    text-decoration: none;
+    color: inherit;
+}
+
+.caja-action-card.abrir {
+    border-top-color: var(--caja-success);
+}
+
+.caja-action-card.cerrar {
+    border-top-color: var(--caja-danger);
+}
+
+.caja-action-card.egreso {
+    border-top-color: var(--caja-warning);
+}
+
+.caja-action-card.arqueo {
+    border-top-color: var(--caja-info);
+}
+
+.caja-action-card.historial {
+    border-top-color: #9c27b0;
+}
+
+.caja-action-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+.caja-action-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.caja-action-description {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Formularios de caja */
+.caja-form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 40px;
+    border-radius: var(--caja-border-radius);
+    box-shadow: var(--caja-card-shadow);
+}
+
+.caja-form-title {
+    color: var(--caja-primary);
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.caja-form-group {
+    margin-bottom: 25px;
+}
+
+.caja-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.caja-form-group input,
+.caja-form-group textarea,
+.caja-form-group select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: var(--caja-transition);
+    font-family: inherit;
+}
+
+.caja-form-group input:focus,
+.caja-form-group textarea:focus,
+.caja-form-group select:focus {
+    outline: none;
+    border-color: var(--caja-primary);
+    box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.caja-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Botones específicos de caja */
+.caja-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: var(--caja-transition);
+    margin: 10px;
+}
+
+.caja-btn-primary {
+    background: var(--caja-primary);
+    color: white;
+}
+
+.caja-btn-primary:hover {
+    background: var(--caja-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.caja-btn-success {
+    background: var(--caja-success);
+    color: white;
+}
+
+.caja-btn-success:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.caja-btn-danger {
+    background: var(--caja-danger);
+    color: white;
+}
+
+.caja-btn-danger:hover {
+    background: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.caja-btn-warning {
+    background: var(--caja-warning);
+    color: white;
+}
+
+.caja-btn-warning:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.caja-btn-info {
+    background: var(--caja-info);
+    color: white;
+}
+
+.caja-btn-info:hover {
+    background: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+/* Tablas de caja */
+.caja-table-container {
+    background: white;
+    border-radius: var(--caja-border-radius);
+    box-shadow: var(--caja-card-shadow);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.caja-table-header {
+    padding: 25px;
+    border-bottom: 2px solid #f0f0f0;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.caja-table-title {
+    color: var(--caja-primary);
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.caja-table-count {
+    background: var(--caja-primary);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.caja-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.caja-table th,
+.caja-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.caja-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.caja-table tbody tr:hover {
+    background-color: #fff0f5;
+}
+
+/* Badges de estado */
+.caja-status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.caja-status-abierta {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+}
+
+.caja-status-cerrada {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.caja-status-ingreso {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+}
+
+.caja-status-egreso {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* Alertas específicas de caja */
+.caja-alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.caja-alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.caja-alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.caja-alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.caja-alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Resumen de caja */
+.caja-resumen {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border-left: 4px solid var(--caja-primary);
+}
+
+.caja-resumen h3 {
+    color: var(--caja-primary);
+    margin-bottom: 15px;
+}
+
+.caja-resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.caja-resumen-item {
+    text-align: center;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.caja-resumen-item h4 {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.caja-resumen-item .valor {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--caja-primary);
+}
+
+.caja-resumen-item.ingresos .valor {
+    color: var(--caja-success);
+}
+
+.caja-resumen-item.egresos .valor {
+    color: var(--caja-danger);
+}
+
+.caja-saldo-final {
+    background: linear-gradient(135deg, var(--caja-primary), var(--caja-secondary));
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.caja-saldo-final h3 {
+    margin-bottom: 10px;
+}
+
+.caja-saldo-final .valor {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .caja-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .caja-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .caja-main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .caja-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .caja-actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .caja-table-container {
+        overflow-x: auto;
+    }
+
+    .caja-table {
+        min-width: 800px;
+    }
+
+    .caja-form-container {
+        margin: 20px;
+        padding: 20px;
+    }
+}
+
+/* Animaciones específicas */
+.caja-fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.caja-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Estados especiales */
+.caja-sin-caja {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.caja-sin-caja h3 {
+    margin-bottom: 10px;
+}
+
+.caja-info-caja {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c3e6cb;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.caja-info-caja h3 {
+    margin-bottom: 10px;
+}
+
+/* Botón de menú móvil */
+.caja-mobile-menu-btn {
+    display: none;
+    background: var(--caja-primary);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .caja-mobile-menu-btn {
+        display: block;
+    }
+}
