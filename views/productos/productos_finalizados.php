@@ -182,66 +182,69 @@ if ($pdo_conn) {
         </form>
 
         <hr>
+        <h2 class="mt-5">Listado y Gestión de Productos</h2>
 
-        <h2 class="mt-5">Listado y Gestión de Disponibilidad</h2>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Visibilidad Web</th>
+                <th>Acción Rápida</th>
+                <th>Acciones</th> </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($productos)): ?>
+                <?php foreach ($productos as $producto): ?>
                     <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th>Stock</th>
-                        <th>Visibilidad Web</th>
-                        <th>Acción Rápida</th>
+                        <td><?php echo htmlspecialchars($producto['ID_producto_finalizado']); ?></td>
+                        <td><?php echo htmlspecialchars($producto['producto_finalizado_nombre']); ?></td>
+                        <td>$<?php echo number_format($producto['producto_finalizado_precio'], 2); ?></td>
+                        <td>
+                            <?php if ($producto['stock_actual'] <= 0): ?>
+                                <span class="agotado">0 (AGOTADO)</span>
+                            <?php else: ?>
+                                <strong><?php echo htmlspecialchars($producto['stock_actual']); ?></strong>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php 
+                            $estado_web = $producto['disponible_web'];
+                            $clase = $estado_web == 1 ? 'disponible-si' : 'disponible-no';
+                            $texto = $estado_web == 1 ? 'SÍ (Visible)' : 'NO (Oculto)';
+                            echo "<span class='{$clase}'>{$texto}</span>"; 
+                            ?>
+                        </td>
+                        <td>
+                            <form method="POST" action="" style="display:inline;"> <input type="hidden" name="id_producto" value="<?php echo $producto['ID_producto_finalizado']; ?>">
+                                <input type="hidden" name="cambiar_disponibilidad" value="1">
+                                <?php if ($producto['disponible_web'] == 1): ?>
+                                    <input type="hidden" name="estado" value="0">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">Ocultar de Web</button>
+                                <?php else: ?>
+                                    <input type="hidden" name="estado" value="1">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Mostrar en Web</button>
+                                <?php endif; ?>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="../../controllers/productos/editar_productos.php?id=<?php echo $producto['ID_producto_finalizado']; ?>" class="btn btn-sm btn-info btn-cake">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($productos)): ?>
-                        <?php foreach ($productos as $producto): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($producto['ID_producto_finalizado']); ?></td>
-                                <td><?php echo htmlspecialchars($producto['producto_finalizado_nombre']); ?></td>
-                                <td>$<?php echo number_format($producto['producto_finalizado_precio'], 2); ?></td>
-                                <td>
-                                    <?php if ($producto['stock_actual'] <= 0): ?>
-                                        <span class="agotado">0 (AGOTADO)</span>
-                                    <?php else: ?>
-                                        <strong><?php echo htmlspecialchars($producto['stock_actual']); ?></strong>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php 
-                                    $estado_web = $producto['disponible_web'];
-                                    $clase = $estado_web == 1 ? 'disponible-si' : 'disponible-no';
-                                    $texto = $estado_web == 1 ? 'SÍ (Visible)' : 'NO (Oculto)';
-                                    echo "<span class='{$clase}'>{$texto}</span>"; 
-                                    ?>
-                                </td>
-                                <td>
-                                    <form method="POST" action="productoController.php" style="display:inline;">
-                                        <input type="hidden" name="id_producto" value="<?php echo $producto['ID_producto_finalizado']; ?>">
-                                        <input type="hidden" name="cambiar_disponibilidad" value="1">
-                                        <?php if ($producto['disponible_web'] == 1): ?>
-                                            <input type="hidden" name="estado" value="0">
-                                            <button type="submit" class="btn btn-sm btn-outline-warning">Ocultar de Web</button>
-                                        <?php else: ?>
-                                            <input type="hidden" name="estado" value="1">
-                                            <button type="submit" class="btn btn-sm btn-outline-success">Mostrar en Web</button>
-                                        <?php endif; ?>
-                                    </form>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">No hay productos finalizados registrados.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No hay productos finalizados registrados.</td> </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -15,37 +15,140 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <style>
-    body {
-      background-color: #fff7f9;
-      font-family: 'Poppins', sans-serif;
-    }
-    .container {
-      max-width: 950px;
-      margin-top: 50px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 30px;
-    }
-    .btn-cake {
-      background-color: #f48fb1;
-      color: #fff;
-      border-radius: 10px;
-      border: none;
-    }
-    .btn-cake:hover {
-      background-color: #ec407a;
-    }
-    h2 {
-      color: #e91e63;
-      text-align: center;
-      margin-bottom: 25px;
-    }
-    .table thead {
-      background-color: #f8bbd0;
-      color: #333;
-    }
-  </style>
+  body {
+    background-color: #fff7fa;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .container {
+    max-width: 1000px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 35px;
+    margin: 40px auto;
+  }
+
+  h2, h3, h4, h5 {
+    color: #e91e63;
+    font-weight: 600;
+  }
+
+  /* ---- Tablas ---- */
+  .table {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .table thead {
+    background-color: #f8bbd0;
+    color: #4a4a4a;
+  }
+
+  .table tbody tr:hover {
+    background-color: #ffe6ef;
+  }
+
+  /* ---- Botones ---- */
+  .btn-cake {
+    background-color: #f48fb1;
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-cake:hover {
+    background-color: #ec407a;
+    transform: scale(1.03);
+  }
+
+  .btn-secondary, .btn-warning {
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .btn-warning {
+    background-color: #ffca28;
+    border: none;
+    color: #333;
+  }
+
+  .btn-warning:hover {
+    background-color: #ffc107;
+  }
+
+  .btn-success {
+    background-color: #e91e63;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+  }
+
+  .btn-success:hover {
+    background-color: #c2185b;
+  }
+
+  .btn-primary {
+    background-color: #ff4081;
+    border: none;
+    border-radius: 10px;
+  }
+
+  .btn-primary:hover {
+    background-color: #e91e63;
+  }
+
+  /* ---- Secciones ---- */
+  .section-title {
+    font-size: 1.3rem;
+    margin-top: 30px;
+    color: #d81b60;
+    border-bottom: 2px solid #f8bbd0;
+    padding-bottom: 8px;
+  }
+
+  /* ---- Totales ---- */
+  .totales-box {
+    background-color: #fff0f5;
+    border: 1px solid #f8bbd0;
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .totales-box input {
+    border-radius: 10px;
+    border: 1px solid #f8bbd0;
+  }
+
+  .totales-box label {
+    color: #c2185b;
+    font-weight: 500;
+  }
+
+  /* ---- Footer / Total ---- */
+  .total-pago {
+    background-color: #fce4ec;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: right;
+    font-weight: 600;
+    color: #e91e63;
+  }
+
+  /* ---- Inputs ---- */
+  input, select {
+    border-radius: 10px !important;
+    border: 1px solid #f8bbd0 !important;
+  }
+
+  input:focus, select:focus {
+    border-color: #ec407a !important;
+    box-shadow: 0 0 4px rgba(236, 64, 122, 0.4) !important;
+  }
+</style>
+
 </head>
 <body>
 
@@ -58,7 +161,7 @@
                 <div class="col-md-3">
                     <div class="mb-3">
                         <label class="form-label">Alicuota:</label>
-                        <select class="form-select" name="rela_tabla15" id="rela_tabla15">
+                        <select class="form-select" name="RELA_condicion_iva_cliente" id="RELA_condicion_iva_cliente">
                             <option value="3">0%</option>
                             <option value="4">10.5%</option>
                             <option value="5" selected>21%</option>
@@ -70,7 +173,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <label class="form-label">IVA 10.5:</label>
-                            <input type="text" class="form-control readonly-field" name="tabla26_ivadiez" id="tabla26_ivadiez" value="0.00" readonly>
+                            <input type="text" class="form-control readonly-field" name="factura_iva_105" id="factura_iva_105" value="0.00" readonly>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">IVA 21:</label>
