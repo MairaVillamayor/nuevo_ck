@@ -47,6 +47,11 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
                     <span>Apellido</span>
                     <div id="persona_apellido-error" class="ajax-error" style="display:none;"></div>
                 </div>
+                <div class="inputBox">
+                    <input type="text" id="persona_documento" name="persona_documento" placeholder=" " required>
+                    <span>Documento</span>
+                    <div id="persona_documento-error" class="ajax-error" style="display:none;"></div>
+                </div>
                 <div class="inputBox" id="fecha-nacimiento-box">
                     <input type="date" id="persona_fecha_nacimiento" name="persona_fecha_nacimiento" required max="2011-12-31">
                     <span>Fecha de Nacimiento</span>
@@ -120,7 +125,6 @@ require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
             toggleFilled();
         });
         
-        // Validación AJAX - usuario
         document.getElementById('usuario_nombre').addEventListener('blur', function() {
             const valor = this.value.trim();
             if (valor.length < 3) {

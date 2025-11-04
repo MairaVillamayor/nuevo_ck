@@ -18,6 +18,7 @@
                 $requeridos = [
                     'persona_nombre', 
                     'persona_apellido', 
+                    'persona_documento',
                     'persona_fecha_nacimiento', 
                     'persona_direccion', 
                     'usuario_nombre', 
@@ -56,10 +57,11 @@
                         throw new Exception("El nombre de usuario o correo electrónico ya está registrado");
                     }
                     // 1. Insertar persona
-                    $stmtPersona = $pdo->prepare("INSERT INTO persona (persona_nombre, persona_apellido, persona_fecha_nacimiento, persona_direccion) VALUES (:nombre, :apellido, :fecha_nacimiento, :direccion)");
+                    $stmtPersona = $pdo->prepare("INSERT INTO persona (persona_nombre, persona_apellido, persona_documento, persona_fecha_nacimiento, persona_direccion) VALUES (:nombre, :apellido, :documento, :fecha_nacimiento, :direccion)");
                     $stmtPersona->execute([
                         'nombre' => $_POST['persona_nombre'],
                         'apellido' => $_POST['persona_apellido'],
+                        'documento' => $_POST['persona_documento'],
                         'fecha_nacimiento' => $_POST['persona_fecha_nacimiento'],
                         'direccion' => $_POST['persona_direccion']
                     ]);

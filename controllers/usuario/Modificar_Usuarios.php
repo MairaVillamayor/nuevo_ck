@@ -4,8 +4,9 @@ $pdo = getConexion();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (
-        !isset($_POST["ID_usuario"], $_POST["ID_persona"], $_POST["usuario_nombre"], $_POST["usuario_correo_electronico"], 
-               $_POST["usuario_numero_de_celular"], $_POST["persona_nombre"], $_POST["persona_apellido"],
+        !isset($_POST["ID_usuario"], $_POST["ID_persona"], $_POST["usuario_nombre"], 
+               $_POST["usuario_correo_electronico"], $_POST["usuario_numero_de_celular"], 
+               $_POST["persona_nombre"], $_POST["persona_apellido"], $_POST["persona_documento"],
                $_POST["persona_fecha_nacimiento"], $_POST["persona_direccion"], $_POST["RELA_perfil"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan datos para modificar el usuario");
@@ -21,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $personaNombre = trim($_POST["persona_nombre"]);
     $personaApellido = trim($_POST["persona_apellido"]);
+    $personaDocumento = trim($_POST["persona_documento"]);
     $personaFN = $_POST["persona_fecha_nacimiento"];
     $personaDireccion = trim($_POST["persona_direccion"]);
 
@@ -33,12 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmtPersona = $pdo->prepare("UPDATE persona SET 
                                         persona_nombre = :nombre,
                                         persona_apellido = :apellido,
+                                        persona_documento = :documento
                                         persona_fecha_nacimiento = :fn,
                                         persona_direccion = :direccion
                                       WHERE ID_persona = :id");
         $stmtPersona->execute([
             ':nombre' => $personaNombre,
             ':apellido' => $personaApellido,
+            ':documento' => $personaDocumento,
             ':fn' => $personaFN,
             ':direccion' => $personaDireccion,
             ':id' => $ID_persona

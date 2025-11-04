@@ -82,6 +82,8 @@ class Conexion {
     public function __wakeup() {
         throw new Exception("Cannot unserialize singleton");
     }
+
+    
 }
 
 // Función helper para obtener conexión

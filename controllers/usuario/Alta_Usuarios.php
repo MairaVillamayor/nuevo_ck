@@ -4,8 +4,9 @@ $pdo = getConexion();
 
 if (
     isset($_POST["usuario_nombre"], $_POST["usuario_correo_electronico"], $_POST["usuario_contraseña"], 
-          $_POST["usuario_numero_de_celular"], $_POST["persona_nombre"], $_POST["persona_apellido"], 
-          $_POST["persona_fecha_nacimiento"], $_POST["persona_direccion"], $_POST["RELA_perfil"])
+          $_POST["usuario_numero_de_celular"], $_POST["persona_nombre"], $_POST["persona_apellido"],
+          $_POST['persona_documento'], $_POST["persona_fecha_nacimiento"], $_POST["persona_direccion"], 
+          $_POST["RELA_perfil"])
 ) {
     // Datos de usuario
     $usuarioNombre = trim($_POST["usuario_nombre"]);
@@ -17,20 +18,22 @@ if (
     // Datos de persona
     $personaNombre = trim($_POST["persona_nombre"]);
     $personaApellido = trim($_POST["persona_apellido"]);
+    $personaDocumento = trim($_POST['persona_documento']);
     $personaFN = $_POST["persona_fecha_nacimiento"];
     $personaDireccion = trim($_POST["persona_direccion"]);
 
     if ($usuarioNombre && $usuarioCorreo && $usuarioPassword && $usuarioCelular 
-        && $personaNombre && $personaApellido && $personaFN && $personaDireccion && $perfilId > 0) {
+        && $personaNombre && $personaApellido && $personaDocumento && $personaFN && $personaDireccion && $perfilId > 0) {
         try {
             $pdo->beginTransaction();
 
             // 1️⃣ Insertar persona
-            $stmtPersona = $pdo->prepare("INSERT INTO persona (persona_nombre, persona_apellido, persona_fecha_nacimiento, persona_direccion) 
-                                          VALUES (:nombre, :apellido, :fn, :direccion)");
+            $stmtPersona = $pdo->prepare("INSERT INTO persona (persona_nombre, persona_apellido, persona_documento, persona_fecha_nacimiento, persona_direccion) 
+                                          VALUES (:nombre, :apellido, :documento, :fn, :direccion)");
             $stmtPersona->execute([
                 ':nombre' => $personaNombre,
                 ':apellido' => $personaApellido,
+                ':documento' => $personaDocumento,
                 ':fn' => $personaFN,
                 ':direccion' => $personaDireccion
             ]);

@@ -1,0 +1,5 @@
+Array
+(
+    [RELA_factura] => 64
+    [cant] => 1
+)
