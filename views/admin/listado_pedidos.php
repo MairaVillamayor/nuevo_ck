@@ -3,11 +3,16 @@ require_once __DIR__ . '/../../config/conexion.php';
 include ("../../includes/navegacion.php");
 session_start();
 
-// ✅ Solo administradores
-if (!isset($_SESSION['usuario_id']) || $_SESSION['perfil_id'] != 1) {
+$perfiles_permitidos = [1, 2, 4];
+
+if (
+    !isset($_SESSION['usuario_id']) ||
+    !in_array($_SESSION['perfil_id'], $perfiles_permitidos)
+) {
     header('Location: ../../index.php?error=not_logged');
     exit;
 }
+
 
 $pdo = getConexion();
 

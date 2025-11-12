@@ -7,7 +7,7 @@
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();
 $query = "SELECT * FROM perfiles";
@@ -37,7 +37,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo htmlspecialchars($row["perfil_rol"]); ?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificarPerfil.php?ID_perfil=<?php echo $row['ID_perfil']; ?>"> ✏️ Editar </a> 
-                        
+
                         
                         <form id="form-eliminar-<?= $row['ID_perfil']; ?>" method="post" action="../../controllers/admin/baja_perfiles.php" style="display:inline;">
                             <input type="hidden" name="ID_perfil" value="<?= $row['ID_perfil']; ?>">

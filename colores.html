@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buscador y gestor de colores</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #fafafa;
+  }
+
+  h2 {
+    color: #333;
+  }
+
+  .color-search {
+    position: relative;
+    max-width: 300px;
+    margin-bottom: 20px;
+  }
+
+  input[type="text"], input[type="color"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  .results {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 180px;
+    overflow-y: auto;
+    display: none;
+    z-index: 10;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+
+  .result-item:hover {
+    background: #f0f0f0;
+  }
+
+  .color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 1px solid #aaa;
+  }
+
+  #seleccion {
+    margin-top: 15px;
+    font-weight: bold;
+  }
+
+  /* Estilos para el formulario de agregar */
+  .add-color {
+    margin-top: 25px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    max-width: 320px;
+  }
+
+  .add-color h3 {
+    margin-top: 0;
+  }
+
+  .add-color input[type="text"] {
+    margin-bottom: 10px;
+  }
+
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+</style>
+</head>
+<body>
+
+<h2>🎨 Buscador de colores</h2>
+
+<div class="color-search">
+  <input type="text" id="colorInput" placeholder="Escribí un color (ej. rosa)">
+  <div class="results" id="results"></div>
+</div>
+
+<p id="seleccion">Selecciona un color</p>
+
+<!-- Formulario para agregar nuevos colores -->
+<div class="add-color">
+  <h3>➕ Agregar nuevo color</h3>
+  <input type="text" id="nuevoNombre" placeholder="Nombre del color">
+  <input type="color" id="nuevoCodigo">
+  <button id="agregarBtn">Agregar color</button>
+</div>
+
+<script>
+  // Lista inicial de colores
+  let colores = [
+    { nombre: 'Rosa', codigo: '#FFC0CB' },
+    { nombre: 'Celeste', codigo: '#87CEEB' },
+    { nombre: 'Verde menta', codigo: '#98FF98' },
+    { nombre: 'Lavanda', codigo: '#E6E6FA' },
+    { nombre: 'Amarillo pastel', codigo: '#FFFACD' },
+    { nombre: 'Coral', codigo: '#FF7F50' },
+    { nombre: 'Turquesa', codigo: '#40E0D0' },
+    { nombre: 'Melocotón', codigo: '#FFDAB9' },
+  ];
+
+  const input = document.getElementById('colorInput');
+  const resultsDiv = document.getElementById('results');
+  const salida = document.getElementById('seleccion');
+  const nuevoNombre = document.getElementById('nuevoNombre');
+  const nuevoCodigo = document.getElementById('nuevoCodigo');
+  const agregarBtn = document.getElementById('agregarBtn');
+
+  // 🔍 Buscar colores
+  input.addEventListener('input', () => {
+    const texto = input.value.toLowerCase();
+    const resultados = colores.filter(c => c.nombre.toLowerCase().includes(texto));
+
+    resultsDiv.innerHTML = '';
+    if (resultados.length > 0 && texto !== '') {
+      resultados.forEach(color => {
+        const item = document.createElement('div');
+        item.classList.add('result-item');
+        item.innerHTML = `
+          <div class="color-dot" style="background-color:${color.codigo};"></div>
+          <span>${color.nombre} <small style="color:#666;">(${color.codigo})</small></span>
+        `;
+        item.addEventListener('click', () => {
+          input.value = color.nombre;
+          resultsDiv.style.display = 'none';
+          salida.innerHTML = `
+            🎨 Seleccionaste: 
+            <span style="color:${color.codigo};">${color.nombre}</span> 
+            <code>${color.codigo}</code>
+          `;
+        });
+        resultsDiv.appendChild(item);
+      });
+      resultsDiv.style.display = 'block';
+    } else {
+      resultsDiv.style.display = 'none';
+    }
+  });
+
+  // Ocultar resultados al hacer clic fuera
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.color-search')) {
+      resultsDiv.style.display = 'none';
+    }
+  });
+
+  // ➕ Agregar nuevo color
+  agregarBtn.addEventListener('click', () => {
+    const nombre = nuevoNombre.value.trim();
+    const codigo = nuevoCodigo.value;
+
+    if (nombre === '') {
+      alert('Por favor ingresa un nombre para el color.');
+      return;
+    }
+
+    // Evitar duplicados
+    const existe = colores.some(c => c.nombre.toLowerCase() === nombre.toLowerCase());
+    if (existe) {
+      alert('Ese color ya existe.');
+      return;
+    }
+
+    colores.push({ nombre, codigo });
+    nuevoNombre.value = '';
+    alert(`✅ Color "${nombre}" agregado correctamente.`);
+  });
+</script>
+
+</body>
+</html>

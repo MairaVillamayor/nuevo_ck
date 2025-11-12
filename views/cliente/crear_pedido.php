@@ -43,11 +43,12 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-    
+
     <style>
         /* Estilos base */
         body {
-            background-color: #fff7fa; /* Rosa muy claro */
+            background-color: #fff7fa;
+            /* Rosa muy claro */
             font-family: 'Poppins', sans-serif;
         }
 
@@ -60,85 +61,124 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
             margin: 40px auto;
         }
 
-        h2, h3, h4, h5 {
-            color: #e91e63; /* Rosa vibrante */
+        h2,
+        h3,
+        h4,
+        h5 {
+            color: #e91e63;
+            /* Rosa vibrante */
             font-weight: 600;
         }
 
         /* Inputs y Selects */
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-radius: 10px !important;
-            border: 1px solid #f8bbd0 !important; /* Borde rosa claro */
+            border: 1px solid #f8bbd0 !important;
+            /* Borde rosa claro */
         }
 
-        .form-control:focus, .form-select:focus {
-            border-color: #ec407a !important; /* Borde rosa medio en foco */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #ec407a !important;
+            /* Borde rosa medio en foco */
             box-shadow: 0 0 4px rgba(236, 64, 122, 0.4) !important;
         }
 
         /* Botones y Cards */
-        .btn-primary, .bg-primary {
-            background-color: #ff4081 !important; /* Rosa fuerte */
+        .btn-primary,
+        .bg-primary {
+            background-color: #ff4081 !important;
+            /* Rosa fuerte */
             border: none !important;
             border-radius: 10px !important;
         }
-        .btn-primary:hover, .btn-primary:focus {
-            background-color: #e91e63 !important; /* Rosa vibrante oscuro */
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #e91e63 !important;
+            /* Rosa vibrante oscuro */
         }
-        
+
         /* Botón de Agregar Piso (Success) */
         .btn-success {
-            background-color: #e91e63 !important; /* Rosa vibrante */
+            background-color: #e91e63 !important;
+            /* Rosa vibrante */
             border: none !important;
             border-radius: 10px !important;
             color: #fff !important;
         }
+
         .btn-success:hover {
-            background-color: #c2185b !important; /* Rosa oscuro */
+            background-color: #c2185b !important;
+            /* Rosa oscuro */
         }
 
         /* Botón de Eliminar Piso (Danger) */
         .btn-danger {
-            background-color: #ff4081 !important; /* Usamos el mismo rosa fuerte para consistencia */
+            background-color: #ff4081 !important;
+            /* Usamos el mismo rosa fuerte para consistencia */
             border-color: #ff4081 !important;
             color: #fff !important;
         }
+
         .btn-danger:hover {
             background-color: #e91e63 !important;
             border-color: #e91e63 !important;
         }
 
         /* Card Headers */
-        .card-header.bg-primary { background-color: #ff4081 !important; }
-        .card-header.bg-warning { background-color: #f8bbd0 !important; color: #4a4a4a !important; } /* Rosa claro */
-        .card-header.bg-info { background-color: #ff80ab !important; } /* Rosa medio */
-        .card-header.bg-secondary { background-color: #c2185b !important; } /* Rosa oscuro */
+        .card-header.bg-primary {
+            background-color: #ff4081 !important;
+        }
+
+        .card-header.bg-warning {
+            background-color: #f8bbd0 !important;
+            color: #4a4a4a !important;
+        }
+
+        /* Rosa claro */
+        .card-header.bg-info {
+            background-color: #ff80ab !important;
+        }
+
+        /* Rosa medio */
+        .card-header.bg-secondary {
+            background-color: #c2185b !important;
+        }
+
+        /* Rosa oscuro */
 
         /* Alertas y Pisos */
         .alert-info {
-            background-color: #fce4ec; /* Fondo muy claro */
+            background-color: #fce4ec;
+            /* Fondo muy claro */
             border-color: #f8bbd0;
-            color: #c2185b; /* Texto rosa oscuro */
+            color: #c2185b;
+            /* Texto rosa oscuro */
             font-weight: 500;
         }
-        
+
         .piso {
-            border: 1px solid #f8bbd0; /* Borde rosa claro */
+            border: 1px solid #f8bbd0;
+            /* Borde rosa claro */
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 10px;
-            background-color: #fff0f5; /* Fondo del piso */
+            background-color: #fff0f5;
+            /* Fondo del piso */
         }
-        
+
         /* Acordeón (Materiales Extra) */
         .accordion-button:not(.collapsed) {
             color: #e91e63;
             background-color: #ffe6ef;
             box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08);
         }
+
         .accordion-button:focus {
-             box-shadow: 0 0 4px rgba(236, 64, 122, 0.4) !important;
-             border-color: #ec407a;
+            box-shadow: 0 0 4px rgba(236, 64, 122, 0.4) !important;
+            border-color: #ec407a;
         }
     </style>
 </head>
@@ -146,7 +186,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
 <body>
     <div class="container my-5">
         <h2 class="text-center mb-4">🎂 Crear pastel personalizado</h2>
-        
+
         <form action="../../controllers/cliente/guardar_pedido.php" method="POST" class="needs-validation" novalidate>
             <div class="row">
                 <div class="col-lg-6 mb-4">
@@ -155,7 +195,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                             <h3 class="h5 mb-0">🍰 Detalles del Pastel</h3>
                         </div>
                         <div class="card-body">
-                            <div class="mb-3">
+                             <div class="mb-3">
                                 <label for="color_pastel" class="form-label">Color del pastel:</label>
                                 <select class="form-select" id="color_pastel" name="RELA_color_pastel" required>
                                     <option value="" disabled selected>Seleccioná un color</option>
@@ -165,7 +205,6 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                                 </select>
                                 <div class="invalid-feedback">Por favor, seleccioná un color.</div>
                             </div>
-
                             <div class="mb-3">
                                 <label for="decoracion" class="form-label">Decoración:</label>
                                 <select class="form-select" id="decoracion" name="RELA_decoracion" required>
@@ -244,10 +283,10 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                         </div>
                         <div class="card-body">
                             <?php
-                                // La alerta se estiliza con los colores rosa claro
-                                echo '<div class="alert alert-info text-center" role="alert">';
-                                echo '🗓️ Recordatorio: Los pedidos personalizados requieren <strong>7 días / 1 semana</strong> de anticipación.';
-                                echo '</div>';
+                            // La alerta se estiliza con los colores rosa claro
+                            echo '<div class="alert alert-info text-center" role="alert">';
+                            echo '🗓️ Recordatorio: Los pedidos personalizados requieren <strong>7 días / 1 semana</strong> de anticipación.';
+                            echo '</div>';
                             ?>
                             <div class="mb-3">
                                 <label for="envio_fecha_hora_entrega" class="form-label">Fecha y Hora de Entrega:</label>
@@ -353,7 +392,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                                     required>
                                 <div class="invalid-feedback">Por favor, ingresá tu teléfono de contacto.</div>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="envio_referencias" class="form-label">Referencias para el Repartidor (Máx. 250 caracteres):</label>
                                 <textarea
@@ -375,6 +414,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                             <div class="mb-3">
                                 <label for="metodo_pago" class="form-label">Método de Pago:</label>
                                 <select class="form-select" id="metodo_pago" name="RELA_metodo_pago" required>
+                                    <option value="" disabled selected>Seleccioná un método de pago</option>
                                     <?php foreach ($metodos_pago as $mp): ?>
                                         <option value="<?= $mp['ID_metodo_pago'] ?>"><?= $mp['metodo_pago_descri'] ?></option>
                                     <?php endforeach; ?>
@@ -394,6 +434,15 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectColor = document.getElementById('color_pastel');
+            selectColor.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const color = selectedOption.style.backgroundColor;
+                this.style.backgroundColor = color;
+            });
+        });
+
         let pisoCount = 0;
 
         function agregarPiso() {
@@ -414,7 +463,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
 
             const div = document.createElement("div");
             // Se le aplica la clase 'piso' para tomar el estilo de borde y fondo personalizado
-            div.classList.add("piso", "p-3", "mb-3"); 
+            div.classList.add("piso", "p-3", "mb-3");
             div.innerHTML = `
                 <h4 class="h6 mb-3">Piso ${pisoCount}</h4>
 
@@ -423,7 +472,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                     <select class="form-select" name="pisos[${pisoCount}][RELA_tamaño]" required>
                         <option value="" disabled selected>Seleccioná un tamaño</option>
                         <?php foreach ($tamanos as $t): ?>
-                            <option value="<?= $t['id_tamaño'] ?>"> <?= $t['tamaño_nombre'] ?> (<?=$t['tamaño_medidas'] ?>) </option>
+                            <option value="<?= $t['id_tamaño'] ?>"> <?= $t['tamaño_nombre'] ?> (<?= $t['tamaño_medidas'] ?>) </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -464,27 +513,27 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
         document.addEventListener('DOMContentLoaded', () => {
             const now = new Date();
             // Sumamos 7 días (7 * 24 * 60 * 60 * 1000)
-            const minDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); 
+            const minDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
             // Ajuste de zona horaria para datetime-local
             minDate.setMinutes(minDate.getMinutes() - minDate.getTimezoneOffset());
             const minDateTime = minDate.toISOString().slice(0, 16);
 
             document.getElementById("envio_fecha_hora_entrega").min = minDateTime;
-            
+
             // Validación de Bootstrap
-            (function () {
-              'use strict'
-              const forms = document.querySelectorAll('.needs-validation')
-              Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
-                  if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                  }
-                  form.classList.add('was-validated')
-                }, false)
-              })
+            (function() {
+                'use strict'
+                const forms = document.querySelectorAll('.needs-validation')
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', event => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
             })()
         });
     </script>

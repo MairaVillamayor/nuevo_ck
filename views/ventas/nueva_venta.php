@@ -121,7 +121,15 @@
       <input type="text" class="form-control" id="docPersona" placeholder="Ingresar documento del cliente">
       <button class="btn btn-outline-secondary" onclick="consultarCliente();">Buscar</button>
     </div>
+
+
     <input type="text" readonly class="form-control-plaintext" id="personaNombre" value="Cliente">
+    <input type="hidden" id="personaApellido">
+    <input type="hidden" id="personaDireccion">
+    <input type="hidden" id="personaDocumento">
+    <input type="hidden" id="personaId">
+
+
     <button class="btn btn-primary btn-sm" onclick="insertarFactura();">Iniciar Factura</button>
     <h5 id="numFactura">Factura ID: </h5>
 
@@ -219,126 +227,177 @@
         </div>
       </div>
 
-      <!-- 🧾 Comprobante de Venta / Presupuesto -->
-<div id="comprobanteVenta" class="factura" style="display:none;">
-    <header>
-        <h1>PRESUPUESTO</h1>
-        <small>Documento no válido como factura</small>
-    </header>
+      <!-- 🧾 Comprobante de Venta -->
+      <div id="comprobanteVenta" class="factura" style="display:none;">
+        <header>
+          <h1>Cake Party - Comprobante de Venta 🍰</h1>
+          <small>Documento no válido como factura</small>
+        </header>
 
-    <div class="datos-cliente">
-        <p><label>Sr/es:</label> <span id="comp_cliente_nombre"></span></p>
-        <p><label>Dirección:</label> <span id="comp_cliente_direccion"></span></p>
-        <p><label>DNI:</label> <span id="comp_cliente_dni"></span></p>
-    </div>
+        <div class="datos-cliente">
+          <p><label>Sr/es:</label>
+            <span id="personaNombre"></span>
+          </p>
+          <p><label>Dirección:</label>
+            <span id="personaDireccion"></span>
+          </p>
+          <p><label>DNI:</label>
+            <span id="personaDocumento"></span>
+          </p>
+        </div>
 
-    <table id="tablaComprobanteProductos">
-        <thead>
+        <table id="tablaComprobanteProductos">
+          <thead>
             <tr>
-                <th>Producto</th>
-                <th>Cant.</th>
-                <th>Precio</th>
-                <th>Subtotal</th>
+              <th>Producto</th>
+              <th>Cant.</th>
+              <th>Precio</th>
+              <th>Subtotal</th>
             </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
             <tr>
-                <td colspan="3">TOTAL</td>
-                <td id="comp_total">$0.00</td>
+              <td colspan="3">TOTAL</td>
+              <td id="comp_total">$0.00</td>
             </tr>
-        </tfoot>
-    </table>
+          </tfoot>
+        </table>
 
-    <p style="text-align:right; margin-top:10px;">N° 00033951</p>
-</div>
+        <p style="text-align:right; margin-top:10px;">N° 00033951</p>
+      </div>
 
-<style>
-.factura {
-    width: 700px;
-    margin: auto;
-    border: 1px solid #000;
-    padding: 20px;
-    background: #fff;
-    color: #000;
-    font-family: Arial, sans-serif;
-}
-.factura header {
-    text-align: center;
-    border-bottom: 1px solid #000;
-    margin-bottom: 15px;
-}
-.factura header h1 {
-    font-size: 20px;
-    margin: 0;
-}
-.factura header small {
-    font-size: 12px;
-    display: block;
-}
-.factura .datos-cliente label {
-    display: inline-block;
-    width: 90px;
-    font-weight: bold;
-}
-.factura table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-.factura table th, .factura table td {
-    border: 1px solid #000;
-    padding: 5px;
-    text-align: left;
-}
-.factura tfoot td {
-    text-align: right;
-    font-weight: bold;
-}
-@media print {
-    body * { visibility: hidden; }
-    #comprobanteVenta, #comprobanteVenta * {
-        visibility: visible;
-    }
-    #comprobanteVenta {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-    }
-}
-</style>
+      <style>
+        .factura header {
+          text-align: center;
+          border-bottom: 1px solid #000;
+          margin-bottom: 15px;
+        }
 
-<script>
-function imprimirVenta() {
-    const comprobante = document.getElementById('comprobanteVenta');
-    comprobante.style.display = 'block'; // Mostrar antes de imprimir
+        .factura header h1 {
+          font-size: 22px;
+          margin: 0;
+          color: #e91e63;
+        }
 
-    // ✅ Datos reales del cliente (los que obtuviste de consultar_cliente())
-    const nombre = document.getElementById("personaNombre").value || "";
-    const direccion = document.getElementById("personaDireccion")?.value || "—";
-    const dni = document.getElementById("docPersona").value || "—";
+        .factura {
+          border: 2px solid #f8bbd0;
+          box-shadow: 0 2px 10px rgba(236, 64, 122, 0.2);
+        }
 
-    document.getElementById("comp_cliente_nombre").innerText = nombre;
-    document.getElementById("comp_cliente_direccion").innerText = direccion;
-    document.getElementById("comp_cliente_dni").innerText = dni;
+        .factura header small {
+          color: #d81b60;
+        }
 
-    // ✅ Productos reales agregados a la tabla de venta
-    const filas = document.querySelectorAll("#resultadoProducto tr");
-    const tbody = document.querySelector("#tablaComprobanteProductos tbody");
-    tbody.innerHTML = "";
-    let total = 0;
+        .factura .datos-cliente label {
+          display: inline-block;
+          width: 90px;
+          font-weight: bold;
+        }
 
-    filas.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        if (celdas.length >= 5) {
-            const nombre = celdas[1].innerText;
-            const precio = parseFloat(celdas[2].innerText);
-            const cantidad = parseFloat(celdas[3].innerText);
-            const subtotal = parseFloat(celdas[4].innerText);
-            total += subtotal;
+        .factura table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
 
-            tbody.innerHTML += `
+        .factura table th,
+        .factura table td {
+          border: 1px solid #000;
+          padding: 5px;
+          text-align: left;
+        }
+
+        .factura tfoot td {
+          text-align: right;
+          font-weight: bold;
+        }
+
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+
+          #comprobanteVenta,
+          #comprobanteVenta * {
+            visibility: visible;
+          }
+
+          #comprobanteVenta {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+        }
+      </style>
+
+      <script>
+        let clienteSeleccionado = null;
+
+        function setDatosCliente(cliente) {
+          clienteSeleccionado = cliente; // guardamos para imprimir luego
+          document.getElementById("personaNombre").textContent =
+            `${cliente.persona_nombre} ${cliente.persona_apellido}`;
+          document.getElementById("personaDireccion").textContent =
+            cliente.persona_direccion || "—";
+          document.getElementById("personaDocumento").textContent =
+            cliente.persona_documento || "—";
+        }
+
+        // 📥 Ejemplo de carga simulada (vos reemplazás esto con tu AJAX real)
+        function cargarClienteEjemplo() {
+          const cliente = {
+            persona_nombre: "Maira",
+            persona_apellido: "Villamayor",
+            persona_direccion: "Formosa Capital",
+            persona_documento: "46154804"
+          };
+          setDatosCliente(cliente);
+        }
+
+        // 🖨️ Imprimir después de cargar los datos
+        function imprimirVenta() {
+          if (!clienteSeleccionado) {
+            alert("Primero selecciona o carga un cliente antes de imprimir 💡");
+            return;
+          }
+
+          // Esperamos un instante para asegurar que el DOM se actualizó
+          setTimeout(() => {
+            window.print();
+          }, 400);
+        }
+
+        // 🔸 Llamamos a este método una vez que el cliente se cargó por AJAX
+        cargarClienteEjemplo();
+
+
+        function imprimirVenta() {
+          const comprobante = document.getElementById('comprobanteVenta');
+          comprobante.style.display = 'block'; // Mostrar antes de imprimir
+
+          // ✅ Datos reales del cliente (los que obtuviste de consultar_cliente())
+          const nombre = document.getElementById("personaNombre").value || "";
+          const direccion = document.getElementById("personaDireccion")?.value || "—";
+          const dni = document.getElementById("personaDocumento").value || "—";
+
+          // ✅ Productos reales agregados a la tabla de venta
+          const filas = document.querySelectorAll("#resultadoProducto tr");
+          const tbody = document.querySelector("#tablaComprobanteProductos tbody");
+          tbody.innerHTML = "";
+          let total = 0;
+
+          filas.forEach(fila => {
+            const celdas = fila.querySelectorAll("td");
+            if (celdas.length >= 5) {
+              const nombre = celdas[1].innerText;
+              const precio = parseFloat(celdas[2].innerText);
+              const cantidad = parseFloat(celdas[3].innerText);
+              const subtotal = parseFloat(celdas[4].innerText);
+              total += subtotal;
+
+              tbody.innerHTML += `
                 <tr>
                     <td>${nombre}</td>
                     <td>${cantidad}</td>
@@ -346,18 +405,18 @@ function imprimirVenta() {
                     <td>$${subtotal.toFixed(2)}</td>
                 </tr>
             `;
+            }
+          });
+
+          document.getElementById("comp_total").innerText = "$" + total.toFixed(2);
+
+          // 🖨️ Imprimir
+          window.print();
+
+          // Ocultar comprobante después de imprimir
+          setTimeout(() => comprobante.style.display = 'none', 1000);
         }
-    });
-
-    document.getElementById("comp_total").innerText = "$" + total.toFixed(2);
-
-    // 🖨️ Imprimir
-    window.print();
-
-    // Ocultar comprobante después de imprimir
-    setTimeout(() => comprobante.style.display = 'none', 1000);
-}
-</script>
+      </script>
 
 
     </div>
@@ -407,12 +466,7 @@ function imprimirVenta() {
     // === LÓGICA DE FORMAS DE PAGO ===============
     // ============================================
 
-    /**
-     * Obtiene las opciones de formas de pago desde el controlador PHP.
-     */
     function cargarFormasPagoSelect() {
-      // **IMPORTANTE**: Si el controlador 'obtener_formas_pago.php' no existe o falla,
-      // se usan los datos de prueba. ¡Asegúrate de crear ese controlador!
       $.ajax({
         url: '../../controllers/ventas/obtener_formas_pago.php',
         method: 'GET',
@@ -429,10 +483,6 @@ function imprimirVenta() {
             },
             {
               id: 2,
-              nombre: 'Tarjeta Crédito'
-            },
-            {
-              id: 3,
               nombre: 'Transferencia'
             }
           ];
@@ -441,9 +491,6 @@ function imprimirVenta() {
       });
     }
 
-    /**
-     * Agrega una nueva fila a la tabla de formas de pago.
-     */
     function agregarFormaPago() {
       if (formasDePagoOpciones.length === 0) {
         alert("Primero debe cargar las formas de pago. Intente recargar la página.");
@@ -554,9 +601,14 @@ function imprimirVenta() {
           if (data.error) {
             alert(data.error)
           } else {
-            document.getElementById("personaNombre").value =
-              data.persona_nombre + " " + data.persona_apellido;
-            id = data.persona_documento; // Asumo que ID es el documento para usarlo en insertarFactura
+
+            document.getElementById("personaNombre").value = data.persona_nombre + " " + data.persona_apellido;
+            document.getElementById("personaApellido").value = data.persona_apellido;
+            document.getElementById("personaDireccion").value = data.persona_direccion;
+            document.getElementById("personaDocumento").value = data.persona_documento;
+            document.getElementById("personaId").value = data.id_persona;
+
+            id = data.persona_documento;
             console.log("Cliente encontrado:", id);
           }
         }
@@ -700,9 +752,9 @@ function imprimirVenta() {
       });
     }
 
-    // ============================================
-    // === FUNCIÓN FINALIZAR VENTA (PARA PHP) =====
-    // ============================================
+    // =================================
+    // === FUNCIÓN FINALIZAR VENTA =====
+    // =================================
 
     /**
      * Recolecta todos los datos de la venta y los envía a PHP.
@@ -732,7 +784,7 @@ function imprimirVenta() {
         const monto = fila.querySelector('input[name="monto[]"]').value;
 
         formasPagoData.push({
-          id_pago: id_pago,
+          id_metodo_pago: id_pago,
           interes: interes,
           monto: monto
         });
@@ -786,7 +838,6 @@ function imprimirVenta() {
       // Carga las opciones de pago de la BD y agrega la primera fila
       cargarFormasPagoSelect();
     };
-
   </script>
 </body>
 

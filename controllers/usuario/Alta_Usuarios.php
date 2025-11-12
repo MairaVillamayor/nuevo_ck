@@ -3,8 +3,11 @@ require_once __DIR__ . '/../../config/conexion.php';
 $pdo = getConexion();
 
 if (
-    isset($_POST["usuario_nombre"], $_POST["usuario_correo_electronico"], $_POST["usuario_contraseña"], 
-          $_POST["usuario_numero_de_celular"], $_POST["persona_nombre"], $_POST["persona_apellido"],
+    isset($_POST["usuario_nombre"], $_POST["usuario_correo_electronico"], 
+            $_POST["usuario_contraseña"], 
+            $_POST["usuario_numero_de_celular"], 
+            $_POST["persona_nombre"], 
+            $_POST["persona_apellido"],
           $_POST['persona_documento'], $_POST["persona_fecha_nacimiento"], $_POST["persona_direccion"], 
           $_POST["RELA_perfil"])
 ) {
@@ -55,7 +58,7 @@ if (
 
             $pdo->commit();
 
-            header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Usuario%20creado&mensaje=El%20nuevo%20usuario%20fue%20creado&redirect_to=../../views/usuario/Listado_Usuarios.php&delay=2");
+            header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Usuario%20creado&mensaje=El%20nuevo%20usuario%20fue%20creado&redirect_to=../views/usuario/Listado_Usuarios.php&delay=2");
             exit();
         } catch (PDOException $e) {
             $pdo->rollBack();

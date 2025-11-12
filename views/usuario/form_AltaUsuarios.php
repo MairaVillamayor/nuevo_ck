@@ -8,7 +8,7 @@
 <body>
 <?php 
 include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 require_once "../../config/conexion.php";
 
 // Traer perfiles
@@ -39,6 +39,10 @@ $perfiles = $stmtPerfiles->fetchAll(PDO::FETCH_ASSOC);
 
     <label for="persona_apellido">Apellido:</label>
     <input type="text" name="persona_apellido" id="persona_apellido" required>
+
+    <label for="persona_documento">Documento:</label>
+    <input type="text" name="persona_documento" id="persona_documento" required>
+
 
     <label for="persona_fecha_nacimiento">Fecha de Nacimiento:</label>
     <input type="date" name="persona_fecha_nacimiento" id="persona_fecha_nacimiento" required>

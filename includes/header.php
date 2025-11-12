@@ -39,11 +39,11 @@ $esCliente = $usuarioLogueado && $perfilId == 3;
     </div>
     <nav>
       <ul>
-        <li><a href="../admin/admin_dashboard.php">Dashboard</a></li>
-        <li><a href="../views/caja/dashboard_caja.php">Caja</a></li>
-        <li><a href="../views/admin/registro_ventas.php">Ventas</a></li>
-        <li><a href="../views/admin/productos_finalizados.php">Productos</a></li>
-        <li><a href="listado_pedidos.php">Pedidos</a></li>
+        <li><a href="admin_dashboard.php">Dashboard</a></li>
+        <li><a href="../caja/dashboard_caja.php">Caja</a></li>
+        <li><a href="../ventas/nueva_venta.php">Ventas</a></li>
+        <li><a href="../admin/productos_finalizados.php">Productos</a></li>
+        <li><a href="../admin/listado_pedidos.php">Pedidos</a></li>
         <li><a href="../admin/admin_items.php">Items</a></li>
         <li><a href="../admin/listado_perfiles.php">Perfiles</a></li>
         <li><a href="../../views/usuario/Listado_Usuarios.php">Usuarios</a></li>
@@ -61,13 +61,14 @@ $esCliente = $usuarioLogueado && $perfilId == 3;
     </div>
     <nav>
       <ul>
-        <li><a href="../../modulos/gerente/gerente_dashboard.php">Dashboard</a></li>
-        <li><a href="../../insumos/listado_insumo.php">Insumos</a></li>
-        <li><a href="#">Pedidos</a></li>
-        <li><a href="#">Clientes</a></li>
-        <li><a href="#">Historial Pedidos</a></li>
-        <li><a href="../../views/usuario/Listado_Usuarios.php">Usuarios</a></li>        
-        <li><a href="../../../controllers/usuario/logout.php">Cerrar Sesión</a></li>
+        <li><a href="gerente_dashboard.php">Dashboard</a></li>
+        <li><a href="../caja/dashboard_caja.php">Caja</a></li>
+        <li><a href="../ventas/nueva_venta.php">Ventas</a></li>
+        <li><a href="../admin/productos_finalizados.php">Productos</a></li>
+        <li><a href="../admin/listado_pedidos.php">Pedidos</a></li>
+        <li><a href="../admin/admin_items.php">Items</a></li>
+        <li><a href="../../views/usuario/Listado_Usuarios.php">Usuarios</a></li>
+        <li><a href="../../controllers/usuario/logout.php">Cerrar Sesión</a></li>
       </ul>
     </nav>
   </div>
@@ -81,11 +82,11 @@ $esCliente = $usuarioLogueado && $perfilId == 3;
     </div>
     <nav>
       <ul>
-        <li><a href="../../../modulos/empleado/empleado_dashboard.php">Dashboard</a></li>
-        <li><a href="#">Pedidos</a></li>
-        <li><a href="#">Clientes</a></li>
-        <li><a href="../../../views/usuario/Listado_Usuarios.php">Usuarios</a></li>
-        <li><a href="../../../views/admin/admin_items.php">Items</a></li>
+        <li><a href="../empleado/empleado_dashboard.php">Dashboard</a></li>
+        <li><a href="../caja/dashboard_caja.php">Caja</a></li>
+        <li><a href="../ventas/nueva_venta.php">Ventas</a></li>
+        <li><a href="../admin/listado_pedidos.php">Pedidos</a></li>
+        <li><a href="../admin/admin_items.php">Items</a></li>
         <li><a href="../../controllers/usuario/logout.php">Cerrar Sesión</a></li>
       </ul>
     </nav>

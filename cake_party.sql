@@ -31,7 +31,7 @@ RELA_estado_decoraciones INT NOT NULL,
 PRIMARY KEY (ID_tematica));
 
 CREATE TABLE color_pastel (ID_color_pastel INT NOT NULL AUTO_INCREMENT,
-color_pastel_nombre VARCHAR (10) NOT NULL,
+color_pastel_nombre VARCHAR (110) NOT NULL,
 color_pastel_codigo VARCHAR (20),
 RELA_estado_decoraciones INT NOT NULL,
 PRIMARY KEY (ID_color_pastel));
@@ -79,6 +79,10 @@ CREATE TABLE estado_insumos(ID_estado_insumo INT NOT NULL AUTO_INCREMENT,
 estado_insumo_descripcion VARCHAR(10),
 PRIMARY KEY(ID_estado_insumo));
 
+CREATE TABLE unidad_medida(ID_unidad_medida INT NOT NULL AUTO_INCREMENT,
+unidad_medida_nombre VARCHAR (50) NOT NULL,
+PRIMARY KEY (ID_unidad_medida));
+
 CREATE TABLE categoria_insumos(ID_categoria_insumo INT NOT NULL AUTO_INCREMENT,
 categoria_insumo_nombre VARCHAR (25) NOT NULL,
 PRIMARY KEY (ID_categoria_insumo));
@@ -91,7 +95,10 @@ PRIMARY KEY (ID_proveedor));
 
 CREATE TABLE insumos(ID_insumo INT NOT NULL AUTO_INCREMENT,
 insumo_nombre VARCHAR (50)  NOT NULL,
-insumo_unidad_medida VARCHAR (20),
+insumo_stock_actual DECIMAL(10,2) NOT NULL DEFAULT 0,
+insumo_stock_minimo DECIMAL(10,2) NOT NULL,
+insumo_precio_costo FLOAT (10,2),
+RELA_unidad_medida INT NOT NULL,
 RELA_categoria_insumos INT NOT NULL,
 RELA_proveedor INT NOT NULL, 
 RELA_estado_insumo INT NOT NULL,
@@ -110,9 +117,11 @@ RELA_perfil INT NOT NULL,
 RELA_modulos INT NOT NULL,
 PRIMARY KEY (ID_modulos_perfiles));
 
+
 CREATE TABLE persona (ID_persona INT NOT NULL AUTO_INCREMENT,
 persona_nombre VARCHAR (25) NOT NULL,
 persona_apellido VARCHAR (25) NOT NULL,
+persona_documento VARCHAR(20) NOT NULL,
 persona_fecha_nacimiento DATE NOT NULL,
 persona_direccion VARCHAR (200) NOT NULL,
 PRIMARY KEY (ID_persona));
@@ -134,6 +143,9 @@ material_extra_precio  FLOAT(10,2) NOT NULL DEFAULT 0,
 RELA_estado_insumos INT NOT NULL, 
 PRIMARY KEY (ID_material_extra));
 
+ALTER TABLE material_extra
+ADD COLUMN material_extra_color VARCHAR(100) NULL AFTER material_extra_descri;
+
 CREATE TABLE pastel_material_extra (ID_pastel_material_extra INT NOT NULL AUTO_INCREMENT,
 RELA_pastel_personalizado INT NOT NULL, 
 RELA_material_extra INT NOT NULL, 
@@ -147,12 +159,6 @@ CREATE TABLE metodo_pago (ID_metodo_pago INT NOT NULL AUTO_INCREMENT,
 metodo_pago_descri VARCHAR (25),
 PRIMARY KEY (ID_metodo_pago));
 
-CREATE TABLE pago_tarjeta (ID_pago_tarjeta INT NOT NULL AUTO_INCREMENT,
-    RELA_metodo_pago INT NOT NULL,
-    tarjeta_numero_ultimos4 VARCHAR(4),
-    tarjeta_nombre VARCHAR(100),
-    tarjeta_vencimiento VARCHAR(7),
-    PRIMARY KEY(ID_pago_tarjeta));
 
 CREATE TABLE pedido_envio (ID_pedido_envio INT NOT NULL AUTO_INCREMENT, 
 envio_fecha_hora_entrega DATETIME NOT NULL, 
@@ -190,6 +196,120 @@ ADD COLUMN pedido_total DECIMAL(12,2) NOT NULL DEFAULT 0 AFTER RELA_pedido_envio
 
 ALTER TABLE pedido MODIFY RELA_metodo_pago INT NOT NULL DEFAULT 0;
 
+CREATE TABLE tipo_de_operacion (ID_tipo_de_operacion INT NOT NULL AUTO_INCREMENT,
+tipo_de_operacion_descripcion VARCHAR (255),
+PRIMARY KEY (ID_tipo_de_operacion));
+
+CREATE TABLE operacion (ID_operacion INT NOT NULL AUTO_INCREMENT,
+operacion_cantidad_de_productos INT,
+operacion_fecha_de_actualizacion DATETIME NOT NULL,
+RELA_tipo_de_operacion INT NOT NULL,
+RELA_insumos INT NOT NULL,
+PRIMARY KEY (ID_operacion));
+
+ALTER TABLE operacion
+ADD COLUMN RELA_usuario INT NULL AFTER ID_operacion,
+ADD COLUMN operacion_total FLOAT(10,2) NULL AFTER operacion_cantidad_de_productos;
+
+ALTER TABLE operacion
+ADD CONSTRAINT fk_operacion_usuario FOREIGN KEY (RELA_usuario) REFERENCES usuarios(ID_usuario);
+
+CREATE TABLE operacion_pastel_personalizado (ID_operacion_pastel INT NOT NULL AUTO_INCREMENT,
+RELA_operacion INT NOT NULL,
+RELA_pastel_personalizado INT NOT NULL,
+operacion_pastel_cantidad_utilizada DECIMAL (10,2),
+PRIMARY KEY (ID_operacion_pastel));
+
+CREATE TABLE recetas (ID_receta INT NOT NULL AUTO_INCREMENT,
+receta_nombre VARCHAR (100),
+receta_descripcion TEXT,
+receta_rendimiento INT,
+receta_unidad_rendimiento VARCHAR (50),
+receta_estado TINYINT(1),
+PRIMARY KEY(ID_receta));
+
+CREATE TABLE receta_insumos (ID_receta_insumo INT NOT NULL AUTO_INCREMENT,
+RELA_insumos INT NOT NULL,
+RELA_receta INT NOT NULL,
+receta_insumo_cantidad DECIMAL (10,2),
+PRIMARY KEY (ID_receta_insumo));
+
+CREATE TABLE categoria_producto_finalizado (ID_categoria_producto_finalizado INT NOT NULL AUTO_INCREMENT, 
+categoria_producto_finalizado_nombre VARCHAR (65), 
+PRIMARY KEY (ID_categoria_producto_finalizado));
+
+CREATE TABLE producto_finalizado (
+ID_producto_finalizado INT NOT NULL AUTO_INCREMENT, 
+producto_finalizado_nombre VARCHAR(65) NOT NULL, 
+producto_finalizado_descri VARCHAR(125),
+producto_finalizado_precio DECIMAL(10,2) NOT NULL, 
+disponible_web TINYINT(1) NOT NULL DEFAULT 0,
+imagen_url VARCHAR(255) NULL,
+stock_actual INT NOT NULL DEFAULT 0,
+RELA_tematica INT NULL, 
+RELA_categoria_producto_finalizado INT NOT NULL, 
+PRIMARY KEY (ID_producto_finalizado));
+
+ALTER TABLE producto_finalizado ALTER COLUMN RELA_categoria_producto_finalizado SET DEFAULT 1;
+
+CREATE TABLE operacion_producto_finalizado (ID_operacion_producto_finalizado INT NOT NULL AUTO_INCREMENT, 
+RELA_operacion INT NOT NULL, 
+RELA_producto_finalizado INT NOT NULL, 
+primary key(ID_operacion_producto_finalizado));
+
+CREATE TABLE caja (
+  ID_caja INT AUTO_INCREMENT PRIMARY KEY,
+  RELA_usuario INT NOT NULL,
+  caja_monto_inicial DECIMAL(10,2) NOT NULL,
+  caja_fecha_apertura DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  caja_fecha_cierre DATETIME NULL,
+  caja_estado ENUM('abierta', 'cerrada') DEFAULT 'abierta',
+  caja_total_ingresos DECIMAL(10,2) DEFAULT 0,
+  caja_total_egresos DECIMAL(10,2) DEFAULT 0,
+  caja_saldo_final DECIMAL(10,2) DEFAULT 0
+);
+
+CREATE TABLE movimiento_caja (
+  ID_movimiento INT AUTO_INCREMENT PRIMARY KEY,
+  RELA_caja INT NOT NULL,
+  RELA_usuario INT NOT NULL,
+  movimiento_tipo ENUM('ingreso', 'egreso') NOT NULL,
+  movimiento_monto DECIMAL(10,2) NOT NULL,
+  movimiento_descripcion VARCHAR(255),
+  movimiento_fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+create table estado_factura (ID_estado_factura INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+estado_factura_descri VARCHAR(10));
+
+INSERT INTO estado_factura (estado_factura_descri) VALUES ('Activo'), ('No Activo');
+
+CREATE TABLE factura (
+ID_factura INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+factura_fecha_emision timestamp not null DEFAULT CURRENT_TIMESTAMP, 
+factura_subtotal DECIMAL(10,2), 
+factura_iva_tasa DECIMAL(5,2),
+factura_iva_monto DECIMAL(10,2), 
+factura_total DECIMAL(10,2), 
+RELA_estado_factura INT NULL,
+RELA_persona INT NOT NULL);
+
+CREATE TABLE factura_detalle (
+ID_factura_detalle INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+RELA_factura INT,  
+RELA_producto_finalizado INT,
+factura_detalle_cantidad INT);
+
+drop table factura_pagos;
+CREATE TABLE factura_pagos (
+  ID_pago INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  RELA_factura INT NOT NULL,
+  RELA_metodo_pago INT NOT NULL,
+  pago_interes DECIMAL(5,2) DEFAULT 0,
+  pago_monto DECIMAL(10,2) DEFAULT 0,
+  FOREIGN KEY (RELA_factura) REFERENCES factura(ID_factura)
+);
+select * from metodo_pago;
 
 INSERT INTO estado_decoraciones (estado_decoraciones_descri)
 VALUES ('Activo'), ('Inactivo');
@@ -211,10 +331,18 @@ VALUES ('Dulce de leche', 'Relleno argentino', '3000.00', 1),
 INSERT INTO tematica (tematica_descripcion, RELA_estado_decoraciones) VALUES ('Boda', 1), ('Infantil',1), ('Recepciones', 1);
 
 INSERT INTO color_pastel (color_pastel_nombre, color_pastel_codigo, RELA_estado_decoraciones)
-VALUES ('Rosa', '#FFC0CB', 1);
+VALUES  ('Rosa', '#FFC0CB', 1),
+('Celeste', '#87CEEB', 1),
+('Verde menta', '#98FF98', 1),
+('Lavanda', '#E6E6FA', 1),
+('Amarillo pastel', '#FFFACD', 1);
+
 
 INSERT INTO decoracion (decoracion_nombre, decoracion_descripcion, decoracion_precio, RELA_estado_decoraciones)
-VALUES ('Flores', 'Flores comestibles', '7000.00', 1);
+VALUES ('Plano', 'Diseño liso de un solo color', '7000.00', 1),
+('Duyas', 'Diseño de duyas de distinto tamaño', '7000.00', 1),
+('Aerografo', 'Diseño de aerogrado mezclando distintas tonalidades', '7000.00', 1),
+('Perlas', 'Diseño de perlas pequeñas de rodean todo el pastel', '7000.00', 1);
 
 INSERT INTO base_pastel (base_pastel_nombre, base_pastel_descripcion, base_pastel_precio, RELA_estado_decoraciones)
 VALUES ('Cartón duro', 'Base circular resistente', '1500.00', 1);
@@ -240,29 +368,31 @@ INSERT INTO pisos_relleno (RELA_relleno, RELA_pisos)
 VALUES (1, 1), -- Dulce de leche al piso 1
        (2, 2); -- Crema pastelera al piso 2
 
+INSERT INTO unidad_medida (unidad_medida_nombre) VALUES('Kilogramos'),('Litros'),('Unidad'),('Gramos'),('Mililitros');
+
 INSERT INTO categoria_insumos (categoria_insumo_nombre)
-VALUES ('Lácteos'), ('Decoración');
+VALUES ('Lácteos'), ('Decoración'), ('Harinas/Cereales'), ('Azúcares/Endulzantes'), ('Huevos'), ('Frutas/Frutos secos'), ('Decoración comestible'), ('Bebidas y esencias'), ('Utensilios'), ('Embalajes');
 
 INSERT INTO proveedor (proveedor_nombre, proveedor_rubro, proveedor_observaciones)
 VALUES ('La Vaquita', 'Alimentos', 'Proveedor confiable');
 
-INSERT INTO insumos (insumo_nombre, insumo_unidad_medida, RELA_categoria_insumos, RELA_proveedor, RELA_estado_insumo)
-VALUES ('Crema', 'litros', 1, 1, 1),
-       ('Flores comestibles', 'unidad', 2, 1, 1);
+INSERT INTO insumos 
+(insumo_nombre, insumo_stock_minimo, RELA_unidad_medida, RELA_categoria_insumos, RELA_proveedor, RELA_estado_insumo)
+VALUES 
+('Crema', 2, 4, 1, 1,1),
+('Flores comestibles', 10, 3, 2, 2,1),
+('Harina', 5, 1, 3, 3,1),
+('Azúcar', 3, 1, 4, 1,1);
+
 
 INSERT INTO perfiles (perfil_rol)
 VALUES ('Administrador'), ('Empleado'), ('Cliente'), ('Gerente');
 
-INSERT INTO persona (persona_nombre, persona_apellido, persona_fecha_nacimiento, persona_direccion)
-VALUES ('Gastón', 'Gómez', '2000-01-29', 'Calle falsa 123');
+INSERT INTO persona (persona_nombre, persona_apellido, persona_documento, persona_fecha_nacimiento, persona_direccion)
+VALUES ('Gastón', 'Gómez', '44222333', '2000-01-29', 'Calle falsa 123');
 
 INSERT INTO usuarios (usuario_nombre, usuario_correo_electronico, usuario_contraseña, usuario_numero_de_celular, RELA_persona, RELA_perfil)
 VALUES ('gaston_user', 'gaston@mail.com', 'clave_segura', '1123456789', 1, 1);
-
-INSERT INTO metodo_pago (metodo_pago_descri) VALUES
-('Efectivo'), 
-('Mercado Pago'), 
-('Tarjeta Debito/Credito');
 
 insert into estado (estado_descri) values 
 ('Pendiente'), ('En proceso'), ('Finalizado'), ('Cancelado');
@@ -273,43 +403,44 @@ VALUES (1, 350.50, 350.50, 420.60, 10, 1);
 INSERT INTO estado_decoraciones (estado_decoraciones_descri) VALUES
 ('Disponible'), ('No Disponible');
 
+
 INSERT INTO material_extra (material_extra_nombre, material_extra_descri, material_extra_precio, RELA_estado_insumos)
 VALUES
-('Velas de colores', 'Pack 6 velas de color rosa', '2900.00', 1),
-('Velas de colores', 'Pack 6 velas de color dorado', '2900.00', 1),
-('Velas de colores', 'Pack 6 velas de color celeste', '2900.00', 1),
-('Velas de colores', 'Pack 6 velas de color plateado', '2900.00', 1),
-('Velas de colores', 'Pack 6 velas de color lila', '2900.00', 1);
+('Flores', 'Flor individual', '1500.00', 1), 
+('Flores', 'Flores de diferentes tamaño', '3000.00', 1);
+
+INSERT INTO tipo_de_operacion (tipo_de_operacion_descripcion)
+VALUES 
+('Ingreso de stock'),
+('Egreso de stock');
 
 
-select * from cake_party.pedido;
-SELECT 
-    pe.ID_pedido,
-    pe.pedido_fecha,
-    p_envio.envio_fecha_hora_entrega,
-    p_envio.envio_calle_numero,
-    p_envio.envio_barrio,
-    p_envio.envio_localidad,
-    u.usuario_nombre,
-    per.persona_nombre,
-    per.persona_apellido,
-    pp.pastel_personalizado_descripcion,
-    mp.metodo_pago_descri AS metodo_pago,
-    e.ID_estado,
-    e.estado_descri AS estado_descri
-FROM pedido pe
-LEFT JOIN usuarios u 
-    ON pe.RELA_usuario = u.ID_usuario
-LEFT JOIN persona per
-    ON per.ID_persona = u.RELA_persona
-LEFT JOIN pedido_detalle pd 
-    ON pd.RELA_pedido = pe.ID_pedido
-LEFT JOIN pastel_personalizado pp 
-    ON pp.ID_pastel_personalizado = pd.RELA_pastel_personalizado
-LEFT JOIN metodo_pago mp 
-    ON pe.RELA_metodo_pago = mp.ID_metodo_pago
-LEFT JOIN estado e 
-    ON pe.RELA_estado = e.ID_estado
-LEFT JOIN pedido_envio p_envio
-    ON pe.RELA_pedido_envio = p_envio.ID_pedido_envio
-ORDER BY pe.ID_pedido DESC;
+INSERT INTO recetas (receta_nombre, receta_descripcion, receta_rendimiento, receta_unidad_rendimiento, receta_estado)
+VALUES
+('Pastel Chocolate', 'Pastel de chocolate clásico', 1, 'unidad', 1),
+('Pastel Vainilla', 'Pastel de vainilla', 1, 'unidad', 1);
+
+
+-- Pastel Chocolate (receta_id = 1)
+INSERT INTO receta_insumos (RELA_insumos, RELA_receta, receta_insumo_cantidad)
+VALUES
+(1, 1, 200), -- Harina 200 g
+(2, 1, 100), -- Azúcar 100 g
+(3, 1, 50);  -- Cacao 50 g
+
+-- Pastel Vainilla (receta_id = 2)
+INSERT INTO receta_insumos (RELA_insumos, RELA_receta, receta_insumo_cantidad)
+VALUES
+(1, 2, 200), -- Harina 200 g
+(2, 2, 100), -- Azúcar 100 g
+(4, 2, 50);  -- Vainilla 50 g
+
+INSERT INTO producto_finalizado 
+(producto_finalizado_nombre, producto_finalizado_descri, producto_finalizado_precio, 
+disponible_web, imagen_url, stock_actual, RELA_tematica, RELA_categoria_producto_finalizado)
+VALUES
+('Torta de Chocolate' , 'Torta de 10 x 10 cm sabor chocolate' , '12000.00', '1', 'ruta/por/defecto.jpg', 
+'4', 1, 1);
+
+INSERT INTO metodo_pago (metodo_pago_descri) VALUES
+('Efectivo'), ('Transferencia');
