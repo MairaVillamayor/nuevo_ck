@@ -45,7 +45,7 @@ class CajaControlador {
         header('Location: ../views/caja/listado_caja.php?page=caja/caja&message=Caja abierta con éxito&status=success');
     }
 
-    public function cerrar() {
+    public function cerrarCaja() {
         $caja = new Caja();
         $caja_abierta = $caja->getCajaAbierta();
 

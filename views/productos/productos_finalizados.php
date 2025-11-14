@@ -143,7 +143,10 @@ if ($pdo_conn) {
         <?php echo $mensaje; ?>
 
         <h2 class="mt-4">Ingresar Nuevo Producto</h2>
-        <form method="POST" action="../../controllers/productos/alta_producto.php" class="mb-5">
+        <form method="POST" action="../../controllers/productos/alta_producto.php" enctype="multipart/form-data" class="mb-5">
+        <label for="imagen" class="form-label">Imagen del producto: </label>
+        <input type="file" name="imagen_url" class="form-control" accept="image/*" required>
+
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="nombre" class="form-label">Nombre del Producto</label>
@@ -164,10 +167,6 @@ if ($pdo_conn) {
                 <textarea class="form-control" id="descripcion" name="producto_finalizado_descri" rows="2"></textarea>
             </div>
             
-            <div class="mb-3">
-                <label for="imagen_url" class="form-label">Ruta/URL de Imagen</label>
-                <input type="text" class="form-control" id="imagen_url" name="imagen_url" value="ruta/por/defecto.jpg">
-            </div>
 
             <div class="form-check mb-4">
                 <input class="form-check-input" type="checkbox" id="disponible_web" name="disponible_web" value="1" checked>
@@ -234,6 +233,10 @@ if ($pdo_conn) {
                             <a href="../../controllers/productos/editar_productos.php?id=<?php echo $producto['ID_producto_finalizado']; ?>" class="btn btn-sm btn-info btn-cake">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
+                            <form action="../../controllers/productos/eliminar.php" method="post" style="display:inline;">
+                            <input type="hidden" name="id_producto_finalizado" value="<?php echo $row['id_producto_finalizado']; ?>">
+                            <button class="btn-action btn-delete" type="submit" onclick="return confirmarEliminacion('¿Eliminar definitivamente este producto?');">❌ Eliminar</button>
+                        </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

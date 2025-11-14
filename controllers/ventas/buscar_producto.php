@@ -1,34 +1,44 @@
 <?php
-require_once ("../../config/conexion.php");
-header('Content-Type: application/json');
-
+require_once("../../config/conexion.php");
+header('Content-Type: application/json; charset=utf-8');
 
 try {
-    if (!isset($_POST["idProducto"])) {
-        http_response_code(400);
-        echo json_encode(array('error' => 'ID de Producto faltante en la solicitud.'));
+    if (!isset($_GET["term"])) {
+        echo json_encode([]);
         exit;
     }
 
-    $idProducto = $_POST["idProducto"];
-    error_log("ID recibido: " . $idProducto);
+    $searchTerm = '%' . $_GET["term"] . '%';
 
-    $stmt = $conexion->getConnection()->prepare("SELECT id_producto_finalizado, 
-                                                        producto_finalizado_nombre, 
-                                                        producto_finalizado_precio
-     FROM producto_finalizado WHERE id_producto_finalizado = :id");
-    $stmt->bindParam(':id', $idProducto, PDO::PARAM_INT);
+    $conexion = Conexion::getInstance()->getConnection();
+
+    $sql = "SELECT 
+                id_producto_finalizado, 
+                producto_finalizado_nombre,
+                stock_actual 
+            FROM producto_finalizado 
+            WHERE producto_finalizado_nombre LIKE :term 
+            LIMIT 10";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':term', $searchTerm, PDO::PARAM_STR);
     $stmt->execute();
 
-    $producto = $stmt->fetch(PDO::FETCH_ASSOC);
+    $resultadosDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if ($producto) {
-        echo json_encode($producto);
-    } else {
-        http_response_code(404);
-        echo json_encode(array('error' => 'Producto no encontrado'));
+    $productos_formateados = [];
+    foreach ($resultadosDB as $producto) {
+        $productos_formateados[] = [
+            'id'    => $producto['id_producto_finalizado'],
+            'value' => $producto['producto_finalizado_nombre'],
+            'stock' => $producto['stock_actual']
+        ];
     }
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(array('error' => 'Error de conexión o base de datos: ' . $e->getMessage()));
+
+    echo json_encode($productos_formateados);
+
+} catch (Exception $e) {
+    error_log('Error en buscar_producto: ' . $e->getMessage());
+    echo json_encode([]);
 }
+?>

@@ -829,13 +829,8 @@
       });
     }
 
-    // ============================================
-    // === INICIALIZACIÓN =========================
-    // ============================================
     window.onload = function() {
-      // Inicializa los cálculos de la factura (IVA, Subtotal)
       actualizarCalculos();
-      // Carga las opciones de pago de la BD y agrega la primera fila
       cargarFormasPagoSelect();
     };
   </script>

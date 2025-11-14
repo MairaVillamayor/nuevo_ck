@@ -2,67 +2,73 @@
 header('Content-Type: application/json');
 require_once("../../config/conexion.php");
 
+try {
+    // 1️⃣ Recoger datos enviados por AJAX
+    $idFactura    = $_POST['idFactura'] ?? null;
+    $subTotal     = $_POST['subTotal'] ?? 0;
+    $tasaIVA      = floatval($_POST['tasaIVA'] ?? 0);
+    $montoIVA     = $_POST['montoIVA'] ?? 0;
+    $totalFactura = $_POST['totalFactura'] ?? 0;
+    $pagos        = $_POST['pagos'] ?? [];
 
-// 1️⃣ Recoger los datos enviados por AJAX
-$idFactura    = $_POST['idFactura'] ?? null;
-$subTotal     = $_POST['subTotal'] ?? 0;
-$tasaIVA      = $_POST['tasaIVA'] ?? 0;
-$montoIVA     = $_POST['montoIVA'] ?? 0;
-$totalFactura = $_POST['totalFactura'] ?? 0;
-$pagos        = $_POST['pagos'] ?? [];
-
-// 2️⃣ Validación mínima de datos
-if (!$idFactura || count($pagos) === 0) {
-    echo json_encode([
-        'success' => false,
-        'error'   => 'Datos de factura o pagos incompletos.'
-    ]);
-    exit;
-}
-
-// 3️⃣ Preparar log de depuración (solo para verificar en consola)
-$log = [
-    'factura_actualizada' => "Factura N° $idFactura actualizada con Total: $totalFactura y Tasa IVA: $tasaIVA%",
-    'pagos_registrados'   => [],
-];
-
-// 4️⃣ Registrar pagos en la tabla factura_pagos
-foreach ($pagos as $pago) {
-    // Nombres reales esperados desde el JS
-    $idPago   = $pago['id_pago']   ?? null;
-    $interes  = $pago['interes']   ?? 0;
-    $monto    = $pago['monto']     ?? 0;
-
-    if ($idPago === null) continue;
-
-    // Inserción segura (usa los nombres de columnas reales de tu tabla)
-    $stmt = $conexion->prepare("
-        INSERT INTO factura_pagos (RELA_factura, RELA_metodo_pago, pago_interes, pago_monto)
-        VALUES (?, ?, ?, ?)
-    ");
-
-    if ($stmt) {
-        $stmt->bind_param("iidd", $idFactura, $idPago, $interes, $monto);
-        $stmt->execute();
-        $stmt->close();
-
-        $log['pagos_registrados'][] = "Pago ID {$idPago}, Interés {$interes}%, Monto {$monto}";
-    } else {
+    // 2️⃣ Validación mínima
+    if (!$idFactura || empty($pagos)) {
         echo json_encode([
             'success' => false,
-            'error' => 'Error al preparar la consulta SQL: ' . $conexion->error
+            'error'   => 'Datos de factura o pagos incompletos.'
         ]);
         exit;
     }
+
+    // 3️⃣ Actualizar los datos de la factura
+    $sqlFactura = " UPDATE factura 
+        SET 
+            factura_subtotal = :subtotal,
+            factura_iva_monto = :iva,
+            factura_total = :total,
+            factura_fecha_emision = NOW()
+        WHERE id_factura = :idFactura
+    ";
+
+    $stmtFactura = $conexion->prepare($sqlFactura);
+    $stmtFactura->execute([
+        ':subtotal' => $subTotal,
+        ':iva' => $montoIVA,
+        ':total' => $totalFactura,
+        ':idFactura' => $idFactura
+    ]);
+
+    // 4️⃣ Registrar los pagos
+    $sqlPago = " INSERT INTO factura_pagos (RELA_factura, RELA_metodo_pago, pago_interes, pago_monto)
+        VALUES (:factura, :metodo, :interes, :monto)
+    ";
+
+    $stmtPago = $conexion->prepare($sqlPago);
+    foreach ($pagos as $pago) {
+        $id_metodo_pago = $pago['id_metodo_pago'] ?? null;
+        $interes = $pago['interes'] ?? 0;
+        $monto = $pago['monto'] ?? 0;
+
+        if ($id_metodo_pago) {
+            $stmtPago->execute([
+                ':factura' => $idFactura,
+                ':metodo' => $id_metodo_pago,
+                ':interes' => $interes,
+                ':monto' => $monto
+            ]);
+        }
+    }
+
+    // 5️⃣ Respuesta final
+    echo json_encode([
+        'success' => true,
+        'id_factura_finalizada' => $idFactura,
+        'mensaje_debug' => 'Factura y pagos registrados correctamente'
+    ]);
+
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }
-
-// 5️⃣ Cerrar conexión
-$conexion->close();
-
-// 6️⃣ Respuesta JSON final
-echo json_encode([
-    'success' => true,
-    'id_factura_finalizada' => $idFactura,
-    'mensaje_debug' => $log
-]);
-?>
