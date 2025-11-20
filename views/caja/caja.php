@@ -1,5 +1,9 @@
 <?php
 require_once("../../models/caja/caja.php");
+ 
+include ("../../includes/header.php");
+include ("../../includes/navegacion.php");
+
 $caja = new Caja();
 $caja_abierta = $caja->getCajaAbierta();
 ?>

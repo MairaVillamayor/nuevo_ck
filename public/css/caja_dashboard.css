@@ -11,7 +11,8 @@
   background-color: #d63384;
 }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #fff0f6;
+.fondo-rosa {
+  background-color: #fed6eaff !important;
+  color: #fff;
 }
+

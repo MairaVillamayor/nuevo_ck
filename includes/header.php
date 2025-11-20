@@ -1,6 +1,7 @@
 <?php
-// Detectar página actual y sesión
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $currentPath = $_SERVER['PHP_SELF'];
 $usuarioLogueado = isset($_SESSION['usuario_id']);
@@ -39,9 +40,9 @@ $esCliente = $usuarioLogueado && $perfilId == 3;
     </div>
     <nav>
       <ul>
-        <li><a href="admin_dashboard.php">Dashboard</a></li>
-        <li><a href="../caja/dashboard_caja.php">Caja</a></li>
-        <li><a href="../ventas/nueva_venta.php">Ventas</a></li>
+        <li><a href="../admin/admin_dashboard.php">Dashboard</a></li>
+        <li><a href="../caja/listado_caja.php">Caja</a></li>
+        <li><a href="../ventas/registrar_venta.php">Ventas</a></li>
         <li><a href="../admin/productos_finalizados.php">Productos</a></li>
         <li><a href="../admin/listado_pedidos.php">Pedidos</a></li>
         <li><a href="../admin/admin_items.php">Items</a></li>

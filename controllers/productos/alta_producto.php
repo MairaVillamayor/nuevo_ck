@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ingresar_producto']) 
 
         $titulo = urlencode("Producto Creado");
         $mensaje = urlencode("El producto '{$nombre}' se ha ingresado con éxito.");
-        header("Location: ../../includes/mensaje.php?tipo=exito&titulo={$titulo}&mensaje={$mensaje}&redirect_to=../../views/productos/productos_finalizados.php&delay=2");
+        header("Location: ../../includes/mensaje.php?tipo=exito&titulo={$titulo}&mensaje={$mensaje}&redirect_to=/../../views/productos/productos_finalizados.php&delay=2");
         exit();
     } catch (PDOException $e) {
         $mensaje = "Error al ingresar producto: " . $e->getMessage();

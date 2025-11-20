@@ -1,0 +1,54 @@
+/* --------  ESTILO CAKE PARTY PARA BOTONES  ---------- */
+
+.btn-cake-primary {
+    background-color: #f8bbd0;
+    border: 2px solid #f48fb1;
+    color: #d81b60;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 10px;
+    transition: 0.2s ease-in-out;
+}
+
+.btn-cake-primary:hover {
+    background-color: #f48fb1;
+    color: white;
+    border-color: #ec407a;
+    box-shadow: 0 0 0 4px rgba(244, 143, 177, 0.3); /* resplandor rosa */
+}
+
+/* Botón eliminar */
+.btn-cake-danger {
+    background-color: #fce4ec;
+    border: 2px solid #ec407a;
+    color: #c2185b;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.2s ease-in-out;
+}
+
+.btn-cake-danger:hover {
+    background-color: #ec407a;
+    color: white;
+    border-color: #d81b60;
+    box-shadow: none;
+}
+
+/* Quitar el borde azul de Bootstrap */
+button:focus,
+.btn:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Estilo para tabla y contenedor */
+.table thead {
+    background-color: #f8bbd0 !important;
+    color: #5a4a4a !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #fde4ef !important;
+}
+

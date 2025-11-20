@@ -1,69 +1,81 @@
 <?php
-require_once '../../config/conexion.php'; 
+require_once '../../config/conexion.php';
 include("../../includes/navegacion.php");
 
-$mensaje = '';
+session_start();
 
-
+// Conexión
 try {
-    $pdo_conn = getConexion(); 
+    $pdo_conn = getConexion();
 } catch (Exception $e) {
-    $mensaje = "<div class='alert alert-danger'>Error al obtener conexión: " . $e->getMessage() . "</div>";
+    $_SESSION['message'] = "Error al obtener conexión: " . $e->getMessage();
+    $_SESSION['status'] = "danger";
     $pdo_conn = null;
 }
 
-
+// --- ALTA DE PRODUCTO ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ingresar_producto']) && $pdo_conn) {
+
     $nombre = $_POST['producto_finalizado_nombre'];
     $descripcion = $_POST['producto_finalizado_descri'];
     $precio = $_POST['producto_finalizado_precio'];
     $stock = $_POST['stock_actual'];
     $disponible_web = isset($_POST['disponible_web']) ? 1 : 0;
-    
-    // Simplificamos la URL de imagen por ahora
-    $imagen_url = isset($_POST['imagen_url']) ? $_POST['imagen_url'] : 'ruta/por/defecto.jpg';
+
+    $imagen_url = isset($_POST['imagen_url']) ? $_POST['imagen_url'] : 'default.jpg';
 
     $query = "INSERT INTO producto_finalizado 
-                (producto_finalizado_nombre, producto_finalizado_descri, producto_finalizado_precio, stock_actual, disponible_web, imagen_url) 
-              VALUES (?, ?, ?, ?, ?, ?)";
-    
+        (producto_finalizado_nombre, producto_finalizado_descri, producto_finalizado_precio, stock_actual, disponible_web, imagen_url) 
+        VALUES (?, ?, ?, ?, ?, ?)";
+
     try {
         $stmt = $pdo_conn->prepare($query);
         $stmt->execute([$nombre, $descripcion, $precio, $stock, $disponible_web, $imagen_url]);
-        $mensaje = "<div class='alert alert-success'>Producto ingresado con éxito.</div>";
+
+        $_SESSION['message'] = "Producto ingresado con éxito.";
+        $_SESSION['status'] = "success";
+
     } catch (PDOException $e) {
-        $mensaje = "<div class='alert alert-danger'>Error al ingresar producto: " . $e->getMessage() . "</div>";
+        $_SESSION['message'] = "Error al ingresar producto: " . $e->getMessage();
+        $_SESSION['status'] = "danger";
     }
 }
 
-// --- 2. PROCESAR CAMBIO RÁPIDO DE DISPONIBILIDAD ---
+// --- CAMBIO RÁPIDO DE DISPONIBILIDAD ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cambiar_disponibilidad']) && $pdo_conn) {
-    $id_producto = $_POST['id_producto'];
-    $nuevo_estado = $_POST['estado']; // Viene como 1 (Disponible) o 0 (No Disponible)
-    
+
+    $id = $_POST['id_producto'];
+    $estado = $_POST['estado'];
+
     $query = "UPDATE producto_finalizado SET disponible_web = ? WHERE ID_producto_finalizado = ?";
-    
+
     try {
         $stmt = $pdo_conn->prepare($query);
-        $stmt->execute([$nuevo_estado, $id_producto]);
-        $mensaje = "<div class='alert alert-success'>Disponibilidad actualizada.</div>";
+        $stmt->execute([$estado, $id]);
+
+        $_SESSION['message'] = "Disponibilidad actualizada.";
+        $_SESSION['status'] = "success";
+
     } catch (PDOException $e) {
-        $mensaje = "<div class='alert alert-danger'>Error al actualizar disponibilidad: " . $e->getMessage() . "</div>";
+        $_SESSION['message'] = "Error al actualizar disponibilidad: " . $e->getMessage();
+        $_SESSION['status'] = "danger";
     }
 }
 
-// --- 3. OBTENER LISTADO DE PRODUCTOS ---
+// --- LISTADO ---
 $productos = [];
 if ($pdo_conn) {
     try {
-        $query = "SELECT ID_producto_finalizado, producto_finalizado_nombre, producto_finalizado_precio, 
+        $query = "SELECT ID_producto_finalizado, producto_finalizado_nombre, producto_finalizado_precio,
                          stock_actual, disponible_web 
                   FROM producto_finalizado 
                   ORDER BY ID_producto_finalizado DESC";
         $stmt = $pdo_conn->query($query);
         $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     } catch (PDOException $e) {
-        $mensaje .= "<div class='alert alert-danger'>Error al cargar listado: " . $e->getMessage() . "</div>";
+        $_SESSION['message'] = "Error al cargar listado.";
+        $_SESSION['status'] = "danger";
     }
 }
 ?>
@@ -71,186 +83,270 @@ if ($pdo_conn) {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Productos Finalizados | Admin</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-    
-    <style>
-        body {
-            background-color: #fff7f9;
-            font-family: 'Poppins', sans-serif;
-        }
-        .container {
-            max-width: 1100px; /* Aumentado ligeramente para la tabla */
-            margin-top: 50px;
-            margin-bottom: 50px;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 30px;
-        }
-        .btn-cake {
-            background-color: #f48fb1;
-            color: #fff;
-            border-radius: 10px;
-            border: none;
-            transition: background-color 0.3s;
-        }
-        .btn-cake:hover {
-            background-color: #ec407a;
-            color: #fff;
-        }
-        h2 {
-            color: #e91e63;
-            text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f8bbd0;
-        }
-        .table thead {
-            background-color: #f8bbd0;
-            color: #333;
-        }
-        .table td {
-             vertical-align: middle;
-        }
-        .agotado {
-            font-weight: bold;
-            color: #d32f2f;
-        }
-        .disponible-si {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-        .disponible-no {
-            color: #f48fb1;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Productos Finalizados</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link rel="stylesheet" href="../../public/css/productos.css">
+
+<style>
+/* --- ESTILO CAKE PARTY GLOBAL --- */
+body {
+    background-color: #fff7f9;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+}
+
+.container {
+    width: 95%;
+    max-width: 1100px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* --- TÍTULOS --- */
+h1 {
+    text-align: center;
+    color: #e91e63;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #d81b60;
+    border-left: 6px solid #f8bbd0;
+    padding-left: 10px;
+    margin-top: 40px;
+}
+
+/* --- FORMULARIO --- */
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #f8bbd0;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+label { font-weight: 600; color: #c2185b; }
+
+.btn-cake {
+    width: 100%;
+    background: #f48fb1;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cake:hover {
+    background: #ec407a;
+}
+
+/* --- TABLA --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+}
+
+thead {
+    background-color: #f8bbd0;
+}
+
+thead th {
+    padding: 12px;
+    font-size: 15px;
+    color: #5a4a4a;
+}
+
+tbody td {
+    padding: 12px;
+    text-align: center;
+}
+
+tbody tr:hover {
+    background-color: #fde4ef;
+}
+
+/* --- BOTONES --- */
+.btn-cake-primary {
+    padding: 7px 14px;
+    background-color: #f8bbd0;
+    border: 2px solid #f48fb1;
+    color: #d81b60;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-cake-primary:hover {
+    background-color: #f48fb1;
+    color: white;
+}
+
+.btn-cake-danger {
+    padding: 7px 14px;
+    background-color: #fce4ec;
+    border: 2px solid #ec407a;
+    color: #c2185b;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-cake-danger:hover {
+    background-color: #ec407a;
+    color: white;
+}
+
+/* --- ESTADOS --- */
+.agotado { color: #d32f2f; font-weight: bold; }
+.disponible-si { color: #43a047; font-weight: bold; }
+.disponible-no { color: #e91e63; font-weight: bold; }
+
+
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1 class="text-center text-secondary mb-5">🍰 Gestión de Productos Finalizados</h1>
+<?php include("../../includes/header.php"); ?>
+<div class="container">
 
-        <?php echo $mensaje; ?>
+<h1>🍰 Gestión de Productos Finalizados</h1>
 
-        <h2 class="mt-4">Ingresar Nuevo Producto</h2>
-        <form method="POST" action="../../controllers/productos/alta_producto.php" enctype="multipart/form-data" class="mb-5">
-        <label for="imagen" class="form-label">Imagen del producto: </label>
-        <input type="file" name="imagen_url" class="form-control" accept="image/*" required>
+<!-- ALTA -->
+<h2>Ingresar Producto</h2>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="nombre" class="form-label">Nombre del Producto</label>
-                    <input type="text" class="form-control" id="nombre" name="producto_finalizado_nombre" required>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="precio" class="form-label">Precio ($)</label>
-                    <input type="number" class="form-control" id="precio" name="producto_finalizado_precio" step="0.01" required>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="stock" class="form-label">Stock Inicial</label>
-                    <input type="number" class="form-control" id="stock" name="stock_actual" required>
-                </div>
-            </div>
+<form method="POST">
+    <label>Nombre:</label>
+    <input type="text" name="producto_finalizado_nombre" required>
 
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción</label>
-                <textarea class="form-control" id="descripcion" name="producto_finalizado_descri" rows="2"></textarea>
-            </div>
-            
+    <label>Precio:</label>
+    <input type="number" name="producto_finalizado_precio" required>
 
-            <div class="form-check mb-4">
-                <input class="form-check-input" type="checkbox" id="disponible_web" name="disponible_web" value="1" checked>
-                <label class="form-check-label" for="disponible_web">
-                    Mostrar Disponible en el Sitio Web
-                </label>
-            </div>
-            
-            <button type="submit" name="ingresar_producto" class="btn btn-cake w-100">
-                <i class="fas fa-plus-circle"></i> Guardar Producto
-            </button>
-        </form>
+    <label>Stock Inicial:</label>
+    <input type="number" name="stock_actual" required>
 
-        <hr>
-        <h2 class="mt-5">Listado y Gestión de Productos</h2>
+    <label>Descripción:</label>
+    <textarea name="producto_finalizado_descri"></textarea>
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Visibilidad Web</th>
-                <th>Acción Rápida</th>
-                <th>Acciones</th> </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($productos)): ?>
-                <?php foreach ($productos as $producto): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($producto['ID_producto_finalizado']); ?></td>
-                        <td><?php echo htmlspecialchars($producto['producto_finalizado_nombre']); ?></td>
-                        <td>$<?php echo number_format($producto['producto_finalizado_precio'], 2); ?></td>
-                        <td>
-                            <?php if ($producto['stock_actual'] <= 0): ?>
-                                <span class="agotado">0 (AGOTADO)</span>
-                            <?php else: ?>
-                                <strong><?php echo htmlspecialchars($producto['stock_actual']); ?></strong>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php 
-                            $estado_web = $producto['disponible_web'];
-                            $clase = $estado_web == 1 ? 'disponible-si' : 'disponible-no';
-                            $texto = $estado_web == 1 ? 'SÍ (Visible)' : 'NO (Oculto)';
-                            echo "<span class='{$clase}'>{$texto}</span>"; 
-                            ?>
-                        </td>
-                        <td>
-                            <form method="POST" action="" style="display:inline;"> <input type="hidden" name="id_producto" value="<?php echo $producto['ID_producto_finalizado']; ?>">
-                                <input type="hidden" name="cambiar_disponibilidad" value="1">
-                                <?php if ($producto['disponible_web'] == 1): ?>
-                                    <input type="hidden" name="estado" value="0">
-                                    <button type="submit" class="btn btn-sm btn-outline-warning">Ocultar de Web</button>
-                                <?php else: ?>
-                                    <input type="hidden" name="estado" value="1">
-                                    <button type="submit" class="btn btn-sm btn-outline-success">Mostrar en Web</button>
-                                <?php endif; ?>
-                            </form>
-                        </td>
-                        <td>
-                            <a href="../../controllers/productos/editar_productos.php?id=<?php echo $producto['ID_producto_finalizado']; ?>" class="btn btn-sm btn-info btn-cake">
-                                <i class="fas fa-edit"></i> Editar
-                            </a>
-                            <form action="../../controllers/productos/eliminar.php" method="post" style="display:inline;">
-                            <input type="hidden" name="id_producto_finalizado" value="<?php echo $row['id_producto_finalizado']; ?>">
-                            <button class="btn-action btn-delete" type="submit" onclick="return confirmarEliminacion('¿Eliminar definitivamente este producto?');">❌ Eliminar</button>
-                        </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="7" class="text-center text-muted">No hay productos finalizados registrados.</td> </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+    <label>
+        <input type="checkbox" name="disponible_web" checked>
+        Mostrar en Web
+    </label>
+
+    <button class="btn-cake" type="submit" name="ingresar_producto">
+        Guardar Producto
+    </button>
+</form>
+
+<hr>
+
+<!-- LISTADO -->
+<h2>Listado de Productos</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Web</th>
+            <th>Acción</th>
+            <th>Opciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <?php foreach ($productos as $p): ?>
+        <tr>
+            <td><?= $p['ID_producto_finalizado'] ?></td>
+            <td><?= htmlspecialchars($p['producto_finalizado_nombre']) ?></td>
+            <td>$<?= number_format($p['producto_finalizado_precio'], 2) ?></td>
+
+            <td>
+                <?php if ($p['stock_actual'] <= 0): ?>
+                    <span class="agotado">AGOTADO</span>
+                <?php else: ?>
+                    <strong><?= $p['stock_actual'] ?></strong>
+                <?php endif; ?>
+            </td>
+
+            <td>
+                <?= $p['disponible_web']
+                    ? '<span class="disponible-si">Visible</span>'
+                    : '<span class="disponible-no">Oculto</span>' ?>
+            </td>
+
+            <td>
+                <form method="POST">
+                    <input type="hidden" name="id_producto" value="<?= $p['ID_producto_finalizado'] ?>">
+                    <input type="hidden" name="cambiar_disponibilidad" value="1">
+                    <input type="hidden" name="estado" value="<?= $p['disponible_web'] ? 0 : 1 ?>">
+                    <button class="btn-cake-primary">
+                        <?= $p['disponible_web'] ? 'Ocultar' : 'Mostrar' ?>
+                    </button>
+                </form>
+            </td>
+
+            <td>
+                <a href="../../controllers/productos/editar_productos.php?id=<?= $p['ID_producto_finalizado'] ?>"
+                   class="btn-cake-primary">Editar</a>
+
+                <button class="btn-cake-danger"
+                    onclick="confirmarEliminacion(<?= $p['ID_producto_finalizado'] ?>)">
+                    Eliminar
+                </button>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
 </div>
 
-    </div>
+<script>
+function confirmarEliminacion(id) {
+    Swal.fire({
+        title: "¿Eliminar producto?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#e91e63",
+    }).then((result) => {
+        if (result.isConfirmed) {
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://kit.fontawesome.com/tu_kit_id.js" crossorigin="anonymous"></script> 
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "../../controllers/productos/eliminar.php";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "id_producto_finalizado";
+            input.value = id;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+</script>
+
 </body>
 </html>

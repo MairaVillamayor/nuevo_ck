@@ -1,5 +1,6 @@
 <?php
 require_once("../../config/conexion.php");
+require_once("../../models/factura.php");
 include("../../includes/navegacion.php");
 
 session_start();
@@ -8,24 +9,16 @@ if (!isset($_SESSION['usuario_id'])) {
   exit;
 }
 
-$pdo = getConexion();
+$factura = new Factura();
+$cliente_filtro = isset($_GET['cliente']) ? htmlspecialchars($_GET['cliente']) : null;
 
-$sql = " SELECT 
-    f.ID_factura,
-    f.factura_fecha_emision,
-    CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS cliente,
-    f.factura_subtotal,
-    f.factura_iva_tasa,
-    f.factura_iva_monto,
-    f.factura_total,
-    ef.estado_factura_descri AS estado
-FROM factura f
-LEFT JOIN persona p ON f.RELA_persona = p.ID_persona
-LEFT JOIN estado_factura ef ON f.RELA_estado_factura = ef.ID_estado_factura
-ORDER BY f.factura_fecha_emision DESC
-";
-$stmt = $pdo->query($sql);
-$facturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$fecha_filtro = isset($_GET['fecha']) ? $_GET['fecha'] : null;
+
+$facturas = $factura->get_facturas_con_filtros(
+    $cliente_filtro, 
+    $fecha_filtro
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -40,31 +33,35 @@ $facturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
+  <?php include("../../includes/header.php"); ?>
 
   <div class="container mt-4">
     <h2 class="text-pink mb-4">🧾 Listado de Facturas</h2>
-    <a href="nueva_venta.php" class="btn btn-primary">Crear Factura</a>
+    <a href="registrar_venta.php" class="btn btn-primary">Crear Factura</a>
+
 
     <div class="card mb-3 shadow-sm">
-      <div class="card-body">
+    <div class="card-body">
         <form method="GET" class="row g-2">
-          <div class="col-md-3">
-            <input type="text" name="cliente" class="form-control" placeholder="Buscar cliente...">
-          </div>
-          <div class="col-md-3">
-            <input type="date" name="fecha_desde" class="form-control">
-          </div>
-          <div class="col-md-3">
-            <input type="date" name="fecha_hasta" class="form-control">
-          </div>
-          <div class="col-md-3 text-end">
-            <button class="btn btn-pink" type="submit">Buscar</button>
-            <a href="listado_facturas.php" class="btn btn-secondary">Limpiar</a>
-          </div>
+            <div class="col-md-4">
+                <input type="text" name="cliente" class="form-control" 
+                       placeholder="Buscar cliente (Nombre, Apellido o Documento)..." 
+                       value="<?= htmlspecialchars($cliente_filtro ?? '') ?>">
+            </div>
+            <div class="col-md-4">
+                <input type="date" name="fecha" class="form-control"
+                       value="<?= htmlspecialchars($fecha_filtro ?? '') ?>">
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-pink" type="submit">Buscar</button>
+                <a href="listado_facturas.php" class="btn btn-secondary">Limpiar</a>
+            </div>
         </form>
-      </div>
     </div>
-
+</div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <div class="card shadow-sm">
       <div class="card-body">
         <table class="table table-hover align-middle">
@@ -84,6 +81,7 @@ $facturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if (count($facturas) > 0): ?>
               <?php foreach ($facturas as $f): ?>
                <tr>
+
   <td><?= $f['ID_factura'] ?></td>
   <td><?= date("d/m/Y H:i", strtotime($f['factura_fecha_emision'])) ?></td>
   <td><?= htmlspecialchars($f['cliente'] ?? 'Sin nombre') ?></td>
@@ -98,7 +96,7 @@ $facturas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <strong>$<?= number_format((float)($f['factura_total'] ?? 0), 2, ',', '.') ?></strong>
   </td>
   <td>
-    <span class="badge bg-<?= ($f['estado'] == 'Activo') ? 'success' : 'secondary' ?>">
+    <span class="badge bg-<?= ($f['estado'] == 'Pagado') ? 'success' : 'secondary' ?>">
       <?= $f['estado'] ?>
     </span>
   </td>

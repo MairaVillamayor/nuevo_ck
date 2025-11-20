@@ -1,197 +1,250 @@
 <?php
-$result_gastos = $result_gastos ?? [];
-$result_categoria = $result_categoria ?? [];
-$result_metodo = $result_metodo ?? [];
-$caja_abierta = $caja_abierta ?? ['id' => 0];
+require_once __DIR__ . '/../../models/caja/Gastos.php';
+
+include("../../includes/header.php");
+include("../../includes/navegacion.php");
+
+$gastosModel = new Gastos();
+$gastos = $gastosModel->traerGastos();
+
+if (isset($_GET['eliminar_id'])) {
+    $id_a_eliminar = $_GET['eliminar_id'];
+
+
+    if ($gastosModel->eliminar($id_a_eliminar)) {
+        session_start();
+        $_SESSION['message'] = "El gasto N° $id_a_eliminar ha sido eliminado correctamente.";
+        $_SESSION['status'] = "success";
+    } else {
+        session_start();
+        $_SESSION['message'] = "Error al intentar eliminar el gasto N° $id_a_eliminar.";
+        $_SESSION['status'] = "danger";
+    }
+    header('Location: listado_gastos.php');
+    exit();
+}
 ?>
+<!DOCTYPE html>
+<html lang="es">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-semibold text-rosa">
-        <i class="bi bi-wallet2 me-2"></i>Gestión de Gastos
-    </h3>
-    <div>
-        <button class="btn btn-rosa me-2" onclick="abrirModal()">
-            <i class="bi bi-plus-lg me-1"></i> Registrar Gasto
-        </button>
-        <button class="btn btn-outline-rosa" onclick="abrirCategoria()">
-            <i class="bi bi-folder-plus me-1"></i> Nueva Categoría
-        </button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Gastos | Cake Party</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        thead.table-cakeparty {
+            background: #ff79c6 !important;
+            color: white !important;
+        }
+
+        .table thead th {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .table tbody td {
+            font-size: 0.9rem;
+        }
+
+        .text-pink {
+            color: #d63384;
+        }
+         .btn-primary {
+            background-color: #ff6b81;
+            border-color: #ff6b81;
+            
+        }
+        .btn-primary:hover {
+            background-color: #fabec7ff;
+            border-color: #fabec7ff;
+        }
+        .btn-outline-primary {
+            color: #ff6b81;
+            border-color: #ff6b81;
+        }
+        .btn-outline-primary:hover {
+            background-color: #ff6b81;
+            color: #ff6b81;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ALERTA CAKE PARTY -->
+    <div id="cakePartyAlert" class="cakeparty-overlay">
+        <div class="cakeparty-box">
+            <h3 id="cpTitle">Título</h3>
+            <p id="cpText">Mensaje</p>
+            <a id="cpButton" href="listado_gastos.php" class="btn-cake">Aceptar</a>
+        </div>
     </div>
-</div>
 
-<div class="table-container p-4 shadow-sm rounded-4 bg-white">
-    <div class="table-responsive">
-        <table class="table align-middle text-center mb-0">
-            <thead class="table-header text-white">
-                <tr>
-                    <th class="rounded-start">Categoría</th>
-                    <th>Fecha</th>
-                    <th>Forma de Pago</th>
-                    <th>Monto</th>
-                    <th class="rounded-end">Descripción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($result_gastos)) { ?>
-                    <?php foreach ($result_gastos as $g) { ?>
+    <style>
+        .cakeparty-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, .45);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+        }
+
+        .cakeparty-box {
+            background: #ffe4ef;
+            padding: 30px;
+            width: 350px;
+            border-radius: 18px;
+            text-align: center;
+            border: 2px solid #f8a1c4;
+            animation: popin .25s ease-out;
+            color: #c2185b;
+        }
+
+        @keyframes popin {
+            from {
+                transform: scale(.5);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .btn-cake {
+            display: inline-block;
+            background: #ff66b2;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+        .btn-cake:hover {
+            background: #ff4da6;
+        }
+    </style>
+
+    <script>
+        function showCakeAlert(titulo, mensaje, botonUrl = "listado_gastos.php") {
+            document.getElementById("cpTitle").textContent = titulo;
+            document.getElementById("cpText").textContent = mensaje;
+            document.getElementById("cpButton").href = botonUrl;
+
+            document.getElementById("cakePartyAlert").style.display = "flex";
+
+            // 🔥 AUTO-REDIRECCIÓN A LOS 2.2 SEGUNDOS
+            setTimeout(() => {
+                window.location.href = botonUrl;
+            }, 2200);
+        }
+    </script>
+
+
+    <?php
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+
+
+    if (isset($_SESSION['message']) && isset($_SESSION['status'])) {
+        $msg = htmlspecialchars($_SESSION['message']);
+        $status = $_SESSION['status'];
+
+        $titulo = ($status === "success") ? "✔ ¡Éxito!" : "❌ Error";
+
+        echo "
+    <script>
+        showCakeAlert('$titulo', '$msg');
+    </script>
+    ";
+
+        unset($_SESSION['message']);
+        unset($_SESSION['status']);
+    }
+    ?>
+    <div class="container-fluid mt-5">
+        <h2 class="mb-4 text-pink">💸 Listado de Gastos</h2>
+
+        <div class="mb-3 d-flex gap-2">
+            <a href="listado_caja.php" class="btn btn-secondary">Volver a Cajas</a>
+            <a href="registrar_gasto.php" class="btn btn-primary">Registrar Nuevo Gasto</a>
+        </div>
+
+        <div class="card shadow-sm p-3 bg-white rounded-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-cakeparty text-center">
                         <tr>
-                            <td><?= htmlspecialchars($g['categoria_nombre'] ?? '—'); ?></td>
-                            <td><?= htmlspecialchars($g['fecha'] ?? '—'); ?></td>
-                            <td><?= htmlspecialchars($g['metodo_pago_descri'] ?? '—'); ?></td>
-                            <td class="fw-semibold text-success">
-                                $<?= number_format($g['monto'] ?? 0, 2, ',', '.'); ?>
-                            </td>
-                            <td><?= htmlspecialchars($g['descripciones'] ?? ''); ?></td>
+                            <th>ID</th>
+                            <th>Fecha y Hora</th>
+                            <th>Monto</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Método de Pago</th>
+                            <th>Caja N°</th>
+                            <th>Acciones</th>
                         </tr>
-                    <?php } ?>
-                <?php } else { ?>
-                    <tr>
-                        <td colspan="5" class="text-muted py-4">
-                            💸 No hay gastos registrados todavía.
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($gastos)): ?>
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <span class="text-muted fs-5">🚫 No hay gastos registrados aún.</span>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($gastos as $gasto): ?>
+                                <tr class="text-center">
+                                    <td><?= htmlspecialchars($gasto['ID_gasto'] ?? '-') ?></td>
+                                    <td><?= date('d-m-Y H:i', strtotime($gasto['gasto_fecha'] ?? '')) ?></td>
+                                    <td class="text-danger fw-bold">$<?= number_format($gasto['gasto_monto'] ?? 0, 2) ?></td>
+                                    <td class="text-start"><?= htmlspecialchars($gasto['gasto_descripcion'] ?? '') ?></td>
+
+                                    <td><span class="badge bg-info text-dark"><?= htmlspecialchars($gasto['categoria_nombre'] ?? 'N/A') ?></span></td>
+                                    <td><?= htmlspecialchars($gasto['metodo_pago_descri'] ?? 'N/A') ?></td>
+                                    <td><?= htmlspecialchars($gasto['RELA_caja'] ?? 'N/A') ?></td>
+
+                                    
+                                    <td class="d-flex justify-content-center gap-2">
+
+                                        <a href="editar_gasto.php?id=<?= $gasto['ID_gasto'] ?>"
+                                            class="btn btn-sm btn-outline-primary">
+                                            ✏️ Editar
+                                        </a>
+
+                                        <a href="listado_gastos.php?eliminar_id=<?= $gasto['ID_gasto'] ?>"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('¿Estás seguro de que deseas eliminar el gasto N° <?= $gasto['ID_gasto'] ?>? Esta acción no se puede deshacer.')">
+                                            🗑️ Eliminar
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="modalCaja" class="cake-modal">
-    <div class="cake-modal-content">
-        <span class="cerrar" onclick="cerrarModal()">&times;</span>
-        <h4 class="text-center text-rosa mb-3 fw-semibold">Registrar Gasto</h4>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 
-        <form method="POST" action="../controllers/gastos_controlador.php">
-            <input type="hidden" name="action" value="guardar">
-            <input type="hidden" name="caja_id" value="<?= htmlspecialchars($caja_abierta['id']); ?>">
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Categoría</label>
-                <select name="categoria_id" class="form-select input-cake" required>
-                    <option value="">Seleccione una</option>
-                    <?php foreach ($result_categoria as $cat) { ?>
-                        <option value="<?= $cat['id']; ?>"><?= htmlspecialchars($cat['nombre']); ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Método de Pago</label>
-                <select name="metodo_pago_id" class="form-select input-cake" required>
-                    <option value="">Seleccione uno</option>
-                    <?php foreach ($result_metodo as $metodo) { ?>
-                        <option value="<?= $metodo['id']; ?>"><?= htmlspecialchars($metodo['nombre']); ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Monto</label>
-                <input type="number" step="0.01" name="monto" class="form-control input-cake" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Descripción</label>
-                <input type="text" name="descripciones" class="form-control input-cake" required>
-            </div>
-
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-rosa px-4 py-2 fw-semibold">
-                    Guardar Gasto
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-function abrirModal() { document.getElementById('modalCaja').style.display = 'flex'; }
-function cerrarModal() { document.getElementById('modalCaja').style.display = 'none'; }
-</script>
-
-<style>
-:root {
-    --rosa: #e83e8c;
-    --rosa-claro: #ffb6d9;
-    --gris: #f8f9fa;
-    --gris-borde: #dee2e6;
-}
-body { font-family: "Poppins", sans-serif; background-color: var(--gris); }
-
-.table-container {
-    border: 1px solid var(--gris-borde);
-}
-.table-header {
-    background-color: var(--rosa);
-}
-.table td, .table th {
-    vertical-align: middle;
-    padding: 12px;
-}
-
-/* Botones */
-.btn-rosa {
-    background-color: var(--rosa);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    transition: 0.2s;
-}
-.btn-rosa:hover { background-color: #d7337d; color: #fff; }
-.btn-outline-rosa {
-    border: 2px solid var(--rosa);
-    color: var(--rosa);
-    border-radius: 10px;
-    transition: 0.2s;
-}
-.btn-outline-rosa:hover {
-    background-color: var(--rosa);
-    color: #fff;
-}
-
-/* Inputs y selects */
-.input-cake {
-    border: 1.5px solid var(--rosa-claro);
-    border-radius: 10px;
-    padding: 8px;
-    transition: all 0.2s ease;
-}
-.input-cake:focus {
-    border-color: var(--rosa);
-    box-shadow: 0 0 0 3px rgba(232, 62, 140, 0.1);
-}
-
-/* Modal */
-.cake-modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-    justify-content: center;
-    align-items: center;
-}
-.cake-modal-content {
-    background: #fff;
-    border-radius: 16px;
-    padding: 30px;
-    width: 90%;
-    max-width: 450px;
-    position: relative;
-    animation: aparecer 0.3s ease;
-}
-@keyframes aparecer {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-.cerrar {
-    position: absolute;
-    top: 12px; right: 15px;
-    font-size: 22px;
-    cursor: pointer;
-    color: var(--rosa);
-}
-.cerrar:hover { color: #d7337d; }
-.text-rosa { color: var(--rosa); }
-</style>
+</html>

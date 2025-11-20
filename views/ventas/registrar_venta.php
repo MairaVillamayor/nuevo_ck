@@ -1,3 +1,6 @@
+<?php 
+include ("../../includes/navegacion.php");
+?>
 <!doctype html>
 <html lang="en">
 
@@ -10,6 +13,7 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             background-color: #fff7fa;
@@ -212,23 +216,34 @@
         <h4 id="montoPagado" style="text-align: right; color: #d81b60;">Pagado: $0.00</h4>
         <h4 id="montoRestante" style="text-align: right; color: #e91e63;">Restante por Pagar: <span style="font-weight: 700;">$0.00</span></h4>
 
-        <div class="mt-4">
-            <div class="row g-2">
-                <div class="col-6">
-                    <button class="btn btn-primary btn-lg w-100" onclick="finalizarVenta()">PROCESAR VENTA</button>
-                </div>
+                <div class="mt-4">
+                        <div class="row g-2">
+                                <div class="col-6">
+                                        <button class="btn btn-primary btn-lg w-100" onclick="finalizarVenta()">PROCESAR VENTA</button>
+                                    </div>
                 <div class="col-6">
-                    <button class="btn btn-cake btn-lg w-100" onclick="imprimirVenta()">
+                                        <button class="btn btn-cake btn-lg w-100" onclick="imprimirVenta()">
                         <i class="bi bi-printer"></i> IMPRIMIR VENTA
-                    </button>
-                </div>
-            </div>
-        </div>
+                                            </button>
+                                    </div>
+                           
+            </div>
+                    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
     <script>
+        function alerta(titulo, mensaje, tipo = 'info') {
+            Swal.fire({
+                title: titulo,
+                html: mensaje,
+                icon: tipo,
+                confirmButtonColor: "#e91e63",
+                background: "#fff7fa"
+            });
+        }
+
         var id = 0;
         var idFactura = 0;
         var SubTotalGeneral = 0;
@@ -278,7 +293,7 @@
 
         function agregarFormaPago() {
             if (formasDePagoOpciones.length === 0) {
-                alert("Primero debe cargar las formas de pago. Intente recargar la página.");
+                alert("Primero debe cargar las formas de pago. Intente recargar la página.", "warning");
                 return;
             }
 
@@ -357,7 +372,7 @@
             var docPersona = document.getElementById("docPersona").value;
 
             if (!docPersona) {
-                alert("Por favor, ingrese un documento válido.");
+                alerta("ADVERTENCIA:", "Por favor, ingrese un documento válido.");
                 return;
             }
             $.ajax({
@@ -391,7 +406,7 @@
             const apellido = document.getElementById("personaApellido").value;
 
             if (!documento) {
-                alert("ERROR: Primero debe buscar y seleccionar un cliente.");
+                alerta("ERROR:",  "Primero debe buscar y seleccionar un cliente.");
                 return;
             }
 
@@ -411,12 +426,12 @@
                         idFactura = id_factura;
                         console.log("ID de Factura Establecido:", idFactura);
                     } else {
-                        alert("Error al insertar factura: " + data.error);
+                        alerta("Error al insertar factura: " + data.error);
                         console.error("AJAX Error:", data.error);
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    alert("Error de comunicación al iniciar factura.");
+                    alerta("Error de comunicación al iniciar factura.");
                     console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
                 }
             });
@@ -430,7 +445,7 @@
                     $("#idProducto").val(ui.item.id);
                     $(this).val(ui.item.value);
                     if (parseInt(ui.item.stock) <= 0) {
-                        alert("ADVERTENCIA: ¡El producto seleccionado está agotado (Stock: 0)!");
+                        alerta("ADVERTENCIA: ", "¡El producto seleccionado está agotado (Stock: 0)!");
                     }
                     return false;
                 }
@@ -448,15 +463,15 @@
             const cantidad = parseFloat(cant);
 
             if (!idProducto) {
-                alert("ERROR: Debe seleccionar un producto.");
+                alerta("ERROR:",  "Debe seleccionar un producto.");
                 return;
             }
             if (!cant || isNaN(cantidad) || cantidad <= 0) {
-                alert("ERROR: Por favor, ingrese una cantidad válida.");
+                alerta("ERROR:",  "Por favor, ingrese una cantidad válida.");
                 return;
             }
             if (!idFactura || idFactura <= 0) {
-                alert("ERROR: Primero debe iniciar la factura.");
+                alerta("ERROR:",  "Primero debe iniciar la factura.");
                 return;
                 console.log("idFactura dentro de buscarProducto():", idFactura);
 
@@ -502,7 +517,7 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.error("Error AJAX en buscarProducto:", textStatus, errorThrown);
-                    alert("Error de comunicación con el servidor al buscar producto.");
+                    alerta("Error de comunicación con el servidor al buscar producto.");
                 }
             });
         }
@@ -522,7 +537,7 @@
                         console.log("Producto agregado exitosamente a la BD.");
                     } else {
                         console.error("Error al insertar producto en BD:", data.error);
-                        alert("Error al insertar producto en la BD. Detalles: " + data.error);
+                        alerta("Error al insertar producto en la BD. Detalles: " + data.error);
                     }
                 }
             });
@@ -532,15 +547,15 @@
             const resumenPagos = calcularMontoPagado();
 
             if (idFactura === 0) {
-                alert("Debe iniciar la factura primero.");
+                alerta("ERROR:", "Debe iniciar la factura primero.");
                 return;
             }
             if (SubTotalGeneral === 0) {
-                alert("Debe agregar productos a la factura.");
+                alerta("Debe agregar productos a la factura.");
                 return;
             }
             if (resumenPagos.restante !== 0) {
-                alert(`El monto pagado ($${resumenPagos.pagado.toFixed(2)}) no coincide con el Total Factura ($${resumenPagos.totalFactura.toFixed(2)}). Restante: $${resumenPagos.restante.toFixed(2)}`);
+                alerta(`El monto pagado ($${resumenPagos.pagado.toFixed(2)}) no coincide con el Total Factura ($${resumenPagos.totalFactura.toFixed(2)}). Restante: $${resumenPagos.restante.toFixed(2)}`);
                 return;
             }
 
@@ -580,14 +595,14 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        alert("¡Venta finalizada con éxito! Factura N° " + idFactura);
+                        alerta("¡Venta finalizada con éxito! Factura N° " + idFactura);
 
                     } else {
-                        alert("Error al finalizar la venta: " + response.error);
+                        alerta("Error al finalizar la venta: " + response.error);
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    alert("Error de comunicación al finalizar la venta.");
+                    alerta("Error de comunicación al finalizar la venta.");
                     console.error("Error AJAX en finalizarVenta:", textStatus, errorThrown, jqXHR.responseText);
                 }
             });
@@ -595,16 +610,16 @@
 
 
         function imprimirVenta() {
-                if (!idFactura || idFactura <= 0) {
-                    alert("ERROR: Primero debe iniciar la factura y agregar productos para poder imprimirla.");
-                    return;
-                }
-
-                const rutaFactura = 'imprimir_venta.php?idFactura=' + idFactura;
-
-                window.open(rutaFactura, '_blank');
+            if (!idFactura || idFactura <= 0) {
+                alerta("ERROR:" , "Primero debe iniciar la factura y agregar productos para poder imprimirla.");
+                return;
             }
-            
+
+            const rutaFactura = 'imprimir_venta.php?idFactura=' + idFactura;
+
+            window.open(rutaFactura, '_blank');
+        }
+
         window.onload = function() {
             actualizarCalculos();
             cargarFormasPagoSelect();
