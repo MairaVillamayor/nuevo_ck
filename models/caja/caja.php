@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../config/conexion.php';
 class Caja
 {
 
-    public function abrirCaja($RELA_usuario, $monto_efectivo, $monto_transferencia, $fecha, $observaciones)
+    public function abrirCaja($RELA_usuario, $caja_monto_inicial_efectivo, $caja_monto_inicial_transferencia, $fecha, $observaciones)
     {
         $pdo = getConexion();
         $sql = "INSERT INTO caja (
@@ -14,12 +14,12 @@ class Caja
                     caja_fecha_apertura, 
                     caja_observaciones,
                     caja_estado)
-                VALUES (:usuario, :monto_efectivo, :monto_transferencia, :fecha, :observaciones, 'abierta')";
+                VALUES (:usuario, :caja_monto_inicial_efectivo, :caja_monto_inicial_transferencia, :fecha, :observaciones, 'abierta')";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':usuario' => $RELA_usuario,
-            ':monto_efectivo' => $monto_efectivo,
-            ':monto_transferencia' => $monto_transferencia,
+            ':caja_monto_inicial_efectivo' => $caja_monto_inicial_efectivo,
+            ':caja_monto_inicial_transferencia' => $caja_monto_inicial_transferencia,
             ':fecha' => $fecha,
             ':observaciones' => $observaciones
         ]);
@@ -30,8 +30,8 @@ class Caja
         $pdo = getConexion();
         $sql = "SELECT ID_caja,
                     RELA_usuario,
-                    caja_monto_inicial_efectivo AS monto_inicial_efectivo,
-                    caja_monto_inicial_transferencia AS monto_inicial_transferencia, 
+                    caja_monto_inicial_efectivo,
+                    caja_monto_inicial_transferencia, 
                     caja_fecha_apertura AS fecha_apertura,
                     caja_observaciones AS observaciones,
                     caja_estado AS estado 
@@ -56,7 +56,7 @@ class Caja
     ) {
         $pdo = getConexion();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
+
         $sql = "UPDATE caja
                 SET caja_fecha_cierre = :fecha_cierre,
                     caja_monto_final_efectivo = :cierre_efectivo,
@@ -69,22 +69,22 @@ class Caja
                     caja_total_egresos = :egresos_sistema,
                     caja_saldo_final = :saldo_sistema,
                     caja_estado = 'cerrada'
-                WHERE ID_caja = :idCaja";
+                WHERE ID_caja = :id_caja";
 
         $stmt = $pdo->prepare($sql);
 
         $stmt->execute([
-            ':idCaja' => $ID_caja,
-            ':cierre_efectivo' => $cierre_efectivo ?? 0.00,
-            ':cierre_transferencia' => $cierre_transferencia ?? 0.00,
-            ':diff_efectivo' => $diferencia_efectivo ?? 0.00,
-            ':diff_transferencia' => $diferencia_transferencia ?? 0.00,
+            ':id_caja' => $ID_caja,
+            ':cierre_efectivo' => $cierre_efectivo,
+            ':cierre_transferencia' => $cierre_transferencia,
+            ':diff_efectivo' => $diferencia_efectivo,
+            ':diff_transferencia' => $diferencia_transferencia,
             ':usuario_cierre' => $usuario_cierre,
             ':fecha_cierre' => $fecha_cierre,
             ':observaciones' => $observaciones_cierre,
-            ':ingresos_sistema' => $total_ingresos_sistema ?? 0.00,
-            ':egresos_sistema' => $total_egresos_sistema ?? 0.00,
-            ':saldo_sistema' => $saldo_final_sistema ?? 0.00,
+            ':ingresos_sistema' => $total_ingresos_sistema,
+            ':egresos_sistema' => $total_egresos_sistema,
+            ':saldo_sistema' => $saldo_final_sistema,
         ]);
     }
 
@@ -93,27 +93,12 @@ class Caja
         $pdo = getConexion();
 
         $sql = "SELECT 
-                    c.ID_caja,
-                    CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS persona,
-                    c.caja_fecha_apertura,
-                    c.caja_fecha_cierre,
-                    c.caja_monto_inicial_efectivo,
-                    c.caja_monto_inicial_transferencia,
-                    
-                    COALESCE(SUM(CASE WHEN mc.movimiento_tipo = 'ingreso' AND mc.RELA_metodo_pago = 1 THEN mc.movimiento_monto ELSE 0 END), 0) AS ingresos_efectivo,
-                    COALESCE(SUM(CASE WHEN mc.movimiento_tipo = 'ingreso' AND mc.RELA_metodo_pago = 2 THEN mc.movimiento_monto ELSE 0 END), 0) AS ingresos_transferencia,
-                    COALESCE(SUM(CASE WHEN mc.movimiento_tipo = 'egreso' AND mc.RELA_metodo_pago = 1 THEN mc.movimiento_monto ELSE 0 END), 0) AS egresos_efectivo,
-                    COALESCE(SUM(CASE WHEN mc.movimiento_tipo = 'egreso' AND mc.RELA_metodo_pago = 2 THEN mc.movimiento_monto ELSE 0 END), 0) AS egresos_transferencia,
-                    
-                    c.caja_monto_final_efectivo,
-                    c.caja_monto_final_transferencia,
-                    c.caja_estado
-                FROM caja c
-                LEFT JOIN movimiento_caja mc ON c.ID_caja = mc.RELA_caja
-                LEFT JOIN usuarios u ON c.RELA_usuario = u.ID_usuario
-                LEFT JOIN persona p ON u.RELA_persona = p.ID_persona
-                GROUP BY c.ID_caja, p.persona_nombre, p.persona_apellido, c.caja_fecha_apertura, c.caja_fecha_cierre, c.caja_monto_inicial_efectivo, c.caja_monto_inicial_transferencia, c.caja_monto_final_efectivo, c.caja_monto_final_transferencia, c.caja_estado
-                ORDER BY c.ID_caja DESC";
+                c.*, 
+                CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS persona
+            FROM caja c
+            LEFT JOIN usuarios u ON c.RELA_usuario = u.ID_usuario
+            LEFT JOIN persona p ON u.RELA_persona = p.ID_persona
+            ORDER BY c.ID_caja DESC";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
@@ -145,7 +130,8 @@ class Caja
                     SUM(movimiento_caja.movimiento_monto) AS ingreso_monto
                 FROM movimiento_caja
                 INNER JOIN metodo_pago ON movimiento_caja.RELA_metodo_pago = metodo_pago.ID_metodo_pago
-                WHERE movimiento_caja.RELA_caja = ?
+                WHERE movimiento_caja.RELA_caja = ? 
+                AND movimiento_caja.movimiento_tipo = 'ingreso'
                 GROUP BY metodo_pago.metodo_pago_descri";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$caja_id]);
@@ -184,35 +170,156 @@ class Caja
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // En models/caja/caja.php
 
-    public function obtenerEgresosPorMetodo($id_caja)
-    {
-        $pdo = getConexion();
-        $sql = "SELECT 
-            SUM(CASE WHEN RELA_metodo_pago = 1 THEN movimiento_monto ELSE 0 END) AS egreso_efectivo,
-            SUM(CASE WHEN RELA_metodo_pago = 2 THEN movimiento_monto ELSE 0 END) AS egreso_transferencia
-        FROM movimiento_caja
-        WHERE RELA_caja = :idCaja AND movimiento_tipo = 'egreso'
-    ";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':idCaja' => $id_caja]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
+    /**
+     * Obtiene la suma total de ingresos y egresos por método de pago para una caja específica.
+     * @param int $id_caja El ID de la caja abierta.
+     * @return array Los totales agregados.
+     */
     public function obtenerEgresosIngresosPorMetodo($id_caja)
     {
         $pdo = getConexion();
-        $sql = "  SELECT 
-            SUM(CASE WHEN movimiento_tipo='ingreso'  AND RELA_metodo_pago=1 THEN movimiento_monto ELSE 0 END) AS ingreso_efectivo,
-            SUM(CASE WHEN movimiento_tipo='ingreso'  AND RELA_metodo_pago=2 THEN movimiento_monto ELSE 0 END) AS ingreso_transferencia,
-            SUM(CASE WHEN movimiento_tipo='egreso'   AND RELA_metodo_pago=1 THEN movimiento_monto ELSE 0 END) AS egreso_efectivo,
-            SUM(CASE WHEN movimiento_tipo='egreso'   AND RELA_metodo_pago=2 THEN movimiento_monto ELSE 0 END) AS egreso_transferencia
-        FROM movimiento_caja
-        WHERE RELA_caja = :idCaja
-    ";
+
+        $ID_EFECTIVO = 1;
+        $ID_TRANSFERENCIA = 2;
+        $sql = "SELECT 
+             SUM(CASE WHEN movimiento_tipo = 'ingreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS ingreso_efectivo,
+             SUM(CASE WHEN movimiento_tipo = 'ingreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS ingreso_transferencia,
+             SUM(CASE WHEN movimiento_tipo = 'egreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS egreso_efectivo,
+             SUM(CASE WHEN movimiento_tipo = 'egreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS egreso_transferencia
+            FROM movimiento_caja
+            WHERE RELA_caja = ?";
+
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':idCaja' => $id_caja]);
+
+        $stmt->execute([
+            $ID_EFECTIVO,       // Para ingreso efectivo
+            $ID_TRANSFERENCIA,  // Para ingreso transferencia
+            $ID_EFECTIVO,       // Para egreso efectivo
+            $ID_TRANSFERENCIA,  // Para egreso transferencia
+            $id_caja            // Para RELA_caja (último)
+        ]);
+        // Aquí tienes 5 placeholders y 5 valores en el array. ¡Coinciden!
+
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // para reporte 
+    public function obtenerCajaPorId($id_caja)
+    {
+        $pdo = getConexion();
+        $sql = "SELECT c.*,
+                   CONCAT(p.persona_nombre,' ',p.persona_apellido) AS usuario_nombre
+                FROM caja c
+                LEFT JOIN usuarios u ON c.RELA_usuario = u.ID_usuario
+                LEFT JOIN persona p ON u.RELA_persona = p.ID_persona
+                WHERE c.ID_caja = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id_caja]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function obtenerUsuarioPorId($id_usuario)
+    {
+        $pdo = getConexion();
+        $sql = "SELECT CONCAT(p.persona_nombre,' ',p.persona_apellido)
+                FROM usuarios u
+                INNER JOIN persona p ON u.RELA_persona = p.ID_persona
+                WHERE u.ID_usuario = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id_usuario]);
+        return $stmt->fetchColumn();
+    }
+
+    public function obtenerMovimientosPorMetodo($id_caja, $metodo)
+    {
+        $pdo = getConexion();
+
+        switch ($metodo) {
+            case 'efectivo':
+                $id_metodo = 1;
+                break;
+            case 'transferencia':
+                $id_metodo = 2;
+                break;
+            case 'mp':
+            default:
+                return [];
+        }
+
+        $sql = "SELECT 
+                    m.ID_movimiento,
+                    m.movimiento_fecha,
+                    m.movimiento_monto AS total,
+                    m.movimiento_descripcion,
+                    u.usuario_nombre
+                FROM movimiento_caja m
+                INNER JOIN usuarios u ON m.RELA_usuario = u.ID_usuario
+                WHERE m.RELA_caja = ?
+                AND m.movimiento_tipo = 'ingreso'
+                AND m.RELA_metodo_pago = ?
+                ORDER BY m.movimiento_fecha ASC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id_caja, $id_metodo]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerVentasPorMetodoPago($id_caja, $metodo)
+    {
+        $pdo = getConexion();
+
+        $mapa_metodos = [
+            'efectivo' => 1,
+            'transferencia' => 2,
+        ];
+
+        if (!isset($mapa_metodos[$metodo])) return [];
+
+        $id_metodo = $mapa_metodos[$metodo];
+
+        $sql = "SELECT 
+                f.ID_factura,
+                CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS usuario_nombre,
+                f.factura_fecha_emision,
+                f.factura_total,
+                f.ID_factura AS recibo,
+                fp.pago_monto AS total,
+                ef.estado_factura_descri
+            FROM factura f
+            INNER JOIN factura_pagos fp ON f.ID_factura = fp.RELA_factura
+            INNER JOIN persona p ON f.RELA_persona = p.ID_persona
+            LEFT JOIN estado_factura ef ON f.RELA_estado_factura = ef.ID_estado_factura
+            WHERE fp.RELA_metodo_pago = ?
+            ORDER BY f.factura_fecha_emision ASC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id_metodo]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function obtenerTotalVentasPorMetodo($metodo)
+    {
+        $pdo = getConexion();
+
+        $mapa_metodos = [
+            'efectivo' => 1,
+            'transferencia' => 2,
+        ];
+
+        if (!isset($mapa_metodos[$metodo])) return 0;
+
+        $id_metodo = $mapa_metodos[$metodo];
+
+        $sql = "SELECT SUM(pago_monto)
+            FROM factura_pagos
+            WHERE RELA_metodo_pago = ?";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id_metodo]);
+        return (float)$stmt->fetchColumn() ?: 0;
     }
 }
 
@@ -232,7 +339,7 @@ class MovimientoCaja
             ':tipo' => $tipo,
             ':monto' => $monto,
             ':descripcion' => $descripcion,
-            ':metodo_pago' => $RELA_metodo_pago // Se añadió el método de pago
+            ':metodo_pago' => $RELA_metodo_pago
         ]);
 
         return ['success' => true];
@@ -243,7 +350,7 @@ class MovimientoCaja
         $pdo = getConexion();
         $sql = "SELECT m.*, u.usuario_nombre 
                 FROM movimiento_caja m
-                INNER JOIN usuario u ON m.RELA_usuario = u.ID_usuario
+                INNER JOIN usuarios u ON m.RELA_usuario = u.ID_usuario
                 WHERE m.RELA_caja = :caja
                 ORDER BY m.movimiento_fecha DESC";
         $stmt = $pdo->prepare($sql);

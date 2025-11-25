@@ -254,7 +254,6 @@ tbody tr:hover {
 
 <hr>
 
-<!-- LISTADO -->
 <h2>Listado de Productos</h2>
 
 <table>

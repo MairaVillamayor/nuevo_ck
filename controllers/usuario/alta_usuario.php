@@ -47,7 +47,6 @@
                 $pdo = getConexion();
                 try {
                     $pdo->beginTransaction();
-                    // Verificar si el usuario ya existe
                     $stmtCheckUser = $pdo->prepare("SELECT ID_usuario FROM usuarios WHERE usuario_nombre = :usuario_nombre OR usuario_correo_electronico = :usuario_correo_electronico");
                     $stmtCheckUser->execute([
                         'usuario_nombre' => $_POST['usuario_nombre'],
@@ -56,7 +55,6 @@
                     if ($stmtCheckUser->fetch()) {
                         throw new Exception("El nombre de usuario o correo electrónico ya está registrado");
                     }
-                    // 1. Insertar persona
                     $stmtPersona = $pdo->prepare("INSERT INTO persona (persona_nombre, persona_apellido, persona_documento, persona_fecha_nacimiento, persona_direccion) VALUES (:nombre, :apellido, :documento, :fecha_nacimiento, :direccion)");
                     $stmtPersona->execute([
                         'nombre' => $_POST['persona_nombre'],
@@ -66,7 +64,6 @@
                         'direccion' => $_POST['persona_direccion']
                     ]);
                     $idPersona = $pdo->lastInsertId();
-                    // 2. Insertar usuario
                     $usuario_contraseña_encriptada = password_hash($_POST['usuario_contraseña'], PASSWORD_BCRYPT);
                     $sql_debug = "INSERT INTO usuarios (usuario_nombre, usuario_correo_electronico, usuario_contraseña, usuario_numero_de_celular, RELA_persona, RELA_perfil) VALUES (?, ?, ?, ?, ?, ?)";
                     $stmtUsuario = $pdo->prepare($sql_debug);
@@ -81,7 +78,6 @@
                     $idUsuario = $pdo->lastInsertId();
                     $pdo->commit();
 
-                    // Iniciar sesión automáticamente
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
                     }
@@ -95,7 +91,6 @@
                         $_SESSION['perfil_id'] = $usuario_data['RELA_perfil'];
                     }
 
-                    // Redirigir a la interfaz del cliente tras mostrar notificación (ruta absoluta)
                     $redir = '/nuevo_ck/views/cliente/interfaz.php';
                     header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Usuario%20registrado&mensaje=El%20usuario%20fue%20registrado%20correctamente&redirect_to=" . urlencode($redir) . "&delay=1");
                     exit();

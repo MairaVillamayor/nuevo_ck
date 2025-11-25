@@ -173,4 +173,14 @@ class Factura {
             return [];
         }
     }
+        public function obtenerProductosDeFactura($idFactura) {
+    global $conexion;
+
+    $sql = "SELECT * FROM factura_detalle WHERE RELA_factura = ?";
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute([$idFactura]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
 }

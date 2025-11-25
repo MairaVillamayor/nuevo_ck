@@ -1,5 +1,6 @@
 <?php
 require_once ("../../config/conexion.php");
+include ("../../includes/navegacion.php");
 
 if (!isset($_GET['idFactura']) || !is_numeric($_GET['idFactura'])) {
     die("Error: ID de Factura no proporcionado o inválido.");

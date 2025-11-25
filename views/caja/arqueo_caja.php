@@ -26,7 +26,7 @@ if (!$caja_abierta) {
 }
 
 
-$caja_id = $caja_abierta['idCaja'] ?? $caja_abierta['ID_caja'];
+$caja_id = $caja_abierta['ID_caja'] ?? $caja_abierta['ID_caja'];
 
 $ingresos = $cajaModel->obtenerTotalesIngresosCaja($caja_id);
 $gastos = $cajaModel->obtenerTotalesGastosCaja($caja_id);
@@ -35,9 +35,10 @@ $total_ingresos_efectivo = $total_ingresos_transferencia = 0;
 $total_egresos_efectivo = $total_egresos_transferencia = 0;
 
 foreach ($ingresos as $fila) {
-  if ($fila['metodo_nombre'] === 'Efectivo') $total_ingresos_efectivo = $fila['ingreso_monto'];
-  if ($fila['metodo_nombre'] === 'Transferencia') $total_ingresos_transferencia = $fila['ingreso_monto'];
+    if ($fila['metodo_nombre'] === 'Efectivo') $total_ingresos_efectivo = $fila['ingreso_monto'] ?? 0;
+    if ($fila['metodo_nombre'] === 'Transferencia') $total_ingresos_transferencia = $fila['ingreso_monto'] ?? 0;
 }
+
 
 foreach ($gastos as $fila) {
   if ($fila['metodo_nombre'] === 'Efectivo') $total_egresos_efectivo = $fila['gasto_monto'];
@@ -45,8 +46,8 @@ foreach ($gastos as $fila) {
 }
 
 // Cálculo de saldos del sistema
-$final_efectivo_sistema = ($caja_abierta['monto_inicial_efectivo'] ?? 0) + $total_ingresos_efectivo - $total_egresos_efectivo;
-$final_transferencia_sistema = ($caja_abierta['monto_inicial_transferencia'] ?? 0) + $total_ingresos_transferencia - $total_egresos_transferencia;
+$final_efectivo_sistema = ($caja_abierta['caja_monto_inicial_efectivo'] ?? 0) + $total_ingresos_efectivo - $total_egresos_efectivo;
+$final_transferencia_sistema = ($caja_abierta['caja_monto_inicial_transferencia'] ?? 0) + $total_ingresos_transferencia - $total_egresos_transferencia;
 $total_sistema = $final_efectivo_sistema + $final_transferencia_sistema;
 
 $usuario_nombre = $_SESSION['usuario_nombre'] ?? 'Desconocido';
@@ -94,7 +95,7 @@ $fecha_actual = date('d/m/Y H:i:s');
 
 <body>
   <?php include("../../includes/navegacion.php"); ?>
-  <?php include ("../../includes/header.php");?>
+  <?php include("../../includes/header.php"); ?>
   <?php include("../../includes/alerts.php"); ?>
   <div class="container py-5">
     <div class="card shadow-lg p-4 rounded-4">
@@ -119,7 +120,7 @@ $fecha_actual = date('d/m/Y H:i:s');
           <div class="col-md-6">
             <h6 class="text-pink">💵 Efectivo (Sistema)</h6>
             <ul class="list-group mb-3">
-              <li class="list-group-item">Monto Inicial: <strong>$<?= number_format($caja_abierta['monto_inicial_efectivo'], 2) ?></strong></li>
+              <li class="list-group-item">Monto Inicial: <strong>$<?= number_format($caja_abierta['caja_monto_inicial_efectivo'], 2) ?></strong></li>
               <li class="list-group-item">Ingresos: <strong class="text-success">$<?= number_format($total_ingresos_efectivo, 2) ?></strong></li>
               <li class="list-group-item">Egresos: <strong class="text-danger">$<?= number_format($total_egresos_efectivo, 2) ?></strong></li>
               <li class="list-group-item bg-light">Saldo Esperado: <strong>$<?= number_format($final_efectivo_sistema, 2) ?></strong></li>
@@ -129,7 +130,7 @@ $fecha_actual = date('d/m/Y H:i:s');
           <div class="col-md-6">
             <h6 class="text-pink">💳 Transferencias (Sistema)</h6>
             <ul class="list-group mb-3">
-              <li class="list-group-item">Monto Inicial: <strong>$<?= number_format($caja_abierta['monto_inicial_transferencia'], 2) ?></strong></li>
+              <li class="list-group-item">Monto Inicial: <strong>$<?= number_format($caja_abierta['caja_monto_inicial_transferencia'], 2) ?></strong></li>
               <li class="list-group-item">Ingresos: <strong class="text-success">$<?= number_format($total_ingresos_transferencia, 2) ?></strong></li>
               <li class="list-group-item">Egresos: <strong class="text-danger">$<?= number_format($total_egresos_transferencia, 2) ?></strong></li>
               <li class="list-group-item bg-light">Saldo Esperado: <strong>$<?= number_format($final_transferencia_sistema, 2) ?></strong></li>
@@ -207,15 +208,17 @@ $fecha_actual = date('d/m/Y H:i:s');
 
     const inputCierreEfectivo = document.getElementById('cierre_efectivo');
     const inputCierreTransferencia = document.getElementById('cierre_transferencia');
-    
+
     const outputDiffEfectivo = document.getElementById('diff_efectivo_valor');
     const outputDiffTransferencia = document.getElementById('diff_transferencia_valor');
-    
+
     const hiddenDiffEfectivo = document.getElementById('diferencia_efectivo_hidden');
     const hiddenDiffTransferencia = document.getElementById('diferencia_transferencia_hidden');
-    
+
     const estadoEfectivo = document.getElementById('estado_efectivo');
     const estadoTransferencia = document.getElementById('estado_transferencia');
+
+    // ... (código JavaScript anterior)
 
     function calcularDiferencia(inputElement, saldoEsperado, outputValorElement, hiddenElement, estadoElement) {
         const valorContado = parseFloat(inputElement.value) || 0;
@@ -232,10 +235,12 @@ $fecha_actual = date('d/m/Y H:i:s');
 
         if (diferencia > 0.01) {
             claseTexto = 'text-success';
-            textoEstado = `✅ Saldo Actual de $${valorAbsoluto}`;
+            // Mensaje para un Sobrante (diferencia positiva)
+            textoEstado = `✅ Sobrante de **$${valorAbsoluto}**`;
         } else if (diferencia < -0.01) {
             claseTexto = 'text-danger';
-            textoEstado = `❌ Saldo Actual de $${valorAbsoluto}`;
+            // Mensaje para un Faltante (diferencia negativa)
+            textoEstado = `❌ Faltante de **$${valorAbsoluto}**`;
         } else {
             claseTexto = 'text-primary';
             textoEstado = `⭐ ¡Caja Cuadrada!`;
@@ -245,31 +250,32 @@ $fecha_actual = date('d/m/Y H:i:s');
         estadoElement.className = `text-muted ${claseTexto}`; 
     }
 
+// ... (resto del código JavaScript)
+
     // 3. Asignar Event Listeners
     inputCierreEfectivo.addEventListener('input', () => {
-        calcularDiferencia(
-            inputCierreEfectivo, 
-            saldoEsperadoEfectivo, 
-            outputDiffEfectivo, 
-            hiddenDiffEfectivo, 
-            estadoEfectivo
-        );
+      calcularDiferencia(
+        inputCierreEfectivo,
+        saldoEsperadoEfectivo,
+        outputDiffEfectivo,
+        hiddenDiffEfectivo,
+        estadoEfectivo
+      );
     });
 
     inputCierreTransferencia.addEventListener('input', () => {
-        calcularDiferencia(
-            inputCierreTransferencia, 
-            saldoEsperadoTransferencia, 
-            outputDiffTransferencia, 
-            hiddenDiffTransferencia, 
-            estadoTransferencia
-        );
+      calcularDiferencia(
+        inputCierreTransferencia,
+        saldoEsperadoTransferencia,
+        outputDiffTransferencia,
+        hiddenDiffTransferencia,
+        estadoTransferencia
+      );
     });
 
     inputCierreEfectivo.dispatchEvent(new Event('input'));
     inputCierreTransferencia.dispatchEvent(new Event('input'));
-
-</script>
+  </script>
 
 </body>
 

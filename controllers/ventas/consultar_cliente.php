@@ -2,8 +2,8 @@
 require_once '../../config/conexion.php';
 
 header('Content-Type: application/json; charset=utf-8');
-
 error_reporting(E_ALL);
+
 
 try{
 
@@ -41,3 +41,4 @@ try{
     error_log("Error de conexión/SQL en consultar_cliente.php: " . $e->getMessage());
     echo json_encode(['error' => 'Error de conexión a la base de datos.']);
 }
+

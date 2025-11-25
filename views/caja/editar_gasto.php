@@ -17,14 +17,13 @@ require_once __DIR__ . '/../../models/caja/gastos.php';
 $pdo = getConexion();
 $gastosModel = new Gastos();
 
-// Obtener ID del gasto a editar
-if (!isset($_GET['id']) || empty($_GET['id'])) {
+if (!isset($_GET['id_gasto']) || empty($_GET['id_gasto'])) {
     header("Location: listado_gastos.php?error=no_id");
     exit;
 }
 
-$id = intval($_GET['id']);
-$gasto = $gastosModel->traerPorId($id);
+$ID_gasto = intval($_GET['id_gasto']);
+$gasto = $gastosModel->traerPorId($ID_gasto);
 
 if (!$gasto) {
     echo "<div class='container mt-5'><div class='alert alert-danger text-center'>
@@ -34,10 +33,8 @@ if (!$gasto) {
     exit;
 }
 
-// Métodos de pago
 $metodos = $pdo->query("SELECT ID_metodo_pago, metodo_pago_descri FROM metodo_pago")->fetchAll(PDO::FETCH_ASSOC);
 
-// Categorías (simples como en crear gasto)
 $categorias = [
     'Servicios',
     'Insumos',
@@ -129,7 +126,10 @@ $categorias = [
             <form action="../../controllers/caja/gasto_controller.php" method="POST">
 
                 <input type="hidden" name="accion" value="editar">
-                <input type="hidden" name="ID_gasto" value="<?= $id ?>">
+
+                <input type="hidden" name="ID_gasto" value="<?= $ID_gasto ?>">
+
+                <input type="hidden" name="RELA_caja" value="<?= $gasto['RELA_caja'] ?>">
 
                 <div class="mb-3">
                     <label class="form-label">Categoría:</label>

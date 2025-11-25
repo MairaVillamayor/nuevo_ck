@@ -1,250 +1,370 @@
 <?php
-require_once __DIR__ . '/../../models/caja/Gastos.php';
+session_start();
+require_once __DIR__ . '/../../models/caja/gastos.php';
 
 include("../../includes/header.php");
 include("../../includes/navegacion.php");
 
 $gastosModel = new Gastos();
-$gastos = $gastosModel->traerGastos();
+$categorias = $gastosModel->traerCategorias();
+$metodos = $gastosModel->traerMetodosPago();
+
+
+$filtros = [
+    'categoria'  => $_GET['categoria'] ?? null,
+    'metodo'      => $_GET['metodo'] ?? null,
+    'fecha_desde' => $_GET['fecha_desde'] ?? null,
+    'fecha_hasta' => $_GET['fecha_hasta'] ?? null,
+    'texto'       => $_GET['texto'] ?? null
+];
+
+$pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+$limite = 8;
+$offset = ($pagina - 1) * $limite;
+
+$total = $gastosModel->contarFiltrados($filtros);
+$total_paginas = ceil($total / $limite);
+
+$gastos = $gastosModel->filtrarConPaginacion($filtros, $offset, $limite);
 
 if (isset($_GET['eliminar_id'])) {
-    $id_a_eliminar = $_GET['eliminar_id'];
+    $ID_gasto = $_GET['eliminar_id'];
 
-
-    if ($gastosModel->eliminar($id_a_eliminar)) {
-        session_start();
-        $_SESSION['message'] = "El gasto N° $id_a_eliminar ha sido eliminado correctamente.";
+    if ($gastosModel->eliminar($ID_gasto)) {
+        $_SESSION['message'] = "El gasto N° $ID_gasto ha sido eliminado correctamente.";
         $_SESSION['status'] = "success";
     } else {
-        session_start();
-        $_SESSION['message'] = "Error al intentar eliminar el gasto N° $id_a_eliminar.";
+        $_SESSION['message'] = "Error al intentar eliminar el gasto N° $ID_gasto.";
         $_SESSION['status'] = "danger";
     }
     header('Location: listado_gastos.php');
     exit();
 }
+
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listado de Gastos | Cake Party</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="../../public/css/style.css">
 
     <style>
-        thead.table-cakeparty {
-            background: #ff79c6 !important;
-            color: white !important;
+        body {
+            background: #fff5f8;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .table thead th {
-            font-size: 0.9rem;
-            text-transform: uppercase;
+        .container {
+            padding: 40px;
         }
 
-        .table tbody td {
-            font-size: 0.9rem;
+        /* ENCABEZADO */
+        .header-gastos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .text-pink {
-            color: #d63384;
+        h2 {
+            color: #ff2d8f;
         }
-         .btn-primary {
-            background-color: #ff6b81;
-            border-color: #ff6b81;
-            
+
+        /* BOTÓN CREAR */
+        .btn-cake {
+            background: #ff4fa3;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.2s;
         }
-        .btn-primary:hover {
-            background-color: #fabec7ff;
-            border-color: #fabec7ff;
+
+        .btn-cake:hover {
+            background: #ff2d8f;
         }
-        .btn-outline-primary {
-            color: #ff6b81;
-            border-color: #ff6b81;
+
+        .filtros-contenedor {
+            background: white;
+            width: 95%;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid #ff4f9a;
         }
-        .btn-outline-primary:hover {
-            background-color: #ff6b81;
-            color: #ff6b81;
+
+        .filtros-form {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+            gap: 5px;
+        }
+
+        .campo label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .campo select,
+        .campo input {
+            padding: 10px 14px;
+            border-radius: 20px;
+            border: 1.5px solid #ffb6d3;
+            outline: none;
+            min-width: 180px;
+        }
+
+        .campo-botones {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-buscar {
+            background: #ff4f9a;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .btn-buscar:hover {
+            background: #ff2f85;
+        }
+
+        .btn-limpiar {
+            background: #9e9e9e;
+            color: white;
+            text-decoration: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .btn-limpiar:hover {
+            background: #7e7e7e;
+        }
+
+        /* Responsive (cuando la pantalla es chica) */
+        @media (max-width: 768px) {
+            .filtros-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .campo,
+            .campo-botones {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .campo select,
+            .campo input {
+                width: 100%;
+            }
+        }
+
+
+        /* TABLA */
+        .card-cake {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #ff8fb8;
+            color: white;
+        }
+
+        thead th,
+        tbody td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        tbody tr:hover {
+            background: #fff1f6;
+        }
+
+        .badge {
+            background: #ffd5e5;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 13px;
+        }
+
+        /* BOTONES ACCIÓN */
+        .btn-outline {
+            border: 2px solid #ff4fa3;
+            background: transparent;
+            color: #ff4fa3;
+            padding: 5px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* PAGINACIÓN */
+        .paginacion {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .paginacion a {
+            padding: 8px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            border: 1px solid #ffd5e5;
+            color: #ff2d8f;
+            font-weight: bold;
+        }
+
+        .paginacion a.activo,
+        .paginacion a:hover {
+            background: #ff2d8f;
+            color: white;
         }
     </style>
 </head>
 
 <body>
-    <!-- ALERTA CAKE PARTY -->
-    <div id="cakePartyAlert" class="cakeparty-overlay">
-        <div class="cakeparty-box">
-            <h3 id="cpTitle">Título</h3>
-            <p id="cpText">Mensaje</p>
-            <a id="cpButton" href="listado_gastos.php" class="btn-cake">Aceptar</a>
-        </div>
-    </div>
 
-    <style>
-        .cakeparty-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, .45);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-        }
+    <div class="container">
 
-        .cakeparty-box {
-            background: #ffe4ef;
-            padding: 30px;
-            width: 350px;
-            border-radius: 18px;
-            text-align: center;
-            border: 2px solid #f8a1c4;
-            animation: popin .25s ease-out;
-            color: #c2185b;
-        }
-
-        @keyframes popin {
-            from {
-                transform: scale(.5);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .btn-cake {
-            display: inline-block;
-            background: #ff66b2;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: .2s;
-        }
-
-        .btn-cake:hover {
-            background: #ff4da6;
-        }
-    </style>
-
-    <script>
-        function showCakeAlert(titulo, mensaje, botonUrl = "listado_gastos.php") {
-            document.getElementById("cpTitle").textContent = titulo;
-            document.getElementById("cpText").textContent = mensaje;
-            document.getElementById("cpButton").href = botonUrl;
-
-            document.getElementById("cakePartyAlert").style.display = "flex";
-
-            // 🔥 AUTO-REDIRECCIÓN A LOS 2.2 SEGUNDOS
-            setTimeout(() => {
-                window.location.href = botonUrl;
-            }, 2200);
-        }
-    </script>
-
-
-    <?php
-
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-
-
-    if (isset($_SESSION['message']) && isset($_SESSION['status'])) {
-        $msg = htmlspecialchars($_SESSION['message']);
-        $status = $_SESSION['status'];
-
-        $titulo = ($status === "success") ? "✔ ¡Éxito!" : "❌ Error";
-
-        echo "
-    <script>
-        showCakeAlert('$titulo', '$msg');
-    </script>
-    ";
-
-        unset($_SESSION['message']);
-        unset($_SESSION['status']);
-    }
-    ?>
-    <div class="container-fluid mt-5">
-        <h2 class="mb-4 text-pink">💸 Listado de Gastos</h2>
-
-        <div class="mb-3 d-flex gap-2">
-            <a href="listado_caja.php" class="btn btn-secondary">Volver a Cajas</a>
-            <a href="registrar_gasto.php" class="btn btn-primary">Registrar Nuevo Gasto</a>
+        <div class="header-gastos">
+            <h2>💸 Listado de Gastos</h2>
+            <a href="registrar_gasto.php" class="btn-cake">+ Registrar Gasto</a>
         </div>
 
-        <div class="card shadow-sm p-3 bg-white rounded-4">
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-cakeparty text-center">
+        <div class="filtros-contenedor">
+            <form method="GET" class="filtros-form">
+
+                <div class="campo">
+                    <label>Categoría</label>
+                    <select name="categoria">
+                        <option value="">Todas</option>
+                        <?php foreach ($categorias as $cat): ?>
+                            <option value="<?= $cat['ID_categoria'] ?>">
+                                <?= $cat['categoria_nombre'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label>Método de pago</label>
+                    <select name="metodo">
+                        <option value="">Todos</option>
+                        <?php foreach ($metodos as $m): ?>
+                            <option value="<?= $m['ID_metodo_pago'] ?>">
+                                <?= $m['metodo_pago_descri'] ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label>Desde</label>
+                    <input type="date" name="desde">
+                </div>
+
+                <div class="campo">
+                    <label>Hasta</label>
+                    <input type="date" name="hasta">
+                </div>
+
+                <div class="campo-botones">
+                    <button type="submit" class="btn-buscar">Buscar</button>
+                    <a href="listado_gastos.php" class="btn-limpiar">Limpiar</a>
+                </div>
+
+            </form>
+        </div>
+
+
+        <!-- TABLA -->
+        <div class="card-cake">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Pago</th>
+                        <th>Caja</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php if (empty($gastos)): ?>
                         <tr>
-                            <th>ID</th>
-                            <th>Fecha y Hora</th>
-                            <th>Monto</th>
-                            <th>Descripción</th>
-                            <th>Categoría</th>
-                            <th>Método de Pago</th>
-                            <th>Caja N°</th>
-                            <th>Acciones</th>
+                            <td colspan="8">No hay gastos</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($gastos)): ?>
+                        <?php else: foreach ($gastos as $g): ?>
                             <tr>
-                                <td colspan="8" class="text-center py-4">
-                                    <span class="text-muted fs-5">🚫 No hay gastos registrados aún.</span>
+                                <td><?= $g['ID_gasto'] ?></td>
+                                <td><?= date('d/m/Y', strtotime($g['gasto_fecha'])) ?></td>
+                                <td style="color:#c2185b; font-weight:bold;">- $<?= number_format($g['gasto_monto'], 2) ?></td>
+                                <td><?= $g['gasto_descripcion'] ?></td>
+                                <td><span class="badge"><?= $g['categoria_nombre'] ?></span></td>
+                                <td><?= $g['metodo_pago_descri'] ?></td>
+                                <td><span class="badge">Caja <?= $g['RELA_caja'] ?></span></td>
+                                <td>
+                                    <a class="btn-outline" href="editar_gasto.php?id_gasto=<?= $g['ID_gasto'] ?>">✏</a>
+                                    <button class="btn-outline" onclick="confirmarEliminacion(<?= $g['ID_gasto'] ?>)">🗑</button>
                                 </td>
                             </tr>
-                        <?php else: ?>
-                            <?php foreach ($gastos as $gasto): ?>
-                                <tr class="text-center">
-                                    <td><?= htmlspecialchars($gasto['ID_gasto'] ?? '-') ?></td>
-                                    <td><?= date('d-m-Y H:i', strtotime($gasto['gasto_fecha'] ?? '')) ?></td>
-                                    <td class="text-danger fw-bold">$<?= number_format($gasto['gasto_monto'] ?? 0, 2) ?></td>
-                                    <td class="text-start"><?= htmlspecialchars($gasto['gasto_descripcion'] ?? '') ?></td>
-
-                                    <td><span class="badge bg-info text-dark"><?= htmlspecialchars($gasto['categoria_nombre'] ?? 'N/A') ?></span></td>
-                                    <td><?= htmlspecialchars($gasto['metodo_pago_descri'] ?? 'N/A') ?></td>
-                                    <td><?= htmlspecialchars($gasto['RELA_caja'] ?? 'N/A') ?></td>
-
-                                    
-                                    <td class="d-flex justify-content-center gap-2">
-
-                                        <a href="editar_gasto.php?id=<?= $gasto['ID_gasto'] ?>"
-                                            class="btn btn-sm btn-outline-primary">
-                                            ✏️ Editar
-                                        </a>
-
-                                        <a href="listado_gastos.php?eliminar_id=<?= $gasto['ID_gasto'] ?>"
-                                            class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('¿Estás seguro de que deseas eliminar el gasto N° <?= $gasto['ID_gasto'] ?>? Esta acción no se puede deshacer.')">
-                                            🗑️ Eliminar
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php endforeach;
+                    endif; ?>
+                </tbody>
+            </table>
         </div>
+
+        <!-- PAGINACIÓN -->
+        <div class="paginacion">
+            <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                <a class="<?= $i == $pagina ? 'activo' : '' ?>"
+                    href="?pagina=<?= $i ?>&<?= http_build_query($filtros) ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+        </div>
+
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmarEliminacion(ID_gasto) {
+            if (confirm("¿Eliminar el gasto N° " + ID_gasto + "?")) {
+                window.location = "listado_gastos.php?eliminar_id=" + ID_gasto;
+            }
+        }
+    </script>
+
 </body>
 
 </html>

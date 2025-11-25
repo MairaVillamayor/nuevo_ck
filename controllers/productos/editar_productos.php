@@ -3,7 +3,7 @@ require_once '../../config/conexion.php';
 include("../../includes/navegacion.php");
 
 $mensaje = '';
-$producto = null; // Variable para almacenar los datos del producto a editar
+$producto = null; 
 
 try {
     $pdo_conn = getConexion(); 
@@ -12,16 +12,11 @@ try {
     $pdo_conn = null;
 }
 
-// 1. Verificar si hay un ID de producto para editar
 if (!$pdo_conn || !isset($_GET['id']) || !is_numeric($_GET['id'])) {
     $mensaje .= "<div class='alert alert-danger'>ID de producto no válido o no especificado.</div>";
-    // O redirigir a la página principal de gestión
-    // header('Location: gestion_productos.php');
-    // exit();
 } else {
     $id_producto = (int)$_GET['id'];
     
-    // --- 2. Cargar los datos del producto ---
     try {
         $query_select = "SELECT ID_producto_finalizado, producto_finalizado_nombre, producto_finalizado_descri, 
                          producto_finalizado_precio, stock_actual, disponible_web, imagen_url 
@@ -40,10 +35,8 @@ if (!$pdo_conn || !isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 
-// --- 3. Procesar la actualización del producto (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_producto']) && $pdo_conn) {
     
-    // Asignar los datos del POST
     $id_actualizar = $_POST['id_producto_finalizado'];
     $nombre = $_POST['producto_finalizado_nombre'];
     $descripcion = $_POST['producto_finalizado_descri'];
@@ -65,9 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_producto']
         $stmt_update = $pdo_conn->prepare($query_update);
         $stmt_update->execute([$nombre, $descripcion, $precio, $stock, $disponible_web, $imagen_url, $id_actualizar]);
         
-        $mensaje = "<div class='alert alert-success'>Producto **actualizado** con éxito.</div>";
+        $mensaje = "<div class='alert alert-success'>Producto actualizado con éxito.</div>";
         
-        // Vuelve a cargar el producto con los nuevos datos para que el formulario se vea actualizado
         $query_select_after_update = "SELECT ID_producto_finalizado, producto_finalizado_nombre, producto_finalizado_descri, 
                                       producto_finalizado_precio, stock_actual, disponible_web, imagen_url 
                                       FROM producto_finalizado 

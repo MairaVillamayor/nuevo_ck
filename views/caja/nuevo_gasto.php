@@ -1,26 +1,28 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 session_start();
 
+// Validación de sesión
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: ../../index.php?error=not_logged');
     exit;
 }
 
+require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../models/caja/caja.php';
 include ("../../includes/header.php");
 include ("../../includes/navegacion.php");
 
 $pdo = getConexion();
 
+// 💳 Obtener métodos de pago
 $metodos = $pdo->query(" SELECT ID_metodo_pago, metodo_pago_descri 
     FROM metodo_pago
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+// 🧰 Crear instancia del modelo de caja
 $cajaModel = new Caja();
 
+// 📦 Obtener caja abierta
 $caja_abierta = $cajaModel->obtenerCajaAbierta($_SESSION['usuario_id']);
 
 if (!$caja_abierta) {
@@ -45,6 +47,7 @@ if (!$caja_abierta) {
 }
 
 
+// 📂 Categorías de gasto
 $categorias = [
     'Servicios',
     'Insumos',

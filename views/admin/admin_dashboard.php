@@ -17,7 +17,7 @@
 
     <div class="cards">
       <div class="card">📦<br><a href="../caja/listado_caja.php">Caja</a><br></div>
-      <div class="card">📦<br><a href="../stock/dashboard_stock.php">Stock</a><br></div>
+     <!-- <div class="card">📦<br><a href="../stock/dashboard_stock.php">Stock</a><br></div> -->
       <div class="card">📅​<br><a href="../ventas/listado_ventas.php">Ventas</a><br></div>
       <div class="card">​🎂​<br><a href="../productos/productos_finalizados.php">Productos</a><br></div>
       <div class="card">🗂️​<br><a href="listado_pedidos.php">Pedidos</a><br></div>    

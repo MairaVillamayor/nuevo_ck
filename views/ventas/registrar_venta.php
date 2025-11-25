@@ -1,5 +1,5 @@
-<?php 
-include ("../../includes/navegacion.php");
+<?php
+include("../../includes/navegacion.php");
 ?>
 <!doctype html>
 <html lang="en">
@@ -244,6 +244,15 @@ include ("../../includes/navegacion.php");
             });
         }
 
+        function verificarCaja() {
+            return $.ajax({
+                url: '../../controllers/caja/verificar_caja_abierta.php',
+                method: 'GET',
+                dataType: 'json'
+            });
+        }
+
+
         var id = 0;
         var idFactura = 0;
         var SubTotalGeneral = 0;
@@ -400,42 +409,49 @@ include ("../../includes/navegacion.php");
             });
         }
 
+
         function insertarFactura() {
-            const documento = document.getElementById("personaDocumento").value;
-            const nombre = document.getElementById("personaNombre").value;
-            const apellido = document.getElementById("personaApellido").value;
 
-            if (!documento) {
-                alerta("ERROR:",  "Primero debe buscar y seleccionar un cliente.");
-                return;
-            }
-
-            $.ajax({
-                url: '../../controllers/ventas/iniciar_factura.php',
-                method: 'POST',
-                data: {
-                    persona_documento: documento,
-                    persona_nombre: nombre,
-                    persona_apellido: apellido
-                },
-                dataType: 'json',
-                success: function(data) {
-                    if (data.success) {
-                        var id_factura = data.id_factura;
-                        document.getElementById("numFactura").innerText = "Factura ID: " + id_factura;
-                        idFactura = id_factura;
-                        console.log("ID de Factura Establecido:", idFactura);
-                    } else {
-                        alerta("Error al insertar factura: " + data.error);
-                        console.error("AJAX Error:", data.error);
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alerta("Error de comunicación al iniciar factura.");
-                    console.error("AJAX Error:", textStatus, errorThrown, jqXHR.responseText);
+            verificarCaja().done(function(resp) {
+                console.log("Respuesta verificarCaja:", resp);
+                if (!resp.abierta) {
+                    alerta("ERROR:", "No puede generar una factura porque no hay una CAJA ABIERTA.", "error");
+                    return;
                 }
+
+
+                const documento = document.getElementById("personaDocumento").value;
+                const nombre = document.getElementById("personaNombre").value;
+                const apellido = document.getElementById("personaApellido").value;
+
+                if (!documento) {
+                    alerta("ERROR:", "Primero debe buscar y seleccionar un cliente.");
+                    return;
+                }
+
+                $.ajax({
+                    url: '../../controllers/ventas/iniciar_factura.php',
+                    method: 'POST',
+                    data: {
+                        persona_documento: documento,
+                        persona_nombre: nombre,
+                        persona_apellido: apellido
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success) {
+                            var id_factura = data.id_factura;
+                            document.getElementById("numFactura").innerText = "Factura ID: " + id_factura;
+                            idFactura = id_factura;
+                        } else {
+                            alerta("Error al insertar factura: " + data.error);
+                        }
+                    }
+                });
+
             });
         }
+
 
         $(function() {
             $("#nombreProducto").autocomplete({
@@ -463,15 +479,15 @@ include ("../../includes/navegacion.php");
             const cantidad = parseFloat(cant);
 
             if (!idProducto) {
-                alerta("ERROR:",  "Debe seleccionar un producto.");
+                alerta("ERROR:", "Debe seleccionar un producto.");
                 return;
             }
             if (!cant || isNaN(cantidad) || cantidad <= 0) {
-                alerta("ERROR:",  "Por favor, ingrese una cantidad válida.");
+                alerta("ERROR:", "Por favor, ingrese una cantidad válida.");
                 return;
             }
             if (!idFactura || idFactura <= 0) {
-                alerta("ERROR:",  "Primero debe iniciar la factura.");
+                alerta("ERROR:", "Primero debe iniciar la factura.");
                 return;
                 console.log("idFactura dentro de buscarProducto():", idFactura);
 
@@ -595,10 +611,9 @@ include ("../../includes/navegacion.php");
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        alerta("¡Venta finalizada con éxito! Factura N° " + idFactura);
-
+                        alerta("¡Venta finalizada con éxito!", "Factura N° " + idFactura, "success");
                     } else {
-                        alerta("Error al finalizar la venta: " + response.error);
+                        alerta("Error al finalizar la venta: " + (response.error || "Ocurrió un error."));
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -609,9 +624,11 @@ include ("../../includes/navegacion.php");
         }
 
 
+
         function imprimirVenta() {
             if (!idFactura || idFactura <= 0) {
-                alerta("ERROR:" , "Primero debe iniciar la factura y agregar productos para poder imprimirla.");
+                alerta("ERROR:", "Primero debe iniciar la factura y agregar productos para poder imprimirla.");
+
                 return;
             }
 

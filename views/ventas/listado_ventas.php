@@ -1,6 +1,6 @@
 <?php
 require_once("../../config/conexion.php");
-require_once("../../models/factura.php");
+require_once("../../models/ventas/factura.php");
 include("../../includes/navegacion.php");
 
 session_start();
@@ -15,8 +15,8 @@ $cliente_filtro = isset($_GET['cliente']) ? htmlspecialchars($_GET['cliente']) :
 $fecha_filtro = isset($_GET['fecha']) ? $_GET['fecha'] : null;
 
 $facturas = $factura->get_facturas_con_filtros(
-    $cliente_filtro, 
-    $fecha_filtro
+  $cliente_filtro,
+  $fecha_filtro
 );
 
 ?>
@@ -30,9 +30,26 @@ $facturas = $factura->get_facturas_con_filtros(
   <title>Listado de Facturas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../../public/css/caja_dashboard.css">
+  <style>
+    .estado-badge {
+      color: #ffffffff;
+      padding: 0.4em 0.8em;
+      border-radius: 0.5rem;
+      font-weight: bold;
+    }
+
+    .estado-badge.pagado {
+      background-color: #69d883ff;
+    }
+
+    .estado-badge.otro {
+      background-color: #ecc6c6ff;
+    }
+  </style>
 </head>
 
 <body>
+
   <?php include("../../includes/header.php"); ?>
 
   <div class="container mt-4">
@@ -41,27 +58,27 @@ $facturas = $factura->get_facturas_con_filtros(
 
 
     <div class="card mb-3 shadow-sm">
-    <div class="card-body">
+      <div class="card-body">
         <form method="GET" class="row g-2">
-            <div class="col-md-4">
-                <input type="text" name="cliente" class="form-control" 
-                       placeholder="Buscar cliente (Nombre, Apellido o Documento)..." 
-                       value="<?= htmlspecialchars($cliente_filtro ?? '') ?>">
-            </div>
-            <div class="col-md-4">
-                <input type="date" name="fecha" class="form-control"
-                       value="<?= htmlspecialchars($fecha_filtro ?? '') ?>">
-            </div>
-            <div class="col-md-4 text-end">
-                <button class="btn btn-pink" type="submit">Buscar</button>
-                <a href="listado_facturas.php" class="btn btn-secondary">Limpiar</a>
-            </div>
+          <div class="col-md-4">
+            <input type="text" name="cliente" class="form-control"
+              placeholder="Buscar cliente (Nombre, Apellido o Documento)..."
+              value="<?= htmlspecialchars($cliente_filtro ?? '') ?>">
+          </div>
+          <div class="col-md-4">
+            <input type="date" name="fecha" class="form-control"
+              value="<?= htmlspecialchars($fecha_filtro ?? '') ?>">
+          </div>
+          <div class="col-md-4 text-end">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+            <a href="listado_ventas.php" class="btn btn-light">Limpiar</a>
+          </div>
         </form>
+      </div>
     </div>
-</div>
-    
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
     <div class="card shadow-sm">
       <div class="card-body">
         <table class="table table-hover align-middle">
@@ -80,30 +97,35 @@ $facturas = $factura->get_facturas_con_filtros(
           <tbody>
             <?php if (count($facturas) > 0): ?>
               <?php foreach ($facturas as $f): ?>
-               <tr>
+                <tr>
 
-  <td><?= $f['ID_factura'] ?></td>
-  <td><?= date("d/m/Y H:i", strtotime($f['factura_fecha_emision'])) ?></td>
-  <td><?= htmlspecialchars($f['cliente'] ?? 'Sin nombre') ?></td>
+                <?php
+print_r($f);
+?>
 
-  <td>
-    $<?= number_format((float)($f['factura_subtotal'] ?? 0), 2, ',', '.') ?>
-  </td>
-  <td>
-    $<?= number_format((float)($f['factura_iva_monto'] ?? 0), 2, ',', '.') ?>
-  </td>
-  <td>
-    <strong>$<?= number_format((float)($f['factura_total'] ?? 0), 2, ',', '.') ?></strong>
-  </td>
-  <td>
-    <span class="badge bg-<?= ($f['estado'] == 'Pagado') ? 'success' : 'secondary' ?>">
-      <?= $f['estado'] ?>
-    </span>
-  </td>
-  <td>
-    <a href="imprimir_venta.php?idFactura=<?= $f['ID_factura'] ?>" class="btn btn-sm btn-outline-secondary">🖨️</a>
-  </td>
-</tr>
+                  <td><?= $f['ID_factura'] ?></td>
+                  <td><?= date("d/m/Y H:i", strtotime($f['factura_fecha_emision'])) ?></td>
+                  <td><?= htmlspecialchars($f['cliente'] ?? 'Sin nombre') ?></td>
+
+                  <td>
+                    $<?= number_format((float)($f['factura_subtotal'] ?? 0), 2, ',', '.') ?>
+                  </td>
+                  <td>
+                    $<?= number_format((float)($f['factura_iva_monto'] ?? 0), 2, ',', '.') ?>
+                  </td>
+                  <td>
+                    <strong>$<?= number_format((float)($f['factura_total'] ?? 0), 2, ',', '.') ?></strong>
+                  </td>
+                  <td>
+                    <span class="badge estado-badge <?= ($f['estado'] == 'Pagado') ? 'pagado' : 'otro' ?>">
+                      <?= $f['estado'] ?>
+                    </span>
+
+                  </td>
+                  <td>
+                    <a href="imprimir_venta.php?idFactura=<?= $f['ID_factura'] ?>" class="btn btn-sm btn-outline-secondary">🖨️</a>
+                  </td>
+                </tr>
 
               <?php endforeach; ?>
             <?php else: ?>
