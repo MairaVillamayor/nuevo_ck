@@ -102,7 +102,6 @@ $total = 0;
                     <th>Precio Unitario</th>
                     <th>Cantidad</th>
                     <th>Subtotal</th>
-                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -115,13 +114,7 @@ $total = 0;
                     <td>$<?= number_format($item['precio'], 2, ',', '.') ?></td>
                     <td><?= (int)$item['cantidad'] ?></td>
                     <td>$<?= number_format($subtotal, 2, ',', '.') ?></td>
-                    <td>
-                        <form action="../../controllers/actualizar_carrito.php" method="POST">
-                            <input type="hidden" name="producto_id" value="<?= (int)$id ?>">
-                            <input type="hidden" name="action" value="remove">
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                        </form>
-                    </td>
+                
                 </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -13,10 +13,10 @@ if (!isset($_SESSION['usuario_id'])) {
     header('Location: ../../index.php?error=not_logged');
     exit;
 }
-$id_usuario = $_SESSION['usuario_id']; 
+$id_usuario = $_SESSION['usuario_id'];
 
 
-$nombre_cliente = 'Cliente'; 
+$nombre_cliente = 'Cliente';
 $apellido_cliente = 'Invitado';
 
 try {
@@ -34,7 +34,6 @@ try {
         $nombre_cliente = $datos_cliente['persona_nombre'];
         $apellido_cliente = $datos_cliente['persona_apellido'];
     }
-
 } catch (Exception $e) {
     error_log("Error al buscar nombre del cliente: " . $e->getMessage());
     die("Error al obtener datos del cliente.");
@@ -44,26 +43,23 @@ try {
 // 2) RECIBIR POST Y SANEAMIENTO
 // ------------------------------------
 
-$color = isset($_POST['RELA_color_pastel']) ? 
-         (empty($_POST['RELA_color_pastel']) ? 0 : (int)$_POST['RELA_color_pastel']) : 
-         null;
-$color = isset($_POST['RELA_color_pastel']) && $_POST['RELA_color_pastel'] !== '' ? (int)$_POST['RELA_color_pastel'] : null;
-$color = isset($_POST['RELA_color_pastel']) && $_POST['RELA_color_pastel'] !== '' ? (int)$_POST['RELA_color_pastel'] : null; // ✅ CORRECCIÓN
+$color = filter_input(INPUT_POST, 'RELA_color_pastel', FILTER_VALIDATE_INT);
+$color = $color === false || $color === null ? null : $color;
 $decoracion     = isset($_POST['RELA_decoracion']) ? (int)$_POST['RELA_decoracion'] : null;
 $base           = isset($_POST['RELA_base_pastel']) ? (int)$_POST['RELA_base_pastel'] : null;
 $pisos          = $_POST['pisos'] ?? [];
-$materiales     = $_POST['material_extra'] ?? []; 
+$materiales     = $_POST['material_extra'] ?? [];
 $metodos_pago   = isset($_POST['RELA_metodo_pago']) ? (int)$_POST['RELA_metodo_pago'] : null;
 
 // Datos de Envío
 $hora_fecha_entrega = trim($_POST['envio_fecha_hora_entrega'] ?? '');
 $calle_numero       = trim($_POST['envio_calle_numero'] ?? '');
-$piso = trim($_POST['envio_piso'] ?? ''); 
+$piso = trim($_POST['envio_piso'] ?? '');
 $dpto = trim($_POST['envio_dpto'] ?? '');
 $piso = (empty($piso) && $piso !== '0') ? null : $piso;
 $dpto = (empty($dpto) && $dpto !== '0') ? null : $dpto;
-$pedido_barrio      = trim($_POST['envio_barrio'] ?? ''); 
-$pedido_localidad   = trim($_POST['envio_localidad'] ?? ''); 
+$pedido_barrio      = trim($_POST['envio_barrio'] ?? '');
+$pedido_localidad   = trim($_POST['envio_localidad'] ?? '');
 $cp                 = trim($_POST['envio_cp'] ?? '');
 $provincia          = trim($_POST['envio_provincia'] ?? '');
 $referencias        = trim($_POST['envio_referencias'] ?? '');
@@ -97,8 +93,16 @@ try {
 
     $stmt_envio = $pdo->prepare($sql_envio);
     $stmt_envio->execute([
-        $hora_fecha_entrega, $calle_numero, $piso, $dpto, $pedido_barrio, $pedido_localidad, $cp, $provincia, 
-        $referencias, $telefono_contacto
+        $hora_fecha_entrega,
+        $calle_numero,
+        $piso,
+        $dpto,
+        $pedido_barrio,
+        $pedido_localidad,
+        $cp,
+        $provincia,
+        $referencias,
+        $telefono_contacto
     ]);
     $id_envio = $pdo->lastInsertId();
     if (!$id_envio) throw new Exception("No se pudo insertar la dirección de envío.");
@@ -116,7 +120,7 @@ try {
     $stmt->execute([$decoracion]);
     $decor_data = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($decor_data) $total += $decor_data['decoracion_precio'];
-    
+
     // Pisos
     $descripcion .= "Pastel de " . max(1, count($pisos)) . " pisos";
     $detalles = [];
@@ -124,48 +128,49 @@ try {
         // Lógica de cálculo de precios para tamaños, sabores y rellenos (reducida por espacio)
         $tamaño_id  = (int)($datos['RELA_tamaño'] ?? 0);
         $sabor_id   = (int)($datos['RELA_sabor'] ?? 0);
-        $relleno_id = (int)($datos['RELA_relleno'] ?? 0);        
+        $relleno_id = (int)($datos['RELA_relleno'] ?? 0);
         $nombreTam = $nombreSab = $nombreRel = 'Detalle'; // Valores de ejemplo para la descripción
         $detalles[] = "Piso $num: $nombreTam de $nombreSab con relleno de $nombreRel";
     }
-// Materiales extra
-if (!empty($materiales)) {
-    $nombresExtra = [];
-    $coloresExtra = $_POST['color_material_extra'] ?? []; // array asociativo: [id_material => color]
-    
-    // Preparar la consulta
-    $stmt_mat = $pdo->prepare("SELECT material_extra_nombre, material_extra_precio FROM material_extra WHERE ID_material_extra = ?");
-    
-    foreach ($materiales as $mid) {
-        $mid_int = (int)$mid;
-        $stmt_mat->execute([$mid_int]);
-        $mat_data = $stmt_mat->fetch(PDO::FETCH_ASSOC);
+    // Materiales extra
+    if (!empty($materiales)) {
+        $nombresExtra = [];
+        $coloresExtra = $_POST['color_material_extra'] ?? []; // array asociativo: [id_material => color]
 
-        if ($mat_data) {
-            // Sumar precio
-            $total += $mat_data['material_extra_precio'];
+        // Preparar la consulta
+        $stmt_mat = $pdo->prepare("SELECT material_extra_nombre, material_extra_precio FROM material_extra WHERE ID_material_extra = ?");
 
-            // Obtener color si fue ingresado
-            $color = trim($coloresExtra[$mid_int] ?? '');
+        foreach ($materiales as $mid) {
+            $mid_int = (int)$mid;
+            $stmt_mat->execute([$mid_int]);
+            $mat_data = $stmt_mat->fetch(PDO::FETCH_ASSOC);
 
-            // Agregar nombre + color a la descripción
-            if ($color !== '') {
-                $nombresExtra[] = "{$mat_data['material_extra_nombre']} (Color: {$color})";
-            } else {
-                $nombresExtra[] = $mat_data['material_extra_nombre'];
+            if ($mat_data) {
+                // Sumar precio
+                $total += $mat_data['material_extra_precio'];
+
+                // Obtener color si fue ingresado
+                $color = trim($coloresExtra[$mid_int] ?? '');
+
+                // Agregar nombre + color a la descripción
+                if ($color !== '') {
+                    $nombresExtra[] = "{$mat_data['material_extra_nombre']} (Color: {$color})";
+                } else {
+                    $nombresExtra[] = $mat_data['material_extra_nombre'];
+                }
             }
         }
-    }
 
-    if ($nombresExtra) {
-        $descripcion .= ". Materiales extra: " . implode(", ", $nombresExtra);
+        if ($nombresExtra) {
+            $descripcion .= ". Materiales extra: " . implode(", ", $nombresExtra);
+        }
     }
-}
 
     // 3.3) Guardar pastel_personalizado
     $ins = $pdo->prepare("INSERT INTO pastel_personalizado 
         (pastel_personalizado_descripcion, pastel_personalizado_pisos_total, RELA_color_pastel, RELA_decoracion, RELA_base_pastel) 
         VALUES (?, ?, ?, ?, ?)");
+    error_log("Valor de \$color antes del INSERT: " . var_export($color, true));
     $ins->execute([$descripcion, count($pisos), $color, $decoracion, $base]);
     $id_pastel_personalizado = $pdo->lastInsertId();
     if (!$id_pastel_personalizado) throw new Exception("No se pudo insertar pastel personalizado.");
@@ -179,7 +184,7 @@ if (!empty($materiales)) {
     }
 
     // 3.5) Guardar pisos, sabores y rellenos
-   // Pisos
+    // Pisos
     $descripcion .= "Pastel de " . max(1, count($pisos)) . " pisos";
     $detalles = [];
     foreach ($pisos as $num => $datos) {
@@ -219,7 +224,7 @@ if (!empty($materiales)) {
         } else {
             $nombreRel = 'Relleno Desconocido';
         }
-        
+
         $detalles[] = "Piso $num: $nombreTam de $nombreSab con relleno de $nombreRel";
     }
 
@@ -256,7 +261,6 @@ if (!empty($materiales)) {
 
 
     $pdo->commit();
-
 } catch (Exception $e) {
     $pdo->rollBack();
     die("❌ Error al guardar el pedido: " . $e->getMessage());
@@ -265,6 +269,7 @@ if (!empty($materiales)) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -272,13 +277,14 @@ if (!empty($materiales)) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <style>
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #fff5f8;
             display: flex;
-            flex-direction: column; /* Cambiado a columna para centrar mejor el contenido */
+            flex-direction: column;
+            /* Cambiado a columna para centrar mejor el contenido */
             align-items: center;
             min-height: 100vh;
             margin: 0;
@@ -288,11 +294,13 @@ if (!empty($materiales)) {
 
         /* ESTILOS DEL CUADRADO ROSA */
         .resumen-pedido {
-            width: 450px; 
+            width: 450px;
             max-width: 90%;
             padding: 30px;
-            background-color: #fce4ec; /* Rosa muy pálido */
-            border: 2px solid #e91e63; /* Borde del color principal */
+            background-color: #fce4ec;
+            /* Rosa muy pálido */
+            border: 2px solid #e91e63;
+            /* Borde del color principal */
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
             font-size: 1em;
@@ -343,7 +351,8 @@ if (!empty($materiales)) {
             margin-top: 15px;
         }
 
-        .tabla-productos th, .tabla-productos td {
+        .tabla-productos th,
+        .tabla-productos td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px dashed #e91e63;
@@ -351,8 +360,14 @@ if (!empty($materiales)) {
             font-size: 0.9em;
         }
 
-        .col-descripcion { width: 70%; }
-        .col-importe { width: 30%; text-align: right; }
+        .col-descripcion {
+            width: 70%;
+        }
+
+        .col-importe {
+            width: 30%;
+            text-align: right;
+        }
 
         .total-container {
             display: flex;
@@ -364,7 +379,7 @@ if (!empty($materiales)) {
             font-size: 1.3em;
             font-weight: bold;
         }
-        
+
         /* Estilos de botones */
         .btn-cake {
             display: block;
@@ -379,77 +394,73 @@ if (!empty($materiales)) {
             text-align: center;
             color: #fff;
             transition: background 0.3s ease, transform 0.2s ease;
-         }
+        }
 
-         .btn-primary { background-color: #e91e63; }
-         .btn-primary:hover { background-color: #d81b60; transform: translateY(-2px); }
+        .btn-primary {
+            background-color: #e91e63;
+        }
 
-         .btn-success { background-color: #4caf50; }
-         .btn-success:hover { background-color: #388e3c; transform: translateY(-2px); }
+        .btn-primary:hover {
+            background-color: #d81b60;
+            transform: translateY(-2px);
+        }
 
-         .btn-danger { background-color: #de0505ff; }
-         .btn-danger:hover { background-color: #c40303ff; transform: translateY(-2px); }
+        .btn-success {
+            background-color: #4caf50;
+        }
 
-         .botones-container {
+        .btn-success:hover {
+            background-color: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #de0505ff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c40303ff;
+            transform: translateY(-2px);
+        }
+
+        .botones-container {
             text-align: center;
             margin-bottom: 30px;
-         }
+        }
 
-         /* Estilo simple para mensaje de éxito */
-         .cp-alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center; }
-         .cp-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    
+        /* Estilo simple para mensaje de éxito */
+        .cp-alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .cp-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
     </style>
 </head>
+
 <body>
-    
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: '🎉 Pedido Creado',
+            text: 'Tu pedido (#<?= $id_pedido ?>) se ha guardado correctamente.',
+            confirmButtonText: 'Ir a Mis Pedidos'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '../../views/cliente/mis_pedidos.php';
+            }
+        });
+    </script>
 
-<div class="resumen-pedido">
-    <h2>🎉 Pedido Creado con Éxito (#<?= htmlspecialchars($id_pedido) ?>)</h2>
-
-    <div class="datos-seccion">
-        <h3>👤 Datos del Cliente</h3>
-        <p><strong>Cliente:</strong> <?= htmlspecialchars($nombre_cliente) ?> <?= htmlspecialchars($apellido_cliente) ?></p>
-        <p><strong>Teléfono:</strong> <?= htmlspecialchars($telefono_contacto) ?></p>
-    </div>
-
-    <div class="datos-seccion">
-        <h3>🚚 Datos de Envío</h3>
-        <p><strong>Fecha/Hora:</strong> <?= htmlspecialchars($hora_fecha_entrega) ?></p>
-        <p><strong>Dirección:</strong> <?= htmlspecialchars($calle_numero) ?> 
-            <?= !empty($piso) ? 'Piso: ' . htmlspecialchars($piso) : '' ?> 
-            <?= !empty($dpto) ? 'Dpto: ' . htmlspecialchars($dpto) : '' ?>
-        </p>
-        <p><strong>Localidad:</strong> <?= htmlspecialchars($pedido_barrio) ?> / <?= htmlspecialchars($pedido_localidad) ?></p>
-        <p><strong>Provincia/CP:</strong> <?= htmlspecialchars($provincia) ?> (CP: <?= htmlspecialchars($cp) ?>)</p>
-        <p><strong>Referencias:</strong> <?= htmlspecialchars($referencias) ?></p>
-    </div>
-
-    <div class="datos-seccion">
-        <h3>🍰 Detalle del Pastel</h3>
-        <table class="tabla-productos">
-            <tr>
-                <td class="col-descripcion"><?= htmlspecialchars($descripcion) ?></td>
-                <td class="col-importe">$<?= number_format($total, 1) ?></td>
-                
-            </tr>
-        </table>
-    </div>
-
-    <div class="total-container">
-        <span>TOTAL DEL PEDIDO</span>
-        <span>$<?= number_format($total, 1) ?></span>
-    </div>
-
-    <p style="text-align: center; font-size: 0.8em; margin-top: 20px; color: #d81b60;">Tu pedido está pendiente de pago.</p>
-</div>
-
-<div class="botones-container">
-    <a href="../../views/cliente/mis_pedidos.php" class="btn-cake btn-primary">Volver a Mis Pedidos</a>
-
-    <a href="cancelar_pedido.php?id_pedido=<?= htmlspecialchars($id_pedido) ?>" class="btn-cake btn-danger">Cancelar Pedido ❌</a>
-</div>
 
 </body>
+
 </html>

@@ -1,28 +1,27 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../config/conexion.php';
+header("Content-Type: application/json");
 
-$pdo = Conexion::getInstance()->getConnection();
-
-if (isset($_POST["id_producto_finalizado"])) {
-
-    $id = intval($_POST["id_producto_finalizado"]);
-
-    $stmt = $pdo->prepare("DELETE FROM producto_finalizado WHERE ID_producto_finalizado = ?");
-
-    if ($stmt->execute([$id])) {
-        $_SESSION['message'] = "El producto fue eliminado correctamente.";
-        $_SESSION['status'] = "success";
-
-    } else {
-        $_SESSION['message'] = "No se pudo eliminar el producto.";
-        $_SESSION['status'] = "danger";
-    }
-    header("Location: ../../views/productos/productos_finalizados.php");
-    exit();
-
-} else {
-    header("Location: ../../views/productos/productos_finalizados.php");
-    exit();
+// Solo POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(["status" => "error", "msg" => "invalid_method"]);
+    exit;
 }
-?>
+
+if (!isset($_SESSION['carrito'])) {
+    echo json_encode(["status" => "error", "msg" => "carrito_vacio"]);
+    exit;
+}
+
+$producto_id = isset($_POST['producto_id']) ? (int)$_POST['producto_id'] : 0;
+
+if ($producto_id <= 0 || !isset($_SESSION['carrito'][$producto_id])) {
+    echo json_encode(["status" => "error", "msg" => "producto_no_encontrado"]);
+    exit;
+}
+
+// Eliminar del carrito
+unset($_SESSION['carrito'][$producto_id]);
+
+echo json_encode(["status" => "success"]);
+exit;

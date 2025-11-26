@@ -176,7 +176,7 @@ include("../../includes/navegacion.php");
         <h4 id="subtotal">Sub Total: $0.00</h4>
         <h4>
             Seleccionar IVA:
-            <select id="selectorIVA" onchange="actualizarCalculos()">
+            <select name="tasaIVA" id="selectorIVA" onchange="actualizarCalculos()">
                 <option value="21">IVA 21%</option>
                 <option value="27">IVA 27%</option>
             </select>

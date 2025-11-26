@@ -99,10 +99,6 @@ $facturas = $factura->get_facturas_con_filtros(
               <?php foreach ($facturas as $f): ?>
                 <tr>
 
-                <?php
-print_r($f);
-?>
-
                   <td><?= $f['ID_factura'] ?></td>
                   <td><?= date("d/m/Y H:i", strtotime($f['factura_fecha_emision'])) ?></td>
                   <td><?= htmlspecialchars($f['cliente'] ?? 'Sin nombre') ?></td>

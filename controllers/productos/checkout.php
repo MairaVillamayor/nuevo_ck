@@ -8,13 +8,12 @@ if (!isset($_SESSION['usuario_id'])) {
     header('Location: ../../index.php?error=not_logged');
     exit;
 }
+include("../../includes/navegacion.php");
 
 // Obtener datos del usuario (nombre y apellido)
-$stmtUser = $pdo->prepare("
-    select p.persona_nombre, p.persona_apellido from persona p inner join usuarios s on 
-s.RELA_persona=p.id_persona
-    WHERE s.ID_usuario = ?
-");
+$stmtUser = $pdo->prepare(" 
+                            select p.persona_nombre, p.persona_apellido from persona p inner join usuarios s on 
+                            s.RELA_persona=p.id_persona WHERE s.ID_usuario = ? ");
 $stmtUser->execute([$_SESSION['usuario_id']]);
 $usuario = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
@@ -170,8 +169,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <form method="POST">
-            <button type="submit" class="btn-finalizar">Confirmar compra 💳</button>
+            <button type="submit" class="btn-finalizar">Confirmar compra</button>
         </form>
-        <a href="../../views/productos/carrito.php" class="volver">← Volver al carrito</a>
     <?php endif; ?>
+    <style>
+        .btn-finalizar{
+            color: #b32f70;
+        }
+    </style>
 </div>

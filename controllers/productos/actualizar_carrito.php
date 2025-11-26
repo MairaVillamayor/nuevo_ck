@@ -1,22 +1,27 @@
 <?php
 session_start();
+header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['producto_id'], $_POST['action'])) {
-    $id = (int)$_POST['producto_id'];
-    $accion = $_POST['action'];
-
-    if ($accion === 'remove' && !empty($_SESSION['carrito'])) {
-        foreach ($_SESSION['carrito'] as $key => $item) {
-            if ($item['id'] === $id) {
-                unset($_SESSION['carrito'][$key]);
-                // Reindexar el array para evitar huecos
-                $_SESSION['carrito'] = array_values($_SESSION['carrito']);
-                break;
-            }
-        }
-    }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(["status" => "error", "msg" => "invalid_method"]);
+    exit;
 }
 
-header("Location: ../views/cliente/carrito.php");
+if (!isset($_SESSION['carrito'])) {
+    echo json_encode(["status" => "error", "msg" => "carrito_vacio"]);
+    exit;
+}
+
+$producto_id = isset($_POST['producto_id']) ? (int)$_POST['producto_id'] : 0;
+$cantidad = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : 1;
+
+if ($producto_id <= 0 || $cantidad < 1 || !isset($_SESSION['carrito'][$producto_id])) {
+    echo json_encode(["status" => "error", "msg" => "datos_invalidos"]);
+    exit;
+}
+
+// Actualizar cantidad
+$_SESSION['carrito'][$producto_id]['cantidad'] = $cantidad;
+
+echo json_encode(["status" => "success"]);
 exit;
-?>

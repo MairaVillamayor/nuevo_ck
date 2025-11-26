@@ -195,7 +195,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                             <h3 class="h5 mb-0">🍰 Detalles del Pastel</h3>
                         </div>
                         <div class="card-body">
-                             <div class="mb-3">
+                            <div class="mb-3">
                                 <label for="color_pastel" class="form-label">Color del pastel:</label>
                                 <select class="form-select" id="color_pastel" name="RELA_color_pastel" required>
                                     <option value="" disabled selected>Seleccioná un color</option>
@@ -432,8 +432,14 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <script>
+        const tamanos = <?= json_encode($tamanos) ?>;
+        const sabores = <?= json_encode($sabores) ?>;
+        const rellenos = <?= json_encode($rellenos) ?>;
+
         document.addEventListener('DOMContentLoaded', () => {
             const selectColor = document.getElementById('color_pastel');
             selectColor.addEventListener('change', function() {
@@ -448,11 +454,10 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
         function agregarPiso() {
             const container = document.getElementById("pisos-container");
             const alerta = document.getElementById("alerta-limite-pisos");
-
             const MAX_PISOS = 3;
             const numPisosActual = container.getElementsByClassName("piso").length;
 
-            alerta.classList.add('d-none'); // Ocultar alerta con Bootstrap
+            alerta.classList.add('d-none'); // Ocultar alerta
 
             if (numPisosActual >= MAX_PISOS) {
                 alerta.classList.remove('d-none'); // Mostrar alerta
@@ -462,42 +467,43 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
             pisoCount++;
 
             const div = document.createElement("div");
-            // Se le aplica la clase 'piso' para tomar el estilo de borde y fondo personalizado
             div.classList.add("piso", "p-3", "mb-3");
+
+            // Construir los <option> dinámicamente
+            const optionsHTML = (arr, keyName, valueName, extra = '') => {
+                return arr.map(item => `<option value="${item[keyName]}">${item[valueName]} ${extra}</option>`).join('');
+            }
+
             div.innerHTML = `
-                <h4 class="h6 mb-3">Piso ${pisoCount}</h4>
+        <h4 class="h6 mb-3">Piso ${pisoCount}</h4>
 
-                <div class="mb-3">
-                    <label class="form-label">Tamaño:</label>
-                    <select class="form-select" name="pisos[${pisoCount}][RELA_tamaño]" required>
-                        <option value="" disabled selected>Seleccioná un tamaño</option>
-                        <?php foreach ($tamanos as $t): ?>
-                            <option value="<?= $t['id_tamaño'] ?>"> <?= $t['tamaño_nombre'] ?> (<?= $t['tamaño_medidas'] ?>) </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div class="mb-3">
+            <label class="form-label">Tamaño:</label>
+            <select class="form-select" name="pisos[${pisoCount}][RELA_tamaño]" required>
+                <option value="" disabled selected>Seleccioná un tamaño</option>
+                ${optionsHTML(tamanos, 'id_tamaño', 'tamaño_nombre', (item) => `(${item.tamaño_medidas})`)}
+            </select>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Sabor:</label>
-                    <select class="form-select" name="pisos[${pisoCount}][RELA_sabor]" required>
-                        <option value="" disabled selected>Seleccioná un sabor</option>
-                        <?php foreach ($sabores as $s): ?>
-                            <option value="<?= $s['id_sabor'] ?>"><?= $s['sabor_nombre'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <div class="mb-3">
+            <label class="form-label">Sabor:</label>
+            <select class="form-select" name="pisos[${pisoCount}][RELA_sabor]" required>
+                <option value="" disabled selected>Seleccioná un sabor</option>
+                ${optionsHTML(sabores, 'id_sabor', 'sabor_nombre')}
+            </select>
+        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Relleno:</label>
-                    <select class="form-select" name="pisos[${pisoCount}][RELA_relleno]" required>
-                        <option value="" disabled selected>Seleccioná un relleno</option>
-                        <?php foreach ($rellenos as $r): ?>
-                            <option value="<?= $r['id_relleno'] ?>"><?= $r['relleno_nombre'] ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <button type="button" class="btn btn-sm btn-danger mt-2" onclick="eliminarPiso(this)">❌ Eliminar Piso</button>
-            `;
+        <div class="mb-3">
+            <label class="form-label">Relleno:</label>
+            <select class="form-select" name="pisos[${pisoCount}][RELA_relleno]" required>
+                <option value="" disabled selected>Seleccioná un relleno</option>
+                ${optionsHTML(rellenos, 'id_relleno', 'relleno_nombre')}
+            </select>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="eliminarPiso(this)">❌ Eliminar Piso</button>
+    `;
+
             container.appendChild(div);
         }
 
@@ -508,6 +514,7 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
                 document.getElementById("alerta-limite-pisos").classList.add('d-none');
             }
         }
+
 
         // Script para la fecha mínima de entrega
         document.addEventListener('DOMContentLoaded', () => {
@@ -537,6 +544,26 @@ $metodos_pago = $conexion->query("SELECT ID_metodo_pago, metodo_pago_descri
             })()
         });
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const pedidoExito = document.getElementById('pedidoExito');
+    if (pedidoExito && pedidoExito.dataset.id) {
+        const idPedido = pedidoExito.dataset.id;
+        
+        Swal.fire({
+            title: '🎉 Pedido creado con éxito!',
+            text: `Tu pedido #${idPedido} se ha registrado correctamente.`,
+            icon: 'success',
+            confirmButtonText: 'Ir a Mis Pedidos',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'mis_pedidos.php';
+            }
+        });
+    }
+});
+</script>
 </body>
 
 </html>
