@@ -158,6 +158,11 @@
       font-size: 14px;
       white-space: nowrap;
     }
+    .cart-link {
+  text-decoration: none; /* Quita la línea */
+  color: inherit;        /* Mantiene el color del texto si quieres */
+}
+
   </style>
 </head>
 

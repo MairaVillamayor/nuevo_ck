@@ -200,9 +200,6 @@ class Caja
             $ID_TRANSFERENCIA,  // Para egreso transferencia
             $id_caja            // Para RELA_caja (último)
         ]);
-        // Aquí tienes 5 placeholders y 5 valores en el array. ¡Coinciden!
-
-
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 

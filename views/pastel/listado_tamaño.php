@@ -1,9 +1,3 @@
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Archivo de confirmaciones -->
-<script src="../../public/js/confirmaciones.js"></script>
-
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
@@ -14,6 +8,8 @@ $query = "SELECT * FROM tamaño";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../public/js/confirmaciones.js"></script>
 
 <h1>Items: Tamaño</h1>
 <p class="description">Listado de todos los tamaños (medidas) registrados.</p>
@@ -38,11 +34,9 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?php echo $row["ID_tamaño"]; ?></td>
                     <td><?php echo htmlspecialchars($row["tamaño_nombre"]); ?></td>
                     <td><?php echo htmlspecialchars($row["tamaño_medidas"]); ?></td>
-                    <td><?php echo htmlspecialchars($row["tamaño_precio"])?></td>
+                    <td><?php echo htmlspecialchars($row["tamaño_precio"]); ?></td>
                     <td>
                         <a class="btn-action btn-edit" href="form_modificar_tamaño.php?ID_tamaño=<?= $row['ID_tamaño']; ?>">✏️ Editar</a>
-
-                        <!-- Formulario para baja física -->
 
                         <form id="form-eliminar-<?= $row['ID_tamaño']; ?>" method="post" action="../../controllers/pastel/baja_tamaño.php" style="display:inline;">
                             <input type="hidden" name="ID_tamaño" value="<?= $row['ID_tamaño']; ?>">

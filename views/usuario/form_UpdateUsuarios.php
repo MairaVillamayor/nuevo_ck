@@ -8,7 +8,7 @@
 <body>
 <?php 
 include("../../includes/header.php"); 
-require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
+require_once "../../includes/navegacion.php";
 require_once "../../config/conexion.php";
 
 if (!isset($_GET['ID_usuario'])) {

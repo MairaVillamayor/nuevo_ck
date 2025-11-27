@@ -6,13 +6,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         !isset($_POST["ID_tamaño"]) ||
         !isset($_POST["tamaño_nombre"]) ||
         !isset($_POST["tamaño_medidas"]) ||
-        !isset($_POST["id_tamaño"])
+        !isset($_POST["ID_tamaño"])
     ) {
         header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Faltan%20datos%20del%20formulario&redirect_to=../views/pastel/listado_tamaño.php&delay=3");
         exit();
     }
 
-    $id_tamaño = intval($_POST["id_tamaño"]);
+    $ID_tamaño = intval($_POST["ID_tamaño"]);
     $tamaño_nombre = trim($_POST["tamaño_nombre"]);
     $tamaño_medidas = trim($_POST["tamaño_medidas"]);
     $tamaño_precio = floatval($_POST["tamaño_precio"]);
@@ -28,13 +28,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 SET `tamaño_nombre` = :tamaño_nombre, 
                     `tamaño_medidas` = :tamaño_medidas
                     `tamaño_precio` = :tamaño_precio
-                WHERE `id_tamaño` = :id_tamaño";
+                WHERE `ID_tamaño` = :ID_tamaño";
         $stmt = $conexion->prepare($sql);
         $result = $stmt->execute([
             ':tamaño_nombre' => $tamaño_nombre,
             ':tamaño_medidas' => $tamaño_medidas,
             ':tamaño_precio' => $tamaño_precio,
-            ':id_tamaño' => $id_tamaño
+            ':ID_tamaño' => $ID_tamaño
         ]);
 
         if ($result) {

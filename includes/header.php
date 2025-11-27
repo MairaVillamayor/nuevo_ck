@@ -64,7 +64,7 @@ $esCliente = $usuarioLogueado && $perfilId == 3;
       <ul>
         <li><a href="gerente_dashboard.php">Dashboard</a></li>
         <li><a href="../caja/dashboard_caja.php">Caja</a></li>
-        <li><a href="../ventas/nueva_venta.php">Ventas</a></li>
+        <li><a href="../ventas/listado_ventas.php">Ventas</a></li>
         <li><a href="../admin/productos_finalizados.php">Productos</a></li>
         <li><a href="../admin/listado_pedidos.php">Pedidos</a></li>
         <li><a href="../admin/admin_items.php">Items</a></li>

@@ -2,6 +2,7 @@
 require_once("../../config/conexion.php");
 require_once("../../models/ventas/factura.php");
 include("../../includes/navegacion.php");
+// include("../../includes/header.php");
 
 session_start();
 if (!isset($_SESSION['usuario_id'])) {
@@ -13,10 +14,19 @@ $factura = new Factura();
 $cliente_filtro = isset($_GET['cliente']) ? htmlspecialchars($_GET['cliente']) : null;
 
 $fecha_filtro = isset($_GET['fecha']) ? $_GET['fecha'] : null;
+$limite = 10; // cantidad de facturas por página
+$pagina = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($pagina - 1) * $limite;
+
+$totalFacturas = $factura->get_total_facturas_con_filtros($cliente_filtro, $fecha_filtro);
+$totalPaginas = ceil($totalFacturas / $limite);
 
 $facturas = $factura->get_facturas_con_filtros(
   $cliente_filtro,
-  $fecha_filtro
+  $fecha_filtro,
+  null,      // fechaHasta
+  $limite,
+  $offset
 );
 
 ?>
@@ -45,16 +55,49 @@ $facturas = $factura->get_facturas_con_filtros(
     .estado-badge.otro {
       background-color: #ecc6c6ff;
     }
+
+    /* Contenedor centrado */
+    .pagination-rosa {
+      text-align: center;
+    }
+
+    /* Botones de paginación */
+    .page-btn {
+      display: inline-block;
+      padding: 8px 14px;
+      margin: 0 4px;
+      background-color: #ffb6c1;
+      /* rosa claro */
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .page-btn:hover {
+      background-color: #ff69b4;
+      /* rosa fuerte */
+      color: white;
+    }
+
+    /* Página activa */
+    .page-btn.active {
+      background-color: #ff1493;
+      /* rosa más intenso */
+      color: white;
+    }
   </style>
 </head>
 
-<body>
+<body class="fondo-rosa">
 
-  <?php include("../../includes/header.php"); ?>
+
 
   <div class="container mt-4">
     <h2 class="text-pink mb-4">🧾 Listado de Facturas</h2>
     <a href="registrar_venta.php" class="btn btn-primary">Crear Factura</a>
+    <a href="../admin/admin_dashboard.php" class="btn btn-secondary">Volver al dashboard</a>
 
 
     <div class="card mb-3 shadow-sm">
@@ -131,6 +174,24 @@ $facturas = $factura->get_facturas_con_filtros(
             <?php endif; ?>
           </tbody>
         </table>
+        <!-- Paginación personalizada centrada -->
+        <div class="pagination-rosa mt-4">
+          <?php if ($pagina > 1): ?>
+            <a class="page-btn" href="?<?= http_build_query(array_merge($_GET, ['page' => $pagina - 1])) ?>"><</a>
+          <?php endif; ?>
+
+          <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+            <a class="page-btn <?= ($i == $pagina) ? 'active' : '' ?>"
+              href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>">
+              <?= $i ?>
+            </a>
+          <?php endfor; ?>
+
+          <?php if ($pagina < $totalPaginas): ?>
+            <a class="page-btn" href="?<?= http_build_query(array_merge($_GET, ['page' => $pagina + 1])) ?>">></a>
+          <?php endif; ?>
+        </div>
+
       </div>
     </div>
   </div>

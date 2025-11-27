@@ -5,27 +5,19 @@ session_start();
 
 $perfiles_permitidos = [1, 2, 4];
 
-if (
-    !isset($_SESSION['usuario_id']) ||
-    !in_array($_SESSION['perfil_id'], $perfiles_permitidos)
-) {
+if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['perfil_id'], $perfiles_permitidos)) {
     header('Location: ../../index.php?error=not_logged');
     exit;
 }
 
-
 $pdo = getConexion();
 
-// -----------------
-// Obtener todos los estados
-// -----------------
+// Obtener estados
 $estados_stmt = $pdo->query("SELECT ID_estado, estado_descri FROM estado ORDER BY ID_estado ASC");
 $estados = $estados_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// -----------------
-// Obtener todos los pedidos
-// -----------------
-$sql = " SELECT 
+// Obtener pedidos
+$sql = "SELECT 
     pe.ID_pedido,
     pe.pedido_fecha,
     p_envio.envio_fecha_hora_entrega,
@@ -38,24 +30,19 @@ $sql = " SELECT
     e.ID_estado,
     e.estado_descri AS estado_descri
 FROM pedido pe
-LEFT JOIN usuarios u 
-    ON pe.RELA_usuario = u.ID_usuario
-LEFT JOIN pedido_detalle pd 
-    ON pd.RELA_pedido = pe.ID_pedido
-LEFT JOIN pastel_personalizado pp 
-    ON pp.ID_pastel_personalizado = pd.RELA_pastel_personalizado
-LEFT JOIN metodo_pago mp 
-    ON pe.RELA_metodo_pago = mp.ID_metodo_pago
-LEFT JOIN estado e 
-    ON pe.RELA_estado = e.ID_estado
-LEFT JOIN pedido_envio p_envio
-    ON pe.RELA_pedido_envio = p_envio.ID_pedido_envio
-ORDER BY pe.ID_pedido DESC; ";
+LEFT JOIN usuarios u ON pe.RELA_usuario = u.ID_usuario
+LEFT JOIN pedido_detalle pd ON pd.RELA_pedido = pe.ID_pedido
+LEFT JOIN pastel_personalizado pp ON pp.ID_pastel_personalizado = pd.RELA_pastel_personalizado
+LEFT JOIN metodo_pago mp ON pe.RELA_metodo_pago = mp.ID_metodo_pago
+LEFT JOIN estado e ON pe.RELA_estado = e.ID_estado
+LEFT JOIN pedido_envio p_envio ON pe.RELA_pedido_envio = p_envio.ID_pedido_envio
+ORDER BY pe.ID_pedido DESC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Agrupar pedidos por estado
 $pedidos_por_estado = [];
 foreach ($pedidos as $p) {
     $estado_descri = $p['estado_descri'] ?? 'Sin Estado';
@@ -73,252 +60,301 @@ if (isset($pedidos_por_estado['Sin Estado'])) {
 <head>
     <meta charset="UTF-8">
     <title>Listado de Pedidos - Admin</title>
-    <style>
-        body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background: #fff0f5;
-            margin: 0;
-            padding: 20px;
-            color: #333;
+
+<style>
+    body {
+        font-family: 'Poppins', Arial, sans-serif;
+        background: #fff0f5;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+
+    h2 {
+        text-align: center;
+        color: #e91e63;
+        margin-bottom: 30px;
+        font-size: 2rem;
+    }
+
+    h3 {
+        margin-top: 40px;
+        color: #333;
+    }
+
+    /* Tarjetas más pequeñas (4 por fila) */
+    .cards-container {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: start;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        padding: 15px;
+        width: 22%;
+        min-width: 240px;
+        box-sizing: border-box;
+    }
+
+    .card h4 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .card p {
+        font-size: .85rem;
+        margin: 4px 0;
+    }
+
+    /* Estado */
+    .estado {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: .8rem;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .estado-pendiente { background:#f44336; }
+    .estado-en-proceso { background:#ff9800; }
+    .estado-finalizado { background:#4caf50; }
+    .estado-sin-estado { background:#9e9e9e; }
+    .estado-cancelado { background:#607d8b; }
+
+    /* Select */
+    .card select {
+        margin-top: 8px;
+        padding: 6px;
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: .85rem;
+    }
+
+    /* Paginador */
+    .paginador {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 15px 0 35px 0;
+    }
+
+    .pagina-btn {
+        padding: 7px 14px;
+        background: #e91e63;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .pagina-btn:hover {
+        background: #c2185b;
+    }
+
+    .pagina-activa {
+        background:#880e4f !important;
+        font-weight: bold;
+    }
+
+    /* Botón Excel */
+    .btn-add {
+        padding: 10px 15px;
+        background: #2196f3;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .btn-add:hover {
+        background:#1976d2;
+    }
+
+    /* Responsive */
+    @media (max-width:1100px) { .card { width:30%; } }
+    @media (max-width:800px) { .card { width:45%; } }
+    @media (max-width:500px) { .card { width:100%; } }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function cambiarEstado(pedidoId, select) {
+    const nuevoEstado = select.value;
+
+    fetch('../../controllers/admin/estado_pedido.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            pedido_id: pedidoId,
+            RELA_estado: nuevoEstado
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Estado actualizado',
+                confirmButtonColor: '#e91e63'
+            }).then(() => location.reload());
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error
+            });
         }
-
-        h2 {
-            text-align: center;
-            color: #e91e63;
-            margin-bottom: 30px;
-            font-size: 2rem;
-        }
-
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: left;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 320px;
-            transition: transform 0.2s ease;
-            position: relative;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h4 {
-            margin: 0 0 10px;
-            color: #d81b60;
-            font-size: 1.2rem;
-        }
-
-        .card p {
-            margin: 5px 0;
-            font-size: 0.95rem;
-        }
-
-        .estado {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #fff;
-            display: inline-block;
-        }
-
-
-        /* Select */
-        .card select {
-            margin-top: 12px;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            width: 100%;
-            font-size: 0.9rem;
-        }
-
-        /* Botón para refrescar (opcional) */
-        .refresh-btn {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 18px;
-            background: #e91e63;
-            color: #fff;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .refresh-btn:hover {
-            background: #c2185b;
-        }
-
-        .estado-pendiente {
-            background: #f44336;
-        }
-
-        .estado-en-proceso {
-            background: #ff9800;
-        }
-
-        .estado-finalizado {
-            background: #4caf50;
-        }
-
-        .estado-sin-estado {
-            background: #9e9e9e;
-        }
-
-        .estado-cancelado {
-            background: #607d8b;
-        }
-    </style>
-    <!-- Importa SweetAlert2 (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        function cambiarEstado(pedidoId, select) {
-            const nuevoEstado = select.value;
-
-            fetch('../../controllers/admin/estado_pedido.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        pedido_id: pedidoId,
-                        RELA_estado: nuevoEstado
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Estado actualizado 🎉',
-                            text: 'El pedido ahora está en: ' + data.estado,
-                            confirmButtonColor: '#e91e63'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error ⚠️',
-                            text: data.error,
-                            confirmButtonColor: '#f44336'
-                        });
-                    }
-                })
-                .catch(err => {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '❌ Error de conexión',
-                        text: 'No se pudo contactar con el servidor',
-                        confirmButtonColor: '#ff9800'
-                    });
-                });
-        }
-    </script>
+    });
+}
+</script>
 
 </head>
 
 <body>
-    <h2>📋 Listado de Pedidos por Estado</h2>
-    <p style="margin-top:10px; text-align:center;">
-        <a href="../../excel/excel_pedidos.php?id_usuario=<?= urlencode($p['ID_pedido'] ?? 0) ?>"
-            class="btn-add" style="display:inline-block; padding:8px 12px; background:#4caf50; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">
-            ☷ Exportar a Excel
-        </a>
-    </p>
-    <?php foreach ($estados as $estado): ?>
-        <h3><?= htmlspecialchars($estado['estado_descri']) ?></h3>
-        <div class="container">
-            <?php
-            $current_estado_descri = $estado['estado_descri'];
-            if (isset($pedidos_por_estado[$current_estado_descri])):
-            ?>
-                <?php foreach ($pedidos_por_estado[$current_estado_descri] as $p): ?>
-                    <?php
-                    $estado_descri = $p['estado_descri'] ?? 'Sin Estado';
-                    $clase_estado = strtolower(str_replace(' ', '-', $estado_descri));
-                    ?>
 
-                    <div class="card">
-                        <h4>Pedido #<?= htmlspecialchars($p['ID_pedido']) ?></h4>
-                        <p><strong>Usuario:</strong> <?= htmlspecialchars($p['usuario_nombre']) ?></p>
-                        <p><strong>Fecha:</strong> <?= htmlspecialchars($p['pedido_fecha']) ?></p>
-                        <p><strong>Descripción:</strong> <?= htmlspecialchars($p['pastel_personalizado_descripcion']) ?></p>
+<h2>📋 Listado de Pedidos por Estado</h2>
 
-                        <p><strong>Entrega:</strong> <?= htmlspecialchars($p['envio_fecha_hora_entrega'] ?? 'N/A') ?></p>
-                        <p>
-                            <strong>Dirección:</strong>
-                            <?= htmlspecialchars($p['envio_calle_numero'] ?? 'Dirección no disponible') ?>
-                            <?= !empty($p['envio_barrio']) ? ' (Barrio: ' . htmlspecialchars($p['envio_barrio']) . ')' : '' ?>
-                        </p>
-                        <p><strong>Localidad:</strong> <?= htmlspecialchars($p['envio_localidad'] ?? 'N/A') ?></p>
+<p style="text-align:center;">
+    <a href="../../excel/excel_pedidos.php" class="btn-add">☷ Exportar a Excel</a>
+</p>
 
-                        <p><strong>Método de pago:</strong> <?= htmlspecialchars($p['metodo_pago']) ?></p>
+<!-- Pasamos los pedidos al JS -->
+<script>
+    const pedidosPorEstado = <?= json_encode($pedidos_por_estado, JSON_UNESCAPED_UNICODE) ?>;
+    const estadosInfo = <?= json_encode($estados, JSON_UNESCAPED_UNICODE) ?>;
+</script>
 
-                        <p><span class="estado estado-<?= $clase_estado ?>"><?= htmlspecialchars($estado_descri) ?></span></p>
-                        <?php
-                        $estadoActual = strtoupper($p['estado_descri']);
-                        ?>
+<?php foreach ($estados as $estado): ?>
+<h3><?= htmlspecialchars($estado['estado_descri']) ?></h3>
 
-                        <select onchange="cambiarEstado(<?= $p['ID_pedido'] ?>, this)"
-                            <?php if ($estadoActual === 'CANCELADO' || $estadoActual === 'FINALIZADO') echo 'disabled'; ?>>
+<div class="cards-container" id="cards-<?= $estado['ID_estado'] ?>"></div>
+<div class="paginador" id="paginador-<?= $estado['ID_estado'] ?>"></div>
 
-                            <?php foreach ($estados as $e):
-                                $nombreEstado = strtoupper($e['estado_descri']);
+<?php endforeach; ?>
 
-                                $deshabilitar = false;
+<script>
+const pedidosPorPagina = 4;
+const paginas = {};
+estadosInfo.forEach(e => paginas[e.estado_descri] = 0);
 
-                                // Si está CANCELADO → no cambia más
-                                if ($estadoActual === 'CANCELADO' && $nombreEstado !== 'CANCELADO') {
-                                    $deshabilitar = true;
-                                }
+function renderPedidos(estadoNombre, estadoId) {
+    const contenedor = document.getElementById("cards-" + estadoId);
+    const paginador = document.getElementById("paginador-" + estadoId);
 
-                                // Si está FINALIZADO → no cambia más
-                                if ($estadoActual === 'FINALIZADO' && $nombreEstado !== 'FINALIZADO') {
-                                    $deshabilitar = true;
-                                }
+    const pedidos = pedidosPorEstado[estadoNombre] || [];
+    const paginaActual = paginas[estadoNombre];
 
-                                // 🚫 Si está PAGADO → no puede CANCELARSE
-                                if ($estadoActual === 'PAGADO' && $nombreEstado === 'CANCELADO') {
-                                    $deshabilitar = true;
-                                }
+    const inicio = paginaActual * pedidosPorPagina;
+    const fin = inicio + pedidosPorPagina;
+    const pagina = pedidos.slice(inicio, fin);
 
-                                if ($estadoActual === 'EN PROCESO' && $nombreEstado !== 'FINALIZADO' && $nombreEstado !== 'EN PROCESO') {
-                                    $deshabilitar = true;
-                                }
+    contenedor.innerHTML = "";
 
-                            ?>
+    if (pedidos.length === 0) {
+        contenedor.innerHTML = "<p>No hay pedidos.</p>";
+        paginador.innerHTML = "";
+        return;
+    }
 
-                                <option
-                                    value="<?= $e['ID_estado'] ?>"
-                                    <?= ($e['ID_estado'] == $p['ID_estado']) ? 'selected' : '' ?>
-                                    <?= $deshabilitar ? 'disabled' : '' ?>>
-                                    <?= htmlspecialchars($e['estado_descri']) ?>
-                                </option>
-                            <?php endforeach; ?>
+    pagina.forEach(p => {
+        const estado = p.estado_descri || "Sin Estado";
+        const clase = estado.toLowerCase().replace(/ /g, '-');
 
-                        </select>
+        let opciones = "";
+        estadosInfo.forEach(e => {
+            let estadoActual = (p.estado_descri || "").toUpperCase();
+            let nombreEstado = e.estado_descri.toUpperCase();
+            let deshabilitar = false;
 
+            if (estadoActual === "CANCELADO" && nombreEstado !== "CANCELADO") deshabilitar = true;
+            if (estadoActual === "FINALIZADO" && nombreEstado !== "FINALIZADO") deshabilitar = true;
+            if (estadoActual === "PAGADO" && nombreEstado === "CANCELADO") deshabilitar = true;
+            if (estadoActual === "EN PROCESO" && nombreEstado !== "FINALIZADO" && nombreEstado !== "EN PROCESO") deshabilitar = true;
 
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>No hay pedidos en este estado.</p>
-            <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
+            opciones += `
+                <option value="${e.ID_estado}"
+                    ${p.ID_estado == e.ID_estado ? "selected" : ""} 
+                    ${deshabilitar ? "disabled" : ""}>
+                    ${e.estado_descri}
+                </option>
+            `;
+        });
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <h4>Pedido #${p.ID_pedido}</h4>
+            <p><strong>Usuario:</strong> ${p.usuario_nombre}</p>
+            <p><strong>Fecha:</strong> ${p.pedido_fecha}</p>
+            <p><strong>Descripción:</strong> ${p.pastel_personalizado_descripcion}</p>
+            <p><strong>Entrega:</strong> ${p.envio_fecha_hora_entrega || "N/A"}</p>
+            <p><strong>Dirección:</strong> ${p.envio_calle_numero || "N/A"} ${p.envio_barrio ? `(Barrio: ${p.envio_barrio})` : ''}</p>
+            <p><strong>Localidad:</strong> ${p.envio_localidad}</p>
+            <p><strong>Método de pago:</strong> ${p.metodo_pago}</p>
+
+            <p><span class="estado estado-${clase}">${estado}</span></p>
+
+            <select onchange="cambiarEstado(${p.ID_pedido}, this)">
+                ${opciones}
+            </select>
+        `;
+
+        contenedor.appendChild(card);
+    });
+
+    // PAGINADOR
+    const totalPaginas = Math.ceil(pedidos.length / pedidosPorPagina);
+    paginador.innerHTML = "";
+
+    const btnPrev = document.createElement("button");
+    btnPrev.className = "pagina-btn";
+    btnPrev.textContent = "⬅";
+    btnPrev.onclick = () => cambiarPagina(estadoNombre, estadoId, -1);
+    paginador.appendChild(btnPrev);
+
+    for (let i = 0; i < totalPaginas; i++) {
+        const btn = document.createElement("button");
+        btn.className = "pagina-btn";
+        if (i === paginaActual) btn.classList.add("pagina-activa");
+
+        btn.textContent = (i + 1);
+        btn.onclick = () => {
+            paginas[estadoNombre] = i;
+            renderPedidos(estadoNombre, estadoId);
+        };
+        paginador.appendChild(btn);
+    }
+
+    const btnNext = document.createElement("button");
+    btnNext.className = "pagina-btn";
+    btnNext.textContent = "➡";
+    btnNext.onclick = () => cambiarPagina(estadoNombre, estadoId, 1);
+    paginador.appendChild(btnNext);
+}
+
+function cambiarPagina(estadoNombre, estadoId, dir) {
+    const total = pedidosPorEstado[estadoNombre]?.length || 0;
+    const totalPaginas = Math.ceil(total / pedidosPorPagina);
+
+    paginas[estadoNombre] += dir;
+    if (paginas[estadoNombre] < 0) paginas[estadoNombre] = 0;
+    if (paginas[estadoNombre] >= totalPaginas) paginas[estadoNombre] = totalPaginas - 1;
+
+    renderPedidos(estadoNombre, estadoId);
+}
+
+estadosInfo.forEach(e => {
+    renderPedidos(e.estado_descri, e.ID_estado);
+});
+</script>
 
 </body>
-
 </html>

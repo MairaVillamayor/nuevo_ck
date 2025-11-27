@@ -20,16 +20,16 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
         <?php
         require_once("../../config/conexion.php");
 
-        if (!isset($_GET["id_tamaño"])) {
+        if (!isset($_GET["ID_tamaño"])) {
             header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=No%20se%20recibi%C3%B3%20el%20ID%20del%20tama%C3%B1o.");
             exit();
         }
 
-        $id_tamaño = intval($_GET["id_tamaño"]);
+        $ID_tamaño = intval($_GET["ID_tamaño"]);
 
         $pdo = getConexion();
-        $stmt = $pdo->prepare("SELECT * FROM tamaño WHERE id_tamaño = :id");
-        $stmt->execute(['id' => $id_tamaño]);
+        $stmt = $pdo->prepare("SELECT tamaño_nombre, tamaño_medidas, tamaño_precio FROM tamaño WHERE ID_tamaño = :ID_tamaño");
+        $stmt->execute(['ID_tamaño' => $ID_tamaño]);
         $tamaño = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$tamaño) {
@@ -60,7 +60,7 @@ require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
                 value="<?php echo htmlspecialchars($tamaño_precio); ?>" required>
             <br><br>    
             
-            <input type="hidden" name="id_tamaño" value="<?php echo $id_tamaño; ?>">
+            <input type="hidden" name="ID_tamaño" value="<?php echo $ID_tamaño; ?>">
             <br><br>
 
             <button type="submit">Guardar</button>

@@ -42,12 +42,12 @@
           <a href="../pastel/listado_tamaño.php" class="btn-add">Ingresar</a>
         </span>
       </div>
-      <div class="card">
+      <!-- <div class="card">
         Insumos<br>
         <span>
           <a href="../insumos/listado_insumo.php" class="btn-add">Ingresar</a>
         </span>
-      </div>
+      </div> -->
       <div class="card">
         Decoración<br>
         <span>

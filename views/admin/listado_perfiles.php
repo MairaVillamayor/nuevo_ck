@@ -1,9 +1,3 @@
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Archivo de confirmaciones -->
-<script src="../../public/js/confirmaciones.js"></script>
-
 <?php
 require_once("../../config/conexion.php");
 include("../../includes/header.php");
@@ -14,6 +8,8 @@ $query = "SELECT * FROM perfiles";
 $stmt = $pdo->query($query);
 $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../public/js/confirmaciones.js"></script>
 
 <h1> Perfiles </h1>
 <p class="description">Listado de todos los perfiles registrados en la app.</p>

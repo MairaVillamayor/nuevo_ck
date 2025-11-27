@@ -316,7 +316,7 @@ if (isset($_GET['eliminar_id'])) {
                         <th>Categoría</th>
                         <th>Pago</th>
                         <th>Caja</th>
-                        <th>Acciones</th>
+                        <th>Editar</th>
                     </tr>
                 </thead>
 
@@ -336,7 +336,6 @@ if (isset($_GET['eliminar_id'])) {
                                 <td><span class="badge">Caja <?= $g['RELA_caja'] ?></span></td>
                                 <td>
                                     <a class="btn-outline" href="editar_gasto.php?id_gasto=<?= $g['ID_gasto'] ?>">✏</a>
-                                    <button class="btn-outline" onclick="confirmarEliminacion(<?= $g['ID_gasto'] ?>)">🗑</button>
                                 </td>
                             </tr>
                     <?php endforeach;
@@ -345,7 +344,6 @@ if (isset($_GET['eliminar_id'])) {
             </table>
         </div>
 
-        <!-- PAGINACIÓN -->
         <div class="paginacion">
             <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                 <a class="<?= $i == $pagina ? 'activo' : '' ?>"
@@ -356,14 +354,6 @@ if (isset($_GET['eliminar_id'])) {
         </div>
 
     </div>
-
-    <script>
-        function confirmarEliminacion(ID_gasto) {
-            if (confirm("¿Eliminar el gasto N° " + ID_gasto + "?")) {
-                window.location = "listado_gastos.php?eliminar_id=" + ID_gasto;
-            }
-        }
-    </script>
 
 </body>
 
