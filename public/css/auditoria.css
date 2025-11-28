@@ -1,0 +1,154 @@
+/* 💗 TÍTULO */
+.cp-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: #d63384;
+    margin-bottom: 20px;
+}
+
+/* 🌸 CONTENEDOR DE BUSQUEDA */
+.cp-toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+/* 🔍 BUSCADOR */
+.cp-search-form {
+    display: flex;
+    gap: 10px;
+}
+
+.cp-input {
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid #f3a7c4;
+    outline: none;
+    min-width: 220px;
+}
+
+.cp-input:focus {
+    border-color: #d63384;
+    box-shadow: 0 0 4px rgba(214, 51, 132, 0.4);
+}
+
+/* 🍰 BOTÓN */
+.cp-btn {
+    padding: 8px 20px;
+    border-radius: 14px;
+    border: none;
+    background-color: #d63384;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.cp-btn:hover {
+    background-color: #b02a6f;
+}
+
+/* 🍩 TABLA */
+.cp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+}
+
+/* ENCABEZADO */
+.cp-table thead {
+    background: #ffd6e8;
+}
+
+.cp-table th {
+    padding: 14px;
+    text-align: left;
+    font-size: 14px;
+    color: #8a1c50;
+}
+
+/* FILAS */
+.cp-table td {
+    padding: 12px 14px;
+    border-top: 1px solid #f8c7da;
+    font-size: 13px;
+}
+
+/* HOVER */
+.cp-table tbody tr:hover {
+    background: #fff0f7;
+}
+
+/* SIN REGISTROS */
+.cp-empty {
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #d63384;
+}
+
+/* 📄 PAGINACIÓN */
+.cp-pagination {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.cp-pagination a,
+.cp-pagination strong {
+    display: inline-block;
+    padding: 6px 14px;
+    margin: 4px;
+    border-radius: 30px;
+    text-decoration: none;
+    border: 1px solid #f3a7c4;
+    color: #d63384;
+    font-weight: bold;
+}
+
+.cp-pagination strong {
+    background: #d63384;
+    color: white;
+    border-color: #d63384;
+}
+
+.cp-pagination a:hover {
+    background: #ffd6e8;
+}
+/* FILTROS */
+.cp-filtros {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  background: #fff0f7;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+}
+
+.cp-campo {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.cp-campo label{
+  margin-bottom: 4px;
+  color:#8a1c50;
+}
+
+/* ICONOS */
+.cp-i{
+  margin-right:5px;
+  font-size: 14px;
+}
+
+.cp-create{ color:#28a745; }
+.cp-update{ color:#007bff; }
+.cp-delete{ color:#dc3545; }
+.cp-login{ color:#6f42c1; }
+.cp-logout{ color:#fd7e14; }

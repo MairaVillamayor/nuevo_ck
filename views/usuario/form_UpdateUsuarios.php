@@ -19,7 +19,7 @@ $ID_usuario = intval($_GET['ID_usuario']);
 $pdo = getConexion();
 
 // Traer usuario con su persona
-$stmt = $pdo->prepare("SELECT u.*, p.persona_nombre, p.persona_apellido, p.persona_fecha_nacimiento, p.persona_direccion
+$stmt = $pdo->prepare("SELECT u.*, p.persona_nombre, p.persona_apellido, p.persona_documento, p.persona_fecha_nacimiento, p.persona_direccion
                        FROM usuarios u
                        JOIN persona p ON u.RELA_persona = p.ID_persona
                        WHERE u.ID_usuario = :id");
@@ -58,6 +58,9 @@ $perfiles = $stmtPerfiles->fetchAll(PDO::FETCH_ASSOC);
 
     <label for="persona_apellido">Apellido:</label>
     <input type="text" name="persona_apellido" id="persona_apellido" value="<?php echo htmlspecialchars($usuario['persona_apellido']); ?>" required>
+
+    <label for="persona_documento">Documento:</label>
+    <input type="text" name="persona_documento" id="persona_documento" value="<?php echo htmlspecialchars($usuario['persona_documento']); ?>" required>
 
     <label for="persona_fecha_nacimiento">Fecha de Nacimiento:</label>
     <input type="date" name="persona_fecha_nacimiento" id="persona_fecha_nacimiento" value="<?php echo $usuario['persona_fecha_nacimiento']; ?>" required>

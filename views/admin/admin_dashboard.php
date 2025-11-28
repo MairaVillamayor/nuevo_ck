@@ -24,6 +24,7 @@
       <div class="card">🍰<br><a href="admin_items.php">Items</a><br></div>
       <div class="card">​​🧑‍💻​<br><a href="listado_perfiles.php">Perfiles</a><br></div>
       <div class="card">🕵️<br><a href="../usuario/Listado_Usuarios.php">Usuarios</a><br></div>
+      <div class="card">📋<br><a href="../../auditoria/auditoria_usuarios.php">Auditoria</a></div>
 
     </div>
   </main>

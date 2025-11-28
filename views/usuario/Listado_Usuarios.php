@@ -76,8 +76,8 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div style="display: flex; gap: 10px; align-items: center;">
         <!-- Formulario de búsqueda -->
         <form method="get" style="display: flex; gap: 5px;">
-            <input type="text" name="busqueda" placeholder="Buscar en todos los campos..." value="<?= htmlspecialchars($busqueda) ?>" 
-                   style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <input type="text" name="busqueda" placeholder="Buscar en todos los campos..." value="<?= htmlspecialchars($busqueda) ?>"
+                style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc;">
             <button type="submit" style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #d63384; color: white; cursor: pointer;">
                 Buscar
             </button>
@@ -123,17 +123,19 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= htmlspecialchars($row["perfil_rol"]) ?></td>
                         <td>
                             <a class="btn-action btn-edit"
-                               href="form_UpdateUsuarios.php?ID_usuario=<?= $row['ID_usuario'] ?>">✏️ Editar</a>
+                                href="form_UpdateUsuarios.php?ID_usuario=<?= $row['ID_usuario'] ?>">✏️ Editar</a>
 
                             <form id="form-eliminar-<?= $row['ID_usuario'] ?>"
-                                  action="../../controllers/usuario/Baja_Usuarios.php"
-                                  method="post" style="display:inline;">
+                                action="../../controllers/usuario/Baja_Usuarios.php"
+                                method="post" style="display:inline;">
                                 <input type="hidden" name="ID_usuario" value="<?= $row['ID_usuario'] ?>">
                                 <button type="button" class="btn-action btn-delete"
-                                        onclick="confirmarEliminacion('<?= $row['ID_usuario'] ?>', 'form-eliminar')">
+                                    onclick="confirmarEliminacion('form-eliminar-<?= $row['ID_usuario'] ?>')">
                                     ❌ Eliminar
                                 </button>
+
                             </form>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -144,25 +146,48 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </tbody>
     </table>
+    <script>
+        function confirmarEliminacion(formId) {
+            Swal.fire({
+                title: "¿Eliminar usuario?",
+                text: "Esta acción no se puede deshacer.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#e91e1eff",
+                cancelButtonColor: "#ff9aaf",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <!-- 🔹 Paginación -->
     <?php if ($totalPaginas > 1): ?>
         <div class="pagination" style="text-align:center; margin-top:20px;">
             <?php if ($pagina > 1): ?>
-                <a href="?page=<?= $pagina - 1 ?>&busqueda=<?= urlencode($busqueda) ?>" class="btn btn-light">⬅️ Anterior</a>
-            <?php endif; ?>
+                <a href="?page=<?= $pagina - 1 ?>&busqueda=<?= urlencode($busqueda) ?>" class="btn btn-light">
+                    << /a>
+                    <?php endif; ?>
 
-            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                <?php if ($i == $pagina): ?>
-                    <span class="btn btn-primary"><?= $i ?></span>
-                <?php else: ?>
-                    <a href="?page=<?= $i ?>&busqueda=<?= urlencode($busqueda) ?>" class="btn btn-light"><?= $i ?></a>
-                <?php endif; ?>
-            <?php endfor; ?>
+                    <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                        <?php if ($i == $pagina): ?>
+                            <span class="btn btn-primary"><?= $i ?></span>
+                        <?php else: ?>
+                            <a href="?page=<?= $i ?>&busqueda=<?= urlencode($busqueda) ?>" class="btn btn-light"><?= $i ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
 
-            <?php if ($pagina < $totalPaginas): ?>
-                <a href="?page=<?= $pagina + 1 ?>&busqueda=<?= urlencode($busqueda) ?>" class="btn btn-light">Siguiente ➡️</a>
-            <?php endif; ?>
+                    <?php if ($pagina < $totalPaginas): ?>
+                        <a href="?page=<?= $pagina + 1 ?>&busqueda=<?= urlencode($busqueda) ?>" class="btn btn-light">></a>
+                    <?php endif; ?>
         </div>
     <?php endif; ?>
 </div>
