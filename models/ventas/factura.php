@@ -8,7 +8,7 @@ class Factura
     const ESTADO_CANCELADO_ID = 2;
 
 
-    public function insertarFactura($idPersona, $subtotal, $ivaMonto, $total, $tasaIva)
+    public function insertarFactura($idPersona, $subtotal, $ivaMonto, $total, $tasaIva, $idCaja)
     {
         $conexion = Conexion::getInstance();
         $conn = $conexion->getConnection();
@@ -17,10 +17,12 @@ class Factura
 
         $sql = "INSERT INTO factura (
                     RELA_persona, factura_subtotal, factura_iva_monto, 
-                    factura_total, factura_iva_tasa, RELA_estado_factura, factura_fecha_emision
+                    factura_total, factura_iva_tasa, RELA_estado_factura, factura_fecha_emision,
+                    RELA_caja
                 ) VALUES (
                     :idPersona, :subtotal, :ivaMonto, 
-                    :total, :tasaIva, :estadoId, NOW()
+                    :total, :tasaIva, :estadoId, NOW(),
+                    :idCaja
                 )";
 
         try {
@@ -33,6 +35,7 @@ class Factura
             $stmt->bindParam(':total', $total);
             $stmt->bindParam(':tasaIva', $tasaIva);
             $stmt->bindParam(':estadoId', $estadoId, PDO::PARAM_INT);
+            $stmt->bindParam(':idCaja', $idCaja, PDO::PARAM_INT);
 
             $stmt->execute();
 

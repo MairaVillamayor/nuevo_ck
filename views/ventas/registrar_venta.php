@@ -412,47 +412,60 @@ include("../../includes/navegacion.php");
 
         function insertarFactura() {
 
-            verificarCaja().done(function(resp) {
-                console.log("Respuesta verificarCaja:", resp);
-                if (!resp.abierta) {
-                    alerta("ERROR:", "No puede generar una factura porque no hay una CAJA ABIERTA.", "error");
-                    return;
-                }
+            verificarCaja().done(function(resp) {
+                console.log("Respuesta verificarCaja:", resp);
+                
+                // ✅ Verificar si la caja está abierta
+                if (!resp.abierta) {
+                    alerta("ERROR:", "No puede generar una factura porque no hay una CAJA ABIERTA.", "error");
+                    return;
+                }
 
+                // 🎯 OBTENER EL ID DE CAJA
+                // Este ID es crucial para el controlador iniciar_factura.php
+                const idCaja = resp.id_caja;
+                
+                const documento = document.getElementById("personaDocumento").value;
+                const nombre = document.getElementById("personaNombre").value;
+                const apellido = document.getElementById("personaApellido").value;
 
-                const documento = document.getElementById("personaDocumento").value;
-                const nombre = document.getElementById("personaNombre").value;
-                const apellido = document.getElementById("personaApellido").value;
+                if (!documento) {
+                    alerta("ERROR:", "Primero debe buscar y seleccionar un cliente.");
+                    return;
+                }
 
-                if (!documento) {
-                    alerta("ERROR:", "Primero debe buscar y seleccionar un cliente.");
-                    return;
-                }
-
-                $.ajax({
-                    url: '../../controllers/ventas/iniciar_factura.php',
-                    method: 'POST',
-                    data: {
-                        persona_documento: documento,
-                        persona_nombre: nombre,
-                        persona_apellido: apellido
-                    },
-                    dataType: 'json',
-                    success: function(data) {
-                        if (data.success) {
-                            var id_factura = data.id_factura;
-                            document.getElementById("numFactura").innerText = "Factura ID: " + id_factura;
-                            idFactura = id_factura;
-                        } else {
-                            alerta("Error al insertar factura: " + data.error);
-                        }
+                $.ajax({
+                    url: '../../controllers/ventas/iniciar_factura.php',
+                    method: 'POST',
+                    data: {
+                        persona_documento: documento,
+                        persona_nombre: nombre,
+                        persona_apellido: apellido,
+                        // ✅ CAMBIO CLAVE: Enviamos el ID de caja en el POST
+                        id_caja_abierta: idCaja 
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.success) {
+                            var id_factura = data.id_factura;
+                            document.getElementById("numFactura").innerText = "Factura ID: " + id_factura;
+                            idFactura = id_factura;
+                        } else {
+                            // Si falla, puede ser porque el PHP no encontró el ID_caja
+                            alerta("Error al insertar factura: " + (data.error || "Error desconocido"));
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        // Manejo de error si la llamada falla completamente
+                        alerta("Error de conexión:", "No se pudo conectar con el servidor para iniciar la factura.", "error");
+                        console.error("AJAX Error:", textStatus, errorThrown);
                     }
-                });
+                });
 
-            });
-        }
+            });
+        }
 
-
+         
         $(function() {
             $("#nombreProducto").autocomplete({
                 source: '../../controllers/ventas/buscar_producto.php',

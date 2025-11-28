@@ -10,7 +10,7 @@ try {
 
     $searchTerm = '%' . $_GET["term"] . '%';
 
-    $conexion = Conexion::getInstance()->getConnection();
+    $conexion = getConexion();
 
     $sql = "SELECT 
                 id_producto_finalizado, 

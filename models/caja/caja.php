@@ -170,10 +170,8 @@ class Caja
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // En models/caja/caja.php
-
     /**
-     * Obtiene la suma total de ingresos y egresos por método de pago para una caja específica.
+     * Obtiene la suma total de INGRESOS (VENTAS + MOVIMIENTOS) y EGRESOS (MOVIMIENTOS) por método de pago.
      * @param int $id_caja El ID de la caja abierta.
      * @return array Los totales agregados.
      */
@@ -183,24 +181,43 @@ class Caja
 
         $ID_EFECTIVO = 1;
         $ID_TRANSFERENCIA = 2;
-        $sql = "SELECT 
-             SUM(CASE WHEN movimiento_tipo = 'ingreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS ingreso_efectivo,
-             SUM(CASE WHEN movimiento_tipo = 'ingreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS ingreso_transferencia,
+        
+        // 1. OBTENER INGRESOS POR VENTAS (Desde factura_pagos y factura)
+        // La factura se enlaza con la caja a través del campo RELA_caja en la tabla factura (que acabamos de agregar)
+        $sql_ventas = "SELECT
+            SUM(CASE WHEN fp.RELA_metodo_pago = ? THEN fp.pago_monto ELSE 0 END) AS venta_efectivo,
+            SUM(CASE WHEN fp.RELA_metodo_pago = ? THEN fp.pago_monto ELSE 0 END) AS venta_transferencia
+            FROM factura_pagos fp
+            INNER JOIN factura f ON fp.RELA_factura = f.ID_factura
+            WHERE f.RELA_caja = ?"; 
+        
+        $stmt_ventas = $pdo->prepare($sql_ventas);
+        $stmt_ventas->execute([$ID_EFECTIVO, $ID_TRANSFERENCIA, $id_caja]);
+        $ventas = $stmt_ventas->fetch(PDO::FETCH_ASSOC);
+
+        // 2. OBTENER MOVIMIENTOS MANUALES (Desde movimiento_caja)
+        // Solo sumamos ingresos y egresos que NO son ventas (ej: retiros, depósitos iniciales, gastos)
+        $sql_mov = "SELECT 
+             SUM(CASE WHEN movimiento_tipo = 'ingreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS ingreso_manual_efectivo,
+             SUM(CASE WHEN movimiento_tipo = 'ingreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS ingreso_manual_transferencia,
              SUM(CASE WHEN movimiento_tipo = 'egreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS egreso_efectivo,
              SUM(CASE WHEN movimiento_tipo = 'egreso' AND RELA_metodo_pago = ? THEN movimiento_monto ELSE 0 END) AS egreso_transferencia
-            FROM movimiento_caja
-            WHERE RELA_caja = ?";
+             FROM movimiento_caja
+             WHERE RELA_caja = ?"; 
+        
+        $stmt_mov = $pdo->prepare($sql_mov);
+        $stmt_mov->execute([$ID_EFECTIVO, $ID_TRANSFERENCIA, $ID_EFECTIVO, $ID_TRANSFERENCIA, $id_caja]);
+        $movimientos = $stmt_mov->fetch(PDO::FETCH_ASSOC);
 
-        $stmt = $pdo->prepare($sql);
+        // 3. CONSOLIDAR RESULTADOS
+        $resultado = [
+            'ingreso_efectivo'      => (float)($ventas['venta_efectivo'] ?? 0) + (float)($movimientos['ingreso_manual_efectivo'] ?? 0),
+            'ingreso_transferencia' => (float)($ventas['venta_transferencia'] ?? 0) + (float)($movimientos['ingreso_manual_transferencia'] ?? 0),
+            'egreso_efectivo'       => (float)($movimientos['egreso_efectivo'] ?? 0),
+            'egreso_transferencia'  => (float)($movimientos['egreso_transferencia'] ?? 0),
+        ];
 
-        $stmt->execute([
-            $ID_EFECTIVO,       // Para ingreso efectivo
-            $ID_TRANSFERENCIA,  // Para ingreso transferencia
-            $ID_EFECTIVO,       // Para egreso efectivo
-            $ID_TRANSFERENCIA,  // Para egreso transferencia
-            $id_caja            // Para RELA_caja (último)
-        ]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $resultado;
     }
 
     // para reporte 
