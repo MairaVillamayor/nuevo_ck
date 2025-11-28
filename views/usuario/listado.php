@@ -1,6 +1,6 @@
 <?php
 require_once("../../config/conexion.php");
-require_once __DIR__ . '../../../includes/sidebar.php';
+require("../../includes/sidebar.php");
 require_once dirname(__DIR__, 2) . '/includes/navegacion.php';
 
 $pdo = getConexion();
@@ -9,7 +9,7 @@ $pdo = getConexion();
 $busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
 
 // 📌 Configuración de paginación
-$limite = 6; // usuarios por página
+$limite = 8; // usuarios por página
 $pagina = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $offset = ($pagina - 1) * $limite;
 $whereSQL = '';

@@ -121,87 +121,88 @@ class Factura
     }
 
     public function get_facturas_con_filtros(
-        $cliente = null,
-        $fechaDesde = null,
-        $fechaHasta = null,
-        $limite = null,
-        $offset = null
-    ) {
+    $cliente = null,
+    $fechaDesde = null,
+    $fechaHasta = null,
+    $limite = null,
+    $offset = null
+) {
+    $conexion = Conexion::getInstance()->getConnection();
 
-        $conexion = Conexion::getInstance()->getConnection();
+    $sql = "SELECT 
+                f.ID_factura, 
+                f.factura_fecha_emision,
+                f.factura_subtotal,
+                f.factura_iva_tasa,
+                f.factura_iva_monto,
+                f.factura_total, 
+                ef.estado_factura_descri AS estado,
+                CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS cliente,
+                p.persona_documento
+            FROM factura f
+            JOIN persona p ON f.RELA_persona = p.id_persona
+            JOIN estado_factura ef ON f.RELA_estado_factura = ef.ID_estado_factura
+            WHERE 1=1";
 
-        $sql = "SELECT 
-            f.ID_factura, 
-            f.factura_fecha_emision, 
-            f.factura_total, 
-            ef.estado_factura_descri AS estado,
-            CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS cliente,
-            p.persona_documento
-        FROM factura f
-        JOIN persona p ON f.RELA_persona = p.id_persona
-        JOIN estado_factura ef ON f.RELA_estado_factura = ef.ID_estado_factura
-        WHERE 1=1";
+    $params = [];
 
-        $params = [];
+    // Filtro por cliente
+    if (!empty($cliente)) {
+        $sql .= " AND (p.persona_nombre LIKE :cliente_nombre 
+                   OR p.persona_apellido LIKE :cliente_apellido 
+                   OR p.persona_documento LIKE :cliente_doc)";
+        $params[':cliente_nombre'] = '%' . $cliente . '%';
+        $params[':cliente_apellido'] = '%' . $cliente . '%';
+        $params[':cliente_doc'] = '%' . $cliente . '%';
+    }
 
-        // Filtro por cliente
-        if (!empty($cliente)) {
-            $sql .= " AND (p.persona_nombre LIKE :cliente_nombre 
-                      OR p.persona_apellido LIKE :cliente_apellido 
-                      OR p.persona_documento LIKE :cliente_doc)";
-            $params[':cliente_nombre'] = '%' . $cliente . '%';
-            $params[':cliente_apellido'] = '%' . $cliente . '%';
-            $params[':cliente_doc'] = '%' . $cliente . '%';
-        }
+    // Filtro por fechaDesde
+    if (!empty($fechaDesde)) {
+        $sql .= " AND f.factura_fecha_emision >= :fechaDesde";
+        $params[':fechaDesde'] = $fechaDesde;
+    }
 
-        // Filtro por fechaDesde
-        if (!empty($fechaDesde)) {
-            $sql .= " AND f.factura_fecha_emision >= :fechaDesde";
-            $params[':fechaDesde'] = $fechaDesde;
-        }
-
-        // Filtro por fechaHasta
-        if (!empty($fechaHasta)) {
-            try {
-                $fechaHastaObj = new DateTime($fechaHasta);
-                $fechaHastaObj->modify('+1 day'); // incluir todo el día final
-                $fechaHastaLimite = $fechaHastaObj->format('Y-m-d');
-                $sql .= " AND f.factura_fecha_emision < :fechaHastaLimite";
-                $params[':fechaHastaLimite'] = $fechaHastaLimite;
-            } catch (Exception $e) {
-                // Si fechaHasta no es válida, ignoramos el filtro
-                error_log("FechaHasta inválida: " . $e->getMessage());
-            }
-        }
-
-        $sql .= " ORDER BY f.factura_fecha_emision DESC";
-
-        // Paginación
-        if ($limite !== null && $offset !== null) {
-            $sql .= " LIMIT :offset, :limite";
-        }
-
+    // Filtro por fechaHasta
+    if (!empty($fechaHasta)) {
         try {
-            $stmt = $conexion->prepare($sql);
-
-            // Asignar parámetros de filtros
-            foreach ($params as $key => &$val) {
-                $stmt->bindParam($key, $val, PDO::PARAM_STR);
-            }
-
-            // Asignar parámetros de paginación
-            if ($limite !== null && $offset !== null) {
-                $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-                $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
-            }
-
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Error al buscar facturas: " . $e->getMessage());
-            return [];
+            $fechaHastaObj = new DateTime($fechaHasta);
+            $fechaHastaObj->modify('+1 day'); // incluir todo el día final
+            $fechaHastaLimite = $fechaHastaObj->format('Y-m-d');
+            $sql .= " AND f.factura_fecha_emision < :fechaHastaLimite";
+            $params[':fechaHastaLimite'] = $fechaHastaLimite;
+        } catch (Exception $e) {
+            error_log("FechaHasta inválida: " . $e->getMessage());
         }
     }
+
+    $sql .= " ORDER BY f.factura_fecha_emision DESC";
+
+    // Paginación
+    if ($limite !== null && $offset !== null) {
+        $sql .= " LIMIT :offset, :limite";
+    }
+
+    try {
+        $stmt = $conexion->prepare($sql);
+
+        // Asignar parámetros de filtros
+        foreach ($params as $key => &$val) {
+            $stmt->bindParam($key, $val, PDO::PARAM_STR);
+        }
+
+        // Asignar parámetros de paginación
+        if ($limite !== null && $offset !== null) {
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error al buscar facturas: " . $e->getMessage());
+        return [];
+    }
+}
 
     public function get_total_facturas_con_filtros($cliente = null, $fechaDesde = null, $fechaHasta = null)
     {
@@ -254,4 +255,85 @@ class Factura
         $stmt->execute([$idFactura]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    
+    public function getVentasPorDia($desde = null, $hasta = null)
+{
+    $conexion = Conexion::getInstance()->getConnection();
+
+    $sql = "SELECT DATE(factura_fecha_emision) as dia,
+                   SUM(factura_total) as total
+            FROM factura
+            WHERE 1=1";
+
+    $params = [];
+
+    if (!empty($desde)) {
+        $sql .= " AND DATE(factura_fecha_emision) >= :desde";
+        $params[':desde'] = $desde;
+    }
+
+    if (!empty($hasta)) {
+        $sql .= " AND DATE(factura_fecha_emision) <= :hasta";
+        $params[':hasta'] = $hasta;
+    }
+
+    $sql .= " GROUP BY DATE(factura_fecha_emision)
+              ORDER BY dia ASC";
+
+    try {
+        $stmt = $conexion->prepare($sql);
+        foreach ($params as $key => &$val) {
+            $stmt->bindParam($key, $val);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error en getVentasPorDia: " . $e->getMessage());
+        return [];
+    }
+}
+
+public function getFacturasPorEstado()
+{
+    $conexion = Conexion::getInstance()->getConnection();
+
+    $sql = "SELECT ef.estado_factura_descri AS estado,
+                   COUNT(*) as cantidad
+            FROM factura f
+            JOIN estado_factura ef ON f.RELA_estado_factura = ef.ID_estado_factura
+            GROUP BY ef.estado_factura_descri";
+
+    try {
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error en getFacturasPorEstado: " . $e->getMessage());
+        return [];
+    }
+}
+
+public function getTotalPorCliente()
+{
+    $conexion = Conexion::getInstance()->getConnection();
+
+    $sql = "SELECT CONCAT(p.persona_nombre, ' ', p.persona_apellido) AS cliente,
+                   SUM(f.factura_total) AS total
+            FROM factura f
+            JOIN persona p ON f.RELA_persona = p.id_persona
+            GROUP BY cliente
+            ORDER BY total DESC
+            LIMIT 5";
+
+    try {
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error en getTotalPorCliente: " . $e->getMessage());
+        return [];
+    }
+}
+
 }

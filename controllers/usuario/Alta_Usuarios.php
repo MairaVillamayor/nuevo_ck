@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/conexion.php';
+
 $pdo = getConexion();
 
 if (
@@ -58,8 +59,10 @@ if (
 
             $pdo->commit();
 
+
             header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Usuario%20creado&mensaje=El%20nuevo%20usuario%20fue%20creado&redirect_to=../views/usuario/Listado_Usuarios.php&delay=2");
             exit();
+           
         } catch (PDOException $e) {
             $pdo->rollBack();
             header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=" . urlencode($e->getMessage()));

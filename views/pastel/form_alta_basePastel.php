@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<?php include("../../includes/header.php"); 
+<?php include("../../includes/sidebar.php"); 
 require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 ?>
 

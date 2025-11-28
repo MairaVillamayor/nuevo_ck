@@ -5,11 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cake Party - Editar Perfil</title>
-    <link rel="stylesheet" href="../../public/css/header.css" />
+    <link rel="stylesheet" href="../../public/css/sidebar.css" />
 </head>
 
 <body>
-<?php include("../../includes/header.php"); 
+<?php include("../../includes/sidebar.php"); 
 require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 ?>
     <div class="admin-form">

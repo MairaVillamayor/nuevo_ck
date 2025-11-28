@@ -5,11 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cake Party - Editar Tamaño</title>
-    <link rel="stylesheet" href="../../public/css/admin_style.css" />
 </head>
 
 <body>
-<?php include("../../includes/header.php"); 
+<?php include("../../includes/sidebar.php"); 
 require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 ?>
 

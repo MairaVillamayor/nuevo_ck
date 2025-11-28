@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '../../../config/conexion.php';
+require_once __DIR__ . '/../../helpers/auditoria.php';
+
+
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['usuario_nombre'], $_POST['usuario_contraseña'])) {
@@ -21,6 +24,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['usuario_nombre'], $_P
         $_SESSION['usuario_nombre'] = $usuario_data['usuario_nombre'];
         $_SESSION['perfil_rol'] = $usuario_data['perfil_rol'];
         $_SESSION['perfil_id'] = $usuario_data['RELA_perfil'];
+
+        registrarAuditoria(
+            'LOGIN',
+            'usuario',
+            $_SESSION['usuario_id'],
+            'Inicio de sesión'
+        );
 
         switch ($usuario_data['RELA_perfil']) {
             case 1: // Administrador
@@ -49,5 +59,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['usuario_nombre'], $_P
     header("Location: ../../index.php");
     exit();
 }
-
-?>

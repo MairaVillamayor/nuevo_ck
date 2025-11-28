@@ -183,13 +183,73 @@ $cajas = array_slice($cajas, $offset, $limite);
             /* rosa intenso */
             color: white;
         }
+
+        .modal-cake {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 182, 193, 0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .cerrar {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 22px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #ff4fa3;
+        }
+
+        .filtros-reporte {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0 25px;
+            gap: 10px;
+        }
+
+        .filtros-reporte input {
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid #ffd5e5;
+        }
+
+        .graficos-caja {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        /* ✅ GRAFICOS MAS CHICOS */
+        .graficos-caja canvas {
+            width: 320px !important;
+            height: 260px !important;
+            margin: 10px;
+        }
     </style>
 </head>
 
 <body>
 
     <?php include("../../includes/navegacion.php"); ?>
-    <?php include("../../includes/header.php"); ?>
+    <?php include("../../includes/sidebar.php"); ?>
 
     <div class="contenido">
 
@@ -199,7 +259,10 @@ $cajas = array_slice($cajas, $offset, $limite);
             <a href="apertura.php" class="btn-cake">Abrir Caja</a>
             <a href="arqueo_caja.php" class="btn-cake">Arqueo</a>
             <a href="listado_gastos.php" class="btn-cake">Registrar Gastos</a>
+
+            <button class="btn-cake" onclick="abrirReportes()">📊 Reportes</button>
         </div>
+
 
         <div class="card-cake">
             <table>
@@ -333,6 +396,90 @@ $cajas = array_slice($cajas, $offset, $limite);
         </script>
     <?php unset($_SESSION['message'], $_SESSION['status']);
     endif; ?>
+
+    <!-- MODAL DE REPORTES DE CAJA -->
+    <div id="modalReportes" class="modal-cake">
+        <div class="modal-contenido">
+            <span class="cerrar" onclick="cerrarReportes()">×</span>
+
+            <h3>📊 Reportes de Caja</h3>
+
+            <!-- FILTROS -->
+            <div class="filtros-reporte">
+                <form method="GET">
+                    <label>Desde:</label>
+                    <input type="date" name="desde" value="<?= $_GET['desde'] ?? '' ?>">
+
+                    <label>Hasta:</label>
+                    <input type="date" name="hasta" value="<?= $_GET['hasta'] ?? '' ?>">
+
+                    <button class="btn-cake" type="submit">Filtrar</button>
+                    <button type="button" class="btn-outline" onclick="window.print()">🖨 Imprimir</button>
+                </form>
+            </div>
+
+            <!-- GRAFICOS -->
+            <div class="graficos-caja">
+                <canvas id="graficoIngresos"></canvas>
+                <canvas id="graficoEgresos"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function abrirReportes() {
+            document.getElementById("modalReportes").style.display = "flex";
+        }
+
+        function cerrarReportes() {
+            document.getElementById("modalReportes").style.display = "none";
+        }
+    </script>
+    <?php
+    $labels = [];
+    $ingresos = [];
+    $egresos = [];
+
+    foreach ($cajas as $c) {
+        $mov = $cajaModel->obtenerEgresosIngresosPorMetodo($c['ID_caja']);
+
+        $labels[] = "Caja " . $c['ID_caja'];
+        $ingresos[] = ($mov['ingreso_efectivo'] ?? 0) + ($mov['ingreso_transferencia'] ?? 0);
+        $egresos[] = ($mov['egreso_efectivo'] ?? 0) + ($mov['egreso_transferencia'] ?? 0);
+    }
+    ?>
+    <script>
+        const labels = <?= json_encode($labels) ?>;
+        const ingresos = <?= json_encode($ingresos) ?>;
+        const egresos = <?= json_encode($egresos) ?>;
+
+        // INGRESOS
+        new Chart(document.getElementById('graficoIngresos'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ingresos',
+                    data: ingresos,
+                    backgroundColor: '#ff9acb'
+                }]
+            }
+        });
+
+        // EGRESOS
+        new Chart(document.getElementById('graficoEgresos'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Egresos',
+                    data: egresos,
+                    backgroundColor: '#ff6b8f'
+                }]
+            }
+        });
+    </script>
 
 </body>
 

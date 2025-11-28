@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../../models/caja/gastos.php';
 
-include("../../includes/header.php");
+include("../../includes/sidebar.php");
 include("../../includes/navegacion.php");
 
 $gastosModel = new Gastos();
@@ -253,9 +253,13 @@ if (isset($_GET['eliminar_id'])) {
 
     <div class="container">
 
+
         <div class="header-gastos">
             <h2>💸 Listado de Gastos</h2>
-            <a href="registrar_gasto.php" class="btn-cake">+ Registrar Gasto</a>
+            <div>
+                <button id="btnReportes" class="btn-cake">📊 Reportes</button>
+                <a href="registrar_gasto.php" class="btn-cake">+ Registrar Gasto</a>
+            </div>
         </div>
 
         <div class="filtros-contenedor">
@@ -354,6 +358,70 @@ if (isset($_GET['eliminar_id'])) {
         </div>
 
     </div>
+    <div id="modalReportes" class="modal-reportes">
+        <div class="modal-contenido">
+            <span class="cerrar">&times;</span>
+            <iframe src="../reportes/gastos_reportes.php"></iframe>
+        </div>
+    </div>
+
+    <style>
+        .modal-reportes {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-contenido {
+            background: #fff0f6;
+            width: 90%;
+            max-width: 900px;
+            height: 85%;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-contenido iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+        }
+
+        .cerrar {
+            font-size: 24px;
+            color: #ff2d8f;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: right;
+        }
+    </style>
+
+    <script>
+        const btn = document.getElementById('btnReportes');
+        const modal = document.getElementById('modalReportes');
+        const cerrar = document.querySelector('.cerrar');
+
+        btn.onclick = () => modal.style.display = "flex";
+        cerrar.onclick = () => modal.style.display = "none";
+
+        window.onclick = (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
 
 </body>
 

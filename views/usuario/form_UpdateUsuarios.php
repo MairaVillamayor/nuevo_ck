@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Cake Party - Modificar Usuario</title>
-    <link rel="stylesheet" href="../../public/css/header.css" />
 </head>
 <body>
 <?php 
-include("../../includes/header.php"); 
+include("../../includes/sidebar.php"); 
 require_once "../../includes/navegacion.php";
 require_once "../../config/conexion.php";
 

@@ -55,7 +55,7 @@ $fecha_actual = date('d/m/Y H:i:s');
 </head>
 <body>
     <?php
-    include("../../includes/header.php");
+    include("../../includes/sidebar.php");
     include("../../includes/navegacion.php");
     include("../../includes/alerts.php");
     ?>

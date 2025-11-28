@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Cake Party - Alta Usuario</title>
-    <link rel="stylesheet" href="../../public/css/header.css" />
 </head>
 <body>
 <?php 
-include("../../includes/header.php"); 
+require_once __DIR__ . '../../../includes/sidebar.php';
 require_once "../../includes/navegacion.php";
 require_once "../../config/conexion.php";
 

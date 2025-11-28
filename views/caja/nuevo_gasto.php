@@ -9,7 +9,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../models/caja/caja.php';
-include ("../../includes/header.php");
+include ("../../includes/sidebar.php");
 include ("../../includes/navegacion.php");
 
 $pdo = getConexion();

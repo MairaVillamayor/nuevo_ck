@@ -13,15 +13,17 @@
             <h1>Resultado del Registro</h1>
             <?php
             require_once __DIR__ . '/../../config/conexion.php';
+            require_once __DIR__ . '../../../helpers/auditoria.php';
+
 
             if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $requeridos = [
-                    'persona_nombre', 
-                    'persona_apellido', 
+                    'persona_nombre',
+                    'persona_apellido',
                     'persona_documento',
-                    'persona_fecha_nacimiento', 
-                    'persona_direccion', 
-                    'usuario_nombre', 
+                    'persona_fecha_nacimiento',
+                    'persona_direccion',
+                    'usuario_nombre',
                     'usuario_correo_electronico',
                     'usuario_contraseña',
                     'confirmar_contraseña'
@@ -78,9 +80,14 @@
                     $idUsuario = $pdo->lastInsertId();
                     $pdo->commit();
 
+
+                    
+
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
                     }
+                    
+
                     $stmtDatos = $pdo->prepare("SELECT u.*, p.perfil_rol FROM usuarios u JOIN perfiles p ON u.RELA_perfil = p.ID_perfil WHERE u.ID_usuario = :id");
                     $stmtDatos->execute(['id' => $idUsuario]);
                     $usuario_data = $stmtDatos->fetch(PDO::FETCH_ASSOC);
@@ -91,13 +98,21 @@
                         $_SESSION['perfil_id'] = $usuario_data['RELA_perfil'];
                     }
 
+                    registrarAuditoria(
+                        'INSERT',
+                        'usuario',
+                        $_SESSION['usuario_id'],
+                        'Se dio de alta un nuevo usuario: ' . $_POST['usuario_nombre']
+                    );
                     $redir = '/nuevo_ck/views/cliente/interfaz.php';
                     header("Location: ../../includes/mensaje.php?tipo=exito&titulo=Usuario%20registrado&mensaje=El%20usuario%20fue%20registrado%20correctamente&redirect_to=" . urlencode($redir) . "&delay=1");
                     exit();
+                    
                 } catch (Exception $e) {
                     $pdo->rollBack();
-                    header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=".urlencode($e->getMessage()));
+                    header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=" . urlencode($e->getMessage()));
                     exit();
+                    
                 }
             } else {
                 header("Location: ../../includes/mensaje.php?tipo=error&titulo=Error&mensaje=Acceso%20no%20permitido%20directamente.");

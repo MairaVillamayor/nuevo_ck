@@ -1,5 +1,5 @@
 <?php 
-include ("../../includes/header.php");
+include ("../../includes/sidebar.php");
 include ("../../includes/navegacion.php");
 
 if (session_status() === PHP_SESSION_NONE) {

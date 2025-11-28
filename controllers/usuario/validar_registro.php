@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '../../../helpers/auditoria.php';
 header('Content-Type: application/json');
 
 $response = ["success" => false, "message" => "", "field" => ""];
@@ -21,6 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         echo json_encode($response);
         exit();
+        registrarAuditoria(
+            'Registro',
+            'usuario',
+            $_SESSION['usuario_id'],
+            'Registro de usuario'
+        );
     }
     // Validar email existente
     if (!empty($_POST['usuario_correo_electronico'])) {

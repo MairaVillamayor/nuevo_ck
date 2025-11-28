@@ -1,4 +1,13 @@
 <?php
+require_once __DIR__ . '/../../helpers/auditoria.php';
+
+registrarAuditoria(
+    'LOGOUT',
+    'usuario',
+    $_SESSION['usuario_id'],
+    'Cierre de sesión'
+);
+
 session_start();
 
 // Destruir todas las variables de sesión
@@ -15,6 +24,7 @@ if (ini_get("session.use_cookies")) {
 
 // Finalmente, destruir la sesión
 session_destroy();
+
 
 // Redirigir a la página principal
 header("Location: ../../views/cliente/interfaz.php");

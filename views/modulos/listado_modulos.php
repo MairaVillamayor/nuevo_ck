@@ -1,6 +1,6 @@
 <?php
 require_once("../../config/conexion.php");
-include("../../includes/header.php");
+include("../../includes/sidebar.php");
 require_once "C:/laragon/www/nuevo_ck/includes/navegacion.php";
 
 $pdo = getConexion();

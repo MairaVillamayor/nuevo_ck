@@ -1,7 +1,7 @@
 
 <?php
 require_once("../../config/conexion.php");
-include("../../includes/header.php");
+include("../../includes/sidebar.php");
 require_once "../../includes/navegacion.php";
 
 $pdo = getConexion();

@@ -95,7 +95,7 @@ $fecha_actual = date('d/m/Y H:i:s');
 
 <body>
   <?php include("../../includes/navegacion.php"); ?>
-  <?php include("../../includes/header.php"); ?>
+  <?php include("../../includes/sidebar.php"); ?>
   <?php include("../../includes/alerts.php"); ?>
   <div class="container py-5">
     <div class="card shadow-lg p-4 rounded-4">

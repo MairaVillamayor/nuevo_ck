@@ -3,29 +3,30 @@ header('Content-Type: application/json');
 require_once("../../config/conexion.php");
 
 try {
-    $conexionDB = new Conexion();
+    if (isset($conexion) && $stmt = $conexion->prepare($sql)) {
 
-    // 🧁 Consulta a la tabla real
-    $sql = "SELECT ID_metodo_pago AS id, 
-                    metodo_pago_descri AS nombre FROM metodo_pago";
-    $resultado = $conexion->query($sql);
+        $stmt->execute();
+        $formas_pago = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $formas_pago = [];
+        echo json_encode($formas_pago);
 
-    if ($resultado && $resultado->num_rows > 0) {
-        while ($row = $resultado->fetch_assoc()) {
-            $formas_pago[] = $row;
-        }
+        // Cerrar conexión (opcional en PDO, pero permitido)
+        $conexion = null;
+
+    } else {
+        // Fallback si la conexión no está definida o la consulta falla
+        throw new Exception("Error en la conexión o consulta.");
     }
 
-    echo json_encode($formas_pago);
-    $conexion->close();
-
 } catch (Exception $e) {
-    // Si hay error, devolvemos mensaje de prueba (para evitar fallo en el JS)
+
+    // Si hay error, devolvemos un mensaje y datos de prueba (para evitar fallo en el JS)
+    error_log("Error al obtener formas de pago: " . $e->getMessage());
+    http_response_code(500);
+
     echo json_encode([
-        ['id' => 1, 'nombre' => 'Efectivo'],
-        ['id' => 2, 'nombre' => 'Transferencia'],
+        ['id' => 1, 'nombre' => 'Efectivo (Fallback)'],
+        ['id' => 2, 'nombre' => 'Transferencia (Fallback)'],
     ]);
 }
 ?>

@@ -264,4 +264,115 @@ class Gastos
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // REPORTE POR FECHA
+    public function reportePorFecha($desde = null, $hasta = null)
+    {
+        $pdo = getConexion();
+
+        $sql = "SELECT DATE(gasto_fecha) as fecha, SUM(gasto_monto) as total
+            FROM gastos
+            WHERE 1=1";
+
+        $params = [];
+
+        if (!empty($desde)) {
+            $sql .= " AND gasto_fecha >= :desde";
+            $params[':desde'] = $desde;
+        }
+
+        if (!empty($hasta)) {
+            $sql .= " AND gasto_fecha <= :hasta";
+            $params[':hasta'] = $hasta;
+        }
+
+        $sql .= " GROUP BY DATE(gasto_fecha) ORDER BY fecha ASC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // REPORTE POR CATEGORÍA
+    public function reportePorCategoria($desde = null, $hasta = null)
+    {
+        $pdo = getConexion();
+
+        $sql = "SELECT c.categoria_nombre AS categoria, SUM(g.gasto_monto) AS total
+            FROM gastos g
+            INNER JOIN categoria c ON g.RELA_categoria = c.ID_categoria
+            WHERE 1=1";
+
+        $params = [];
+
+        if (!empty($desde)) {
+            $sql .= " AND g.gasto_fecha >= :desde";
+            $params[':desde'] = $desde;
+        }
+
+        if (!empty($hasta)) {
+            $sql .= " AND g.gasto_fecha <= :hasta";
+            $params[':hasta'] = $hasta;
+        }
+
+        $sql .= " GROUP BY c.categoria_nombre ORDER BY total DESC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // REPORTE POR MÉTODO DE PAGO
+    public function reportePorMetodo($desde = null, $hasta = null)
+    {
+        $pdo = getConexion();
+
+        $sql = "SELECT m.metodo_pago_descri AS metodo, SUM(g.gasto_monto) AS total
+            FROM gastos g
+            INNER JOIN metodo_pago m ON g.RELA_metodo_pago = m.ID_metodo_pago
+            WHERE 1=1";
+
+        $params = [];
+
+        if (!empty($desde)) {
+            $sql .= " AND g.gasto_fecha >= :desde";
+            $params[':desde'] = $desde;
+        }
+
+        if (!empty($hasta)) {
+            $sql .= " AND g.gasto_fecha <= :hasta";
+            $params[':hasta'] = $hasta;
+        }
+
+        $sql .= " GROUP BY m.metodo_pago_descri ORDER BY total DESC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // REPORTE POR MES
+    public function reportePorMes($anio = null)
+    {
+        $pdo = getConexion();
+
+        if (!$anio) {
+            $anio = date("Y");
+        }
+
+        $sql = "SELECT MONTH(gasto_fecha) AS mes, SUM(gasto_monto) AS total
+            FROM gastos
+            WHERE YEAR(gasto_fecha) = :anio
+            GROUP BY MONTH(gasto_fecha)
+            ORDER BY mes ASC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':anio', $anio, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
